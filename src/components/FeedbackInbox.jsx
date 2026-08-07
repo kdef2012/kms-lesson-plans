@@ -87,7 +87,7 @@ const FeedbackInbox = () => {
                   "{comment.comment}"
                 </div>
                 <div style={{ fontSize: '11px', color: '#aaa', marginTop: '5px' }}>
-                  Left by Admin PIN: {comment.author_pin} on {format(new Date(comment.created_at), 'MMM d, h:mm a')}
+                  Left by {comment.author_name || `Admin PIN: ${comment.author_pin}`} on {format(new Date(comment.created_at), 'MMM d, h:mm a')}
                 </div>
               </div>
               

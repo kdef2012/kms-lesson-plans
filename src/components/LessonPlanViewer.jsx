@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { MessageSquare, Send, Download } from 'lucide-react';
+import { MessageSquare, Send, Download, Image as ImageIcon, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 
-const LessonPlanViewer = ({ plan, viewerPin }) => {
+const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
   const [comments, setComments] = useState({}); // Grouped by section
   const [activeCommentSection, setActiveCommentSection] = useState(null);
   const [newComment, setNewComment] = useState('');
@@ -44,7 +44,8 @@ const LessonPlanViewer = ({ plan, viewerPin }) => {
         lesson_plan_id: plan.id,
         section: activeCommentSection,
         comment: newComment,
-        author_pin: viewerPin
+        author_pin: viewerPin,
+        author_name: adminName || null
       }]);
 
     if (!error) {
@@ -54,7 +55,7 @@ const LessonPlanViewer = ({ plan, viewerPin }) => {
     setLoading(false);
   };
 
-  const Section = ({ title, content, id }) => {
+  const Section = ({ title, content, id, children }) => {
     const sectionComments = comments[id] || [];
     
     return (
@@ -77,7 +78,10 @@ const LessonPlanViewer = ({ plan, viewerPin }) => {
             <MessageSquare size={14} /> {sectionComments.length}
           </span>
         </div>
-        <p style={{ margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>{content || <em style={{ color: '#999' }}>Not provided</em>}</p>
+        
+        {content && <p style={{ margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>{content}</p>}
+        {(!content && !children) && <em style={{ color: '#999' }}>Not provided</em>}
+        {children}
         
         {/* Comments Panel for this Section */}
         {activeCommentSection === id && (
@@ -87,7 +91,7 @@ const LessonPlanViewer = ({ plan, viewerPin }) => {
               {sectionComments.map(c => (
                 <div key={c.id} style={{ marginBottom: '10px', padding: '10px', backgroundColor: '#fff', borderRadius: '4px', border: '1px solid #eee' }}>
                   <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>
-                    <strong>Admin (PIN: {c.author_pin})</strong> - {format(new Date(c.created_at), 'MMM d, h:mm a')}
+                    <strong>{c.author_name || `Admin (PIN: ${c.author_pin})`}</strong> - {format(new Date(c.created_at), 'MMM d, h:mm a')}
                   </div>
                   <div style={{ fontSize: '14px' }}>{c.comment}</div>
                 </div>
@@ -138,10 +142,58 @@ const LessonPlanViewer = ({ plan, viewerPin }) => {
       <Section id="do_now" title="Do Now (Spiral Topics)" content={plan.do_now} />
       <Section id="direct_instruction" title="Direct Instruction (Launch)" content={plan.direct_instruction} />
       <Section id="group_practice" title="Group Practice" content={plan.group_practice} />
-      <Section id="independent_practice" title="Independent Practice (Exemplar)" content={plan.independent_practice} />
+      
+      {/* Advanced Exemplar Section */}
+      <Section id="independent_practice" title="Independent Practice (Exemplar)">
+        {plan.exemplar_image_url && (
+          <div style={{ marginBottom: '20px' }}>
+            <h5 style={{ margin: '0 0 10px 0', color: '#555', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <ImageIcon size={16} /> Handwritten Exemplar
+            </h5>
+            <a href={plan.exemplar_image_url} target="_blank" rel="noopener noreferrer">
+              <img 
+                src={plan.exemplar_image_url} 
+                alt="Handwritten Exemplar" 
+                style={{ maxWidth: '100%', maxHeight: '400px', borderRadius: '8px', border: '1px solid #ddd' }} 
+              />
+            </a>
+          </div>
+        )}
+        
+        {plan.structured_exemplars && plan.structured_exemplars.length > 0 ? (
+          <div>
+            <h5 style={{ margin: '0 0 15px 0', color: '#555' }}>Structured Problem Breakdown</h5>
+            {plan.structured_exemplars.map((ex, idx) => (
+              <div key={idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
+                <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
+                  Problem {idx + 1}: {ex.question}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#fff' }}>
+                  <div style={{ flex: '1 1 50%', padding: '15px', borderRight: '1px solid #eee' }}>
+                    <div style={{ color: 'var(--kms-teal-dark)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
+                      <CheckCircle2 size={16} /> Correct Process / Answer
+                    </div>
+                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.correct_answer}</div>
+                  </div>
+                  <div style={{ flex: '1 1 50%', padding: '15px', backgroundColor: '#fff5f5' }}>
+                    <div style={{ color: '#d32f2f', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
+                      <AlertTriangle size={16} /> Anticipated Misconception & Intervention
+                    </div>
+                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.misconception}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>{plan.independent_practice}</p>
+        )}
+      </Section>
+      
       <Section id="criteria_for_success" title="Criteria for Success" content={plan.criteria_for_success} />
       <Section id="exit_ticket" title="Exit Ticket" content={plan.exit_ticket} />
 
+      {/* Legacy check to avoid errors if not defined in older data */}
       {plan.checks_for_understanding && plan.checks_for_understanding.length > 0 && (
         <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#fafafa', borderRadius: '8px', borderLeft: '4px solid var(--kms-teal)' }}>
           <h4 style={{ margin: '0 0 10px 0', color: 'var(--kms-purple-dark)' }}>Checks for Understanding</h4>

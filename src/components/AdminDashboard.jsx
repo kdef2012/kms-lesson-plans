@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { format, parseISO } from 'date-fns';
 import LessonPlanViewer from './LessonPlanViewer';
 
-const AdminDashboard = ({ onLogout, pin, role }) => {
+const AdminDashboard = ({ onLogout, pin, role, adminName }) => {
   const navigate = useNavigate();
   const [plans, setPlans] = useState([]);
   const [groupedPlans, setGroupedPlans] = useState({});
@@ -115,7 +115,7 @@ const AdminDashboard = ({ onLogout, pin, role }) => {
         {/* Lesson Plan Viewer */}
         <div className="glass" style={{ padding: '20px' }}>
           {selectedPlan ? (
-            <LessonPlanViewer plan={selectedPlan} viewerPin={pin} />
+            <LessonPlanViewer plan={selectedPlan} viewerPin={pin} adminName={adminName} />
           ) : (
             <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
               <p>Select a date from the sidebar to view the lesson plan.</p>

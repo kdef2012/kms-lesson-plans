@@ -5,10 +5,10 @@ import TeacherDashboard from './components/TeacherDashboard';
 import AdminDashboard from './components/AdminDashboard';
 
 function App() {
-  const [user, setUser] = useState(null); // { role: 'teacher' | 'admin', pin: string }
+  const [user, setUser] = useState(null); // { role: 'teacher' | 'admin', pin: string, name: string }
 
-  const handleLogin = (role, pin) => {
-    setUser({ role, pin });
+  const handleLogin = (role, pin, name) => {
+    setUser({ role, pin, name });
   };
 
   const handleLogout = () => {
@@ -48,7 +48,7 @@ function App() {
             path="/admin" 
             element={
               (user?.role === 'admin' || user?.role === 'teacher') ? (
-                <AdminDashboard onLogout={handleLogout} pin={user.pin} role={user.role} />
+                <AdminDashboard onLogout={handleLogout} pin={user.pin} role={user.role} adminName={user.name} />
               ) : (
                 <Navigate to="/" replace />
               )

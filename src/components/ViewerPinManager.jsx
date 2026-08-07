@@ -5,6 +5,7 @@ import { Users, Plus, Trash2 } from 'lucide-react';
 const ViewerPinManager = () => {
   const [pins, setPins] = useState([]);
   const [newPin, setNewPin] = useState('');
+  const [newAdminName, setNewAdminName] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -25,15 +26,16 @@ const ViewerPinManager = () => {
 
   const handleCreatePin = async (e) => {
     e.preventDefault();
-    if (newPin.length !== 4) return;
+    if (newPin.length !== 4 || !newAdminName.trim()) return;
     setLoading(true);
 
     const { error } = await supabase
       .from('pins')
-      .insert([{ pin: newPin, role: 'admin' }]);
+      .insert([{ pin: newPin, role: 'admin', name: newAdminName.trim() }]);
 
     if (!error) {
       setNewPin('');
+      setNewAdminName('');
       fetchPins();
     }
     setLoading(false);
@@ -61,13 +63,21 @@ const ViewerPinManager = () => {
         <input
           type="text"
           className="input-field"
+          placeholder="Admin Name (e.g. Principal Smith)"
+          value={newAdminName}
+          onChange={(e) => setNewAdminName(e.target.value)}
+          style={{ width: '250px' }}
+        />
+        <input
+          type="text"
+          className="input-field"
           placeholder="New 4-Digit PIN"
           maxLength={4}
           value={newPin}
           onChange={(e) => setNewPin(e.target.value.replace(/[^0-9]/g, ''))}
-          style={{ width: '200px' }}
+          style={{ width: '150px' }}
         />
-        <button type="submit" className="btn-secondary" disabled={loading || newPin.length !== 4}>
+        <button type="submit" className="btn-secondary" disabled={loading || newPin.length !== 4 || !newAdminName.trim()}>
           <Plus size={18} style={{ verticalAlign: 'middle', marginRight: '5px' }} />
           Create
         </button>
@@ -76,7 +86,10 @@ const ViewerPinManager = () => {
       <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {pins.map(pin => (
           <li key={pin.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', borderBottom: '1px solid #eee' }}>
-            <span style={{ fontSize: '18px', fontWeight: 'bold', letterSpacing: '2px' }}>{pin.pin}</span>
+            <div>
+              <span style={{ fontSize: '18px', fontWeight: 'bold', display: 'block', color: 'var(--kms-purple-dark)' }}>{pin.name || 'Unnamed Admin'}</span>
+              <span style={{ fontSize: '14px', letterSpacing: '2px', color: '#666' }}>PIN: {pin.pin}</span>
+            </div>
             <button 
               onClick={() => handleDeletePin(pin.id)} 
               style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer' }}

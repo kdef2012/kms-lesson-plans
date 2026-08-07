@@ -15,14 +15,14 @@ const Login = ({ onLogin }) => {
     try {
       const { data, error } = await supabase
         .from('pins')
-        .select('role')
+        .select('role, name')
         .eq('pin', pin)
         .single();
 
       if (error || !data) {
         setError('Invalid PIN. Please try again.');
       } else {
-        onLogin(data.role, pin);
+        onLogin(data.role, pin, data.name);
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
