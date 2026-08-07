@@ -48,7 +48,10 @@ const AdminDashboard = ({ onLogout, pin, role, adminName }) => {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2>Admin / Viewer Dashboard</h2>
+        <div>
+          <h2 style={{ margin: '0 0 5px 0' }}>{adminName ? `Welcome, ${adminName}` : 'Admin / Viewer Dashboard'}</h2>
+          {adminName && <p style={{ margin: 0, color: '#666', fontSize: '14px' }}>Admin / Viewer Dashboard</p>}
+        </div>
         <div style={{ display: 'flex', gap: '10px' }}>
           {role === 'teacher' && (
             <button onClick={() => navigate('/teacher')} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(135deg, #008080, #004c4c)' }}>
