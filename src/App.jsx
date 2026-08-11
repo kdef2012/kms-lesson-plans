@@ -15,10 +15,12 @@ function App() {
     setUser(null);
   };
 
+  const teacherName = import.meta.env.VITE_TEACHER_NAME || 'Teacher';
+
   return (
     <div className="app-container">
       <header className="header">
-        <h1>Konnoak Middle School - Mr. Nelson</h1>
+        <h1>Konnoak Middle School - {teacherName}</h1>
         <h2>Lesson Plan Management System</h2>
       </header>
       
@@ -38,7 +40,7 @@ function App() {
             path="/teacher" 
             element={
               user?.role === 'teacher' ? (
-                <TeacherDashboard onLogout={handleLogout} />
+                <TeacherDashboard onLogout={handleLogout} teacherName={user.name} />
               ) : (
                 <Navigate to="/" replace />
               )

@@ -5,14 +5,14 @@ import ViewerPinManager from './ViewerPinManager';
 import LessonPlanForm from './LessonPlanForm';
 import FeedbackInbox from './FeedbackInbox';
 
-const TeacherDashboard = ({ onLogout }) => {
+const TeacherDashboard = ({ onLogout, teacherName }) => {
   const [activeTab, setActiveTab] = useState('create'); // 'create', 'manage'
   const navigate = useNavigate();
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-        <h2>Teacher Dashboard</h2>
+        <h2>{teacherName ? `Welcome, ${teacherName}` : 'Teacher Dashboard'}</h2>
         <div style={{ display: 'flex', gap: '10px' }}>
           <button onClick={() => navigate('/admin')} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(135deg, #008080, #004c4c)' }}>
             <Eye size={18} /> Admin View
