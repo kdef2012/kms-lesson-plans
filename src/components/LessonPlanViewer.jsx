@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { MessageSquare, Send, Download, Image as ImageIcon, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { MessageSquare, Send, Download, Image as ImageIcon, AlertTriangle, CheckCircle2, Printer, Play } from 'lucide-react';
 import { format } from 'date-fns';
 
 const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
@@ -8,6 +8,63 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
   const [activeCommentSection, setActiveCommentSection] = useState(null);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  const [showPresentation, setShowPresentation] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const handlePrintWorksheet = () => {
+    const printWindow = window.open('', '_blank');
+    
+    let exemplarsHTML = '';
+    if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
+      exemplarsHTML = plan.structured_exemplars.map((ex, i) => `
+        <div style="margin-bottom: 30px;">
+          <p style="font-size: 18px;"><strong>${i + 1}.</strong> ${ex.question}</p>
+          <div style="border: 1px solid #aaa; height: 150px; margin-top: 10px; border-radius: 4px;"></div>
+        </div>
+      `).join('');
+    }
+
+    const html = `
+      <html>
+        <head>
+          <title>${plan.topic} - Worksheet</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; line-height: 1.6; color: #333; }
+            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2d3748; padding-bottom: 15px; margin-bottom: 30px; font-size: 18px; }
+            h2 { text-align: center; color: #2d3748; margin-bottom: 40px; }
+            h3 { color: #4a5568; margin-top: 30px; }
+            .box { border: 1px solid #aaa; height: 120px; margin-bottom: 30px; border-radius: 4px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div><strong>Name:</strong> _________________________________</div>
+            <div><strong>Date:</strong> ____________________</div>
+          </div>
+          <h2>${plan.topic}</h2>
+          
+          ${plan.do_now ? `
+            <h3>Warm Up (Do Now)</h3>
+            <p style="font-size: 18px;">${plan.do_now}</p>
+            <div class="box"></div>
+          ` : ''}
+
+          <h3>Practice Problems</h3>
+          ${exemplarsHTML || '<div class="box"></div><div class="box"></div>'}
+          
+          ${plan.exit_ticket ? `
+            <h3>Exit Ticket</h3>
+            <p style="font-size: 18px;">${plan.exit_ticket}</p>
+            <div class="box"></div>
+          ` : ''}
+        </body>
+      </html>
+    `;
+    printWindow.document.write(html);
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); }, 250);
+  };
 
   useEffect(() => {
     if (plan) {
@@ -118,6 +175,37 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     );
   };
 
+  if (showPresentation) {
+    const slides = [
+      { title: plan.topic, content: `Objective: ${plan.objective_3m}\n\nStandard: ${plan.standard}` },
+      { title: "Do Now", content: plan.do_now },
+      { title: "Direct Instruction", content: plan.direct_instruction },
+      { title: "Group Practice", content: plan.group_practice },
+      ...(plan.structured_exemplars || []).map((ex, i) => ({
+        title: `Practice Problem ${i + 1}`,
+        content: ex.question
+      })),
+      { title: "Exit Ticket", content: plan.exit_ticket }
+    ].filter(s => s.content && s.content.trim() !== '');
+
+    return (
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: '#fff', zIndex: 99999, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1, padding: '50px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-primary)' }}>
+          <h1 style={{ fontSize: '4rem', color: 'var(--kms-purple-dark)', marginBottom: '40px', maxWidth: '80%' }}>{slides[currentSlide].title}</h1>
+          <p style={{ fontSize: '2.5rem', whiteSpace: 'pre-wrap', color: 'var(--text-primary)', maxWidth: '80%', lineHeight: '1.5' }}>{slides[currentSlide].content}</p>
+        </div>
+        <div style={{ padding: '20px 40px', display: 'flex', justifyContent: 'space-between', backgroundColor: 'var(--bg-secondary)', borderTop: '2px solid var(--glass-border)' }}>
+          <button className="btn-secondary" onClick={() => { setShowPresentation(false); setCurrentSlide(0); }}>Exit Presentation</button>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <button className="btn" onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))} disabled={currentSlide === 0} style={{ marginRight: '15px' }}>Previous</button>
+            <span style={{ fontSize: '1.2rem', margin: '0 20px', fontWeight: 'bold' }}>{currentSlide + 1} / {slides.length}</span>
+            <button className="btn" onClick={() => setCurrentSlide(Math.min(slides.length - 1, currentSlide + 1))} disabled={currentSlide === slides.length - 1}>Next</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #eee', paddingBottom: '20px', marginBottom: '20px' }}>
@@ -126,11 +214,19 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           <p style={{ margin: 0, color: '#666' }}>Date: <strong>{format(new Date(plan.date_start), 'MMMM d, yyyy')}</strong> | Week: <strong>{plan.week_label}</strong></p>
         </div>
         
-        {plan.pdf_url && (
-          <a href={plan.pdf_url} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-            <Download size={18} /> Original PDF
-          </a>
-        )}
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button onClick={() => setShowPresentation(true)} className="btn" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--kms-purple)', color: 'white' }}>
+            <Play size={18} /> Present
+          </button>
+          <button onClick={handlePrintWorksheet} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Printer size={18} /> Worksheet
+          </button>
+          {plan.pdf_url && (
+            <a href={plan.pdf_url} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+              <Download size={18} /> PDF
+            </a>
+          )}
+        </div>
       </div>
 
       <p style={{ fontStyle: 'italic', color: '#666', marginBottom: '20px', fontSize: '14px' }}>

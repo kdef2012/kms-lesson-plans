@@ -10,10 +10,10 @@ const run = async () => {
 
   const lessonPlans = [];
 
-  // --- WEEK 1: Week of Inspirational Math (8/10 - 8/14) ---
-  const week1Dates = ['2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13', '2026-08-14'];
-  const w1Topics = ['WIM Day 1', 'WIM Day 2', 'WIM Day 3', 'WIM Day 4', 'WIM Day 5'];
-  for (let i = 0; i < 5; i++) {
+  // --- WEEK 1: Week of Inspirational Math (8/10 - 8/13) & Content (8/14) ---
+  const week1Dates = ['2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13'];
+  const w1Topics = ['WIM Day 1', 'WIM Day 2', 'WIM Day 3', 'WIM Day 4'];
+  for (let i = 0; i < 4; i++) {
     lessonPlans.push({
       date_start: week1Dates[i],
       week_label: '8/10-8/14',
@@ -36,13 +36,38 @@ const run = async () => {
           misconception: 'Students might give up quickly or use fewer than four 4s.\n\nIntervention: Remind them of the "productive struggle" norm. Suggest they try grouping operations in parentheses.'
         }
       ],
-      criteria_for_success: 'Students actively engage in math discourse and follow classroom norms.',
-      exit_ticket: 'What is one thing you learned about your math mindset today?',
-      checks_for_understanding: [
-        { cfu: 'What does it mean to have a growth mindset in math?', method: 'Turn and Talk / DOK 2' }
-      ]
+      criteria_for_success: 'Students understand the value of mistakes and persist through challenging tasks without giving up.',
+      exit_ticket: 'What is one thing you learned about how your brain works today?',
+      checks_for_understanding: [{ cfu: 'How can we rephrase "I can\'t do this"?', method: 'Turn & Talk' }]
     });
   }
+
+  // 8/14: Rational & Irrational Numbers
+  lessonPlans.push({
+    date_start: '2026-08-14', week_label: '8/10-8/14',
+    topic: 'Rational & Irrational Numbers (Envision T1 - 2, Open-Up (NC Edition) U8 Lesson 3)',
+    objective_3m: 'Students will classify real numbers as rational or irrational and justify their reasoning.',
+    standard: '8.NS.1',
+    do_now: 'Convert 1/3 and 1/4 to decimals. What do you notice?',
+    direct_instruction: 'Define rational vs irrational numbers. Discuss non-terminating, non-repeating decimals.',
+    group_practice: 'Sort a set of numbers into rational and irrational categories.',
+    independent_practice: '',
+    structured_exemplars: [
+      {
+        question: '(From Open-Up (NC Edition) U8 L3) Classify as rational or irrational: 0.333...',
+        correct_answer: 'Rational. It is a repeating decimal and can be written as the fraction 1/3.',
+        misconception: 'Irrational, because "it goes on forever". \n\nIntervention: Clarify that going on forever WITH a pattern (repeating) makes it rational. Only non-terminating, NON-repeating decimals are irrational.'
+      },
+      {
+        question: '(From Envision T1 - 2) Classify as rational or irrational: sqrt(10)',
+        correct_answer: 'Irrational. 10 is not a perfect square, so its square root is a non-terminating, non-repeating decimal (~3.1622...).',
+        misconception: 'Rational, because 10 is an even number. \n\nIntervention: Remind students that only perfect squares yield rational square roots.'
+      }
+    ],
+    criteria_for_success: 'Students correctly classify at least 8/10 real numbers.',
+    exit_ticket: 'Is the square root of 2 rational or irrational? Explain why.',
+    checks_for_understanding: [{ cfu: 'Why is pi considered an irrational number?', method: 'Cold Call / DOK 2' }]
+  });
 
   // --- WEEK 2 (8/17 - 8/21) ---
   lessonPlans.push({
