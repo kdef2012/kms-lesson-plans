@@ -65,15 +65,21 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
 
   const handlePresent = () => {
     const presentWindow = window.open('', '_blank');
+    
+    // Consolidate practice problems into a single markdown string with HTML grid
+    let problemsSlideContent = '';
+    if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
+      problemsSlideContent = `<div class="problems-grid">\n` + 
+        plan.structured_exemplars.map(ex => `  <div class="problem-box">**${ex.question}**</div>\n`).join('') + 
+        `</div>`;
+    }
+
     const slides = [
-      { title: plan.topic, content: `Objective: ${plan.objective_3m}\n\nStandard: ${plan.standard}` },
+      { title: plan.topic, content: `**Objective:** ${plan.objective_3m}\n\n**Standard:** ${plan.standard}` },
       { title: "Do Now", content: plan.do_now },
       { title: "Direct Instruction", content: plan.direct_instruction },
       { title: "Group Practice", content: plan.group_practice },
-      ...(plan.structured_exemplars || []).map((ex, i) => ({
-        title: `Practice Problem ${i + 1}`,
-        content: ex.question
-      })),
+      ...(problemsSlideContent ? [{ title: "Practice Problems", content: problemsSlideContent }] : []),
       { title: "Exit Ticket", content: plan.exit_ticket }
     ].filter(s => s.content && s.content.trim() !== '');
 
@@ -83,27 +89,44 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       <html>
         <head>
           <title>Presentation: ${plan.topic}</title>
+          <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
           <style>
             body { 
               margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-              background-color: #fafafa; color: #333; overflow: hidden;
+              background-color: #f8fafc; color: #1e293b; overflow: hidden;
             }
             .slide-container {
               display: flex; flex-direction: column; justify-content: center; align-items: center;
-              height: 100vh; text-align: center; padding: 40px; box-sizing: border-box;
+              height: 100vh; padding: 40px 100px; box-sizing: border-box; overflow-y: auto;
             }
-            h1 { font-size: 4vw; color: #4338ca; margin-bottom: 30px; max-width: 90%; }
-            p { font-size: 2.5vw; white-space: pre-wrap; line-height: 1.5; max-width: 90%; }
+            h1 { font-size: 4vw; color: #4338ca; margin-bottom: 40px; text-align: center; }
+            .content-wrapper { width: 100%; max-width: 1400px; }
+            .content { font-size: 2.2vw; line-height: 1.6; }
+            .content p { margin-bottom: 20px; }
+            .content ul, .content ol { margin-top: 10px; margin-bottom: 20px; padding-left: 40px; }
+            .content li { margin-bottom: 15px; }
+            .content strong { color: #334155; }
+            
+            /* Practice Problems Grid */
+            .problems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; }
+            .problem-box { 
+              border: 2px solid #cbd5e1; padding: 20px; border-radius: 12px; 
+              background: #fff; text-align: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+              display: flex; align-items: center; justify-content: center; min-height: 100px;
+            }
+            .problem-box p { margin: 0; }
+            
             .controls {
               position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-between;
-              background: #fff; border-top: 1px solid #ccc; padding: 15px 30px; box-sizing: border-box;
+              background: #fff; border-top: 1px solid #e2e8f0; padding: 15px 40px; box-sizing: border-box;
             }
             button {
-              padding: 10px 20px; font-size: 16px; border: none; background: #e0e7ff; color: #4338ca; 
-              border-radius: 6px; cursor: pointer; font-weight: bold;
+              padding: 12px 24px; font-size: 18px; border: none; background: #e0e7ff; color: #4338ca; 
+              border-radius: 8px; cursor: pointer; font-weight: bold; transition: background 0.2s;
             }
-            button:disabled { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
-            .progress { font-size: 18px; font-weight: bold; padding-top: 8px; }
+            button:hover:not(:disabled) { background: #c7d2fe; }
+            button:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
+            .progress { font-size: 20px; font-weight: bold; padding-top: 10px; color: #64748b; }
           </style>
         </head>
         <body>
@@ -117,10 +140,16 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             const slides = ${slidesJSON};
             let current = 0;
             
+            // Configure marked to allow breaks
+            marked.setOptions({ breaks: true });
+            
             function renderSlide() {
+              const currentSlide = slides[current];
               document.getElementById('slide-content').innerHTML = \`
-                <h1>\${slides[current].title}</h1>
-                <p>\${slides[current].content}</p>
+                <div class="content-wrapper">
+                  <h1>\${currentSlide.title}</h1>
+                  <div class="content">\${marked.parse(currentSlide.content)}</div>
+                </div>
               \`;
               document.getElementById('progress').innerText = (current + 1) + ' / ' + slides.length;
               document.getElementById('prevBtn').disabled = current === 0;
@@ -149,6 +178,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
               }
             });
 
+            document.documentElement.requestFullscreen().catch(e => console.log('Fullscreen rejected by browser.'));
             renderSlide();
           </script>
         </body>
