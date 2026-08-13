@@ -42,31 +42,41 @@ const run = async () => {
     });
   }
 
-  // 8/14: Rational & Irrational Numbers
+  // 8/14: Rational & Irrational Numbers (85-minute block)
   lessonPlans.push({
     date_start: '2026-08-14', week_label: '8/10-8/14',
-    topic: 'Rational & Irrational Numbers (Envision T1 - 2, Open-Up (NC Edition) U8 Lesson 3)',
-    objective_3m: 'Students will classify real numbers as rational or irrational and justify their reasoning.',
+    topic: 'Rational & Irrational Numbers (Envision T1 - 2, Open-Up U8 Lesson 3)',
+    objective_3m: 'Students will classify real numbers as rational or irrational and justify their reasoning through collaborative sorting and independent practice.',
     standard: '8.NS.1',
-    do_now: 'Convert 1/3 and 1/4 to decimals. What do you notice?',
-    direct_instruction: 'Define rational vs irrational numbers. Discuss non-terminating, non-repeating decimals.',
-    group_practice: 'Sort a set of numbers into rational and irrational categories.',
-    independent_practice: '',
+    do_now: '**(10 minutes)** Convert 1/3, 1/4, and 2/9 to decimals. What do you notice about the patterns? Which ones stop, and which ones repeat?',
+    direct_instruction: '**(20 minutes)** Define rational vs irrational numbers. Discuss non-terminating, non-repeating decimals (like pi and non-perfect square roots). Show visual examples of the real number system diagram.',
+    group_practice: '**(25 minutes)** Card Sort Activity: Students work in pairs to sort 20 different numbers (fractions, decimals, perfect squares, non-perfect squares, and pi) into Rational and Irrational columns. Students must write a one-sentence justification for 5 of their placements.',
+    independent_practice: '**(20 minutes)** Independent Worksheet covering 10 classification problems (from EnVision and Open-Up) with required written justifications.',
     structured_exemplars: [
       {
-        question: '(From Open-Up (NC Edition) U8 L3) Classify as rational or irrational: 0.333...',
+        question: 'Classify as rational or irrational: 0.333...',
         correct_answer: 'Rational. It is a repeating decimal and can be written as the fraction 1/3.',
-        misconception: 'Irrational, because "it goes on forever". \n\nIntervention: Clarify that going on forever WITH a pattern (repeating) makes it rational. Only non-terminating, NON-repeating decimals are irrational.'
+        misconception: 'Irrational, because "it goes on forever". \n\nIntervention: Clarify that going on forever WITH a pattern (repeating) makes it rational.'
       },
       {
-        question: '(From Envision T1 - 2) Classify as rational or irrational: sqrt(10)',
+        question: 'Classify as rational or irrational: sqrt(10)',
         correct_answer: 'Irrational. 10 is not a perfect square, so its square root is a non-terminating, non-repeating decimal (~3.1622...).',
         misconception: 'Rational, because 10 is an even number. \n\nIntervention: Remind students that only perfect squares yield rational square roots.'
+      },
+      {
+        question: 'Classify as rational or irrational: -5',
+        correct_answer: 'Rational. All integers are rational because they can be written as a fraction over 1 (e.g., -5/1).',
+        misconception: 'Irrational, because it is negative. \n\nIntervention: Remind students that negative signs do not affect whether a number can be written as a ratio.'
+      },
+      {
+        question: 'Classify as rational or irrational: 3.14',
+        correct_answer: 'Rational. It is a terminating decimal (it ends after the 4), which can be written as 314/100.',
+        misconception: 'Irrational, because it is pi. \n\nIntervention: Emphasize the difference between the exact symbol pi (irrational) and the rounded decimal 3.14 (rational).',
       }
     ],
-    criteria_for_success: 'Students correctly classify at least 8/10 real numbers.',
-    exit_ticket: 'Is the square root of 2 rational or irrational? Explain why.',
-    checks_for_understanding: [{ cfu: 'Why is pi considered an irrational number?', method: 'Cold Call / DOK 2' }]
+    criteria_for_success: 'Students correctly classify at least 8/10 real numbers and provide mathematically sound justifications.',
+    exit_ticket: '**(10 minutes)** Is the square root of 2 rational or irrational? Explain why using the definitions discussed in class.',
+    checks_for_understanding: [{ cfu: 'Why is pi considered an irrational number, but 3.14 is rational?', method: 'Cold Call / DOK 3' }]
   });
 
   // --- WEEK 2 (8/17 - 8/21) ---
