@@ -8,9 +8,6 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
   const [activeCommentSection, setActiveCommentSection] = useState(null);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
-  
-  const [showPresentation, setShowPresentation] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
 
   const handlePrintWorksheet = () => {
     const printWindow = window.open('', '_blank');
@@ -64,6 +61,101 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     printWindow.document.write(html);
     printWindow.document.close();
     setTimeout(() => { printWindow.print(); }, 250);
+  };
+
+  const handlePresent = () => {
+    const presentWindow = window.open('', '_blank');
+    const slides = [
+      { title: plan.topic, content: `Objective: ${plan.objective_3m}\n\nStandard: ${plan.standard}` },
+      { title: "Do Now", content: plan.do_now },
+      { title: "Direct Instruction", content: plan.direct_instruction },
+      { title: "Group Practice", content: plan.group_practice },
+      ...(plan.structured_exemplars || []).map((ex, i) => ({
+        title: `Practice Problem ${i + 1}`,
+        content: ex.question
+      })),
+      { title: "Exit Ticket", content: plan.exit_ticket }
+    ].filter(s => s.content && s.content.trim() !== '');
+
+    const slidesJSON = JSON.stringify(slides).replace(/</g, '\\u003c');
+
+    const html = `
+      <html>
+        <head>
+          <title>Presentation: ${plan.topic}</title>
+          <style>
+            body { 
+              margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+              background-color: #fafafa; color: #333; overflow: hidden;
+            }
+            .slide-container {
+              display: flex; flex-direction: column; justify-content: center; align-items: center;
+              height: 100vh; text-align: center; padding: 40px; box-sizing: border-box;
+            }
+            h1 { font-size: 4vw; color: #4338ca; margin-bottom: 30px; max-width: 90%; }
+            p { font-size: 2.5vw; white-space: pre-wrap; line-height: 1.5; max-width: 90%; }
+            .controls {
+              position: fixed; bottom: 0; width: 100%; display: flex; justify-content: space-between;
+              background: #fff; border-top: 1px solid #ccc; padding: 15px 30px; box-sizing: border-box;
+            }
+            button {
+              padding: 10px 20px; font-size: 16px; border: none; background: #e0e7ff; color: #4338ca; 
+              border-radius: 6px; cursor: pointer; font-weight: bold;
+            }
+            button:disabled { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
+            .progress { font-size: 18px; font-weight: bold; padding-top: 8px; }
+          </style>
+        </head>
+        <body>
+          <div id="slide-content" class="slide-container"></div>
+          <div class="controls">
+            <button id="prevBtn" onclick="prevSlide()">Previous</button>
+            <div id="progress" class="progress"></div>
+            <button id="nextBtn" onclick="nextSlide()">Next</button>
+          </div>
+          <script>
+            const slides = ${slidesJSON};
+            let current = 0;
+            
+            function renderSlide() {
+              document.getElementById('slide-content').innerHTML = \`
+                <h1>\${slides[current].title}</h1>
+                <p>\${slides[current].content}</p>
+              \`;
+              document.getElementById('progress').innerText = (current + 1) + ' / ' + slides.length;
+              document.getElementById('prevBtn').disabled = current === 0;
+              document.getElementById('nextBtn').disabled = current === slides.length - 1;
+            }
+
+            function nextSlide() {
+              if (current < slides.length - 1) {
+                current++;
+                renderSlide();
+              }
+            }
+
+            function prevSlide() {
+              if (current > 0) {
+                current--;
+                renderSlide();
+              }
+            }
+
+            document.addEventListener('keydown', (e) => {
+              if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+              } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+              }
+            });
+
+            renderSlide();
+          </script>
+        </body>
+      </html>
+    `;
+    presentWindow.document.write(html);
+    presentWindow.document.close();
   };
 
   useEffect(() => {
@@ -175,37 +267,6 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     );
   };
 
-  if (showPresentation) {
-    const slides = [
-      { title: plan.topic, content: `Objective: ${plan.objective_3m}\n\nStandard: ${plan.standard}` },
-      { title: "Do Now", content: plan.do_now },
-      { title: "Direct Instruction", content: plan.direct_instruction },
-      { title: "Group Practice", content: plan.group_practice },
-      ...(plan.structured_exemplars || []).map((ex, i) => ({
-        title: `Practice Problem ${i + 1}`,
-        content: ex.question
-      })),
-      { title: "Exit Ticket", content: plan.exit_ticket }
-    ].filter(s => s.content && s.content.trim() !== '');
-
-    return (
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: '#fff', zIndex: 99999, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ flex: 1, padding: '50px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', backgroundColor: 'var(--bg-primary)' }}>
-          <h1 style={{ fontSize: '4rem', color: 'var(--kms-purple-dark)', marginBottom: '40px', maxWidth: '80%' }}>{slides[currentSlide].title}</h1>
-          <p style={{ fontSize: '2.5rem', whiteSpace: 'pre-wrap', color: 'var(--text-primary)', maxWidth: '80%', lineHeight: '1.5' }}>{slides[currentSlide].content}</p>
-        </div>
-        <div style={{ padding: '20px 40px', display: 'flex', justifyContent: 'space-between', backgroundColor: 'var(--bg-secondary)', borderTop: '2px solid var(--glass-border)' }}>
-          <button className="btn-secondary" onClick={() => { setShowPresentation(false); setCurrentSlide(0); }}>Exit Presentation</button>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <button className="btn" onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))} disabled={currentSlide === 0} style={{ marginRight: '15px' }}>Previous</button>
-            <span style={{ fontSize: '1.2rem', margin: '0 20px', fontWeight: 'bold' }}>{currentSlide + 1} / {slides.length}</span>
-            <button className="btn" onClick={() => setCurrentSlide(Math.min(slides.length - 1, currentSlide + 1))} disabled={currentSlide === slides.length - 1}>Next</button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #eee', paddingBottom: '20px', marginBottom: '20px' }}>
@@ -215,7 +276,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
         </div>
         
         <div style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={() => setShowPresentation(true)} className="btn" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--kms-purple)', color: 'white' }}>
+          <button onClick={handlePresent} className="btn" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--kms-purple)', color: 'white' }}>
             <Play size={18} /> Present
           </button>
           <button onClick={handlePrintWorksheet} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
