@@ -259,7 +259,14 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             function renderSlide() {
               if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
               const currentSlide = slides[current];
-              let parsedContent = marked.parse(currentSlide.content);
+              
+              // Prevent marked from eating backslashes by double-escaping them
+              // Also convert any literal "pi" words into $\pi$ just in case
+              let rawContent = currentSlide.content || "";
+              rawContent = rawContent.replace(/\\/g, '\\\\');
+              rawContent = rawContent.replace(/\\bpi\\b/gi, '$\\\\pi$');
+
+              let parsedContent = marked.parse(rawContent);
               
               // Wrap timer in a centered container if it exists
               parsedContent = parsedContent.replace(/<div class="timer"/g, '<div class="timer-container"><div class="timer"');
@@ -271,14 +278,24 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
                   <div class="content">\${parsedContent}</div>
                 </div>
               \`;
-              if (window.renderMathInElement) {
-                window.renderMathInElement(document.getElementById('slide-content'), {
-                  delimiters: [
-                    {left: '$$', right: '$$', display: true},
-                    {left: '$', right: '$', display: false}
-                  ]
-                });
+              
+              // Retry KaTeX rendering until the script is loaded
+              let retries = 0;
+              function tryRenderMath() {
+                if (window.renderMathInElement) {
+                  window.renderMathInElement(document.getElementById('slide-content'), {
+                    delimiters: [
+                      {left: '$$', right: '$$', display: true},
+                      {left: '$', right: '$', display: false}
+                    ]
+                  });
+                } else if (retries < 10) {
+                  retries++;
+                  setTimeout(tryRenderMath, 200);
+                }
               }
+              tryRenderMath();
+              
               document.getElementById('progress').innerText = (current + 1) + ' / ' + slides.length;
               document.getElementById('prevBtn').disabled = current === 0;
               document.getElementById('nextBtn').disabled = current === slides.length - 1;
