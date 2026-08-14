@@ -202,6 +202,10 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
               }
             });
 
+            // Force focus so clicker events are captured immediately
+            window.focus();
+            document.body.focus();
+            
             document.documentElement.requestFullscreen().catch(e => console.log('Fullscreen rejected by browser.'));
             renderSlide();
           </script>
