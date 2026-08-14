@@ -66,6 +66,16 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
   const handlePresent = () => {
     const presentWindow = window.open('', '_blank');
     
+    // Helper to generate the essential question
+    const getEssentialQuestion = (obj) => {
+      if (!obj) return "What is the core concept of today's lesson?";
+      let eq = obj.toLowerCase();
+      if (eq.startsWith('students will ')) {
+        eq = eq.substring(14);
+      }
+      return "How can we " + eq + "?";
+    };
+
     // Consolidate practice problems into chunks of 5
     const problemsSlides = [];
     if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
@@ -73,36 +83,77 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
         const chunk = plan.structured_exemplars.slice(i, i + 5);
         const chunkHTML = `<div class="problems-grid">\n` + 
           chunk.map(ex => `  <div class="problem-box">**${ex.question}**</div>\n`).join('') + 
-          `</div>`;
-        problemsSlides.push({ title: "Practice Problems", content: chunkHTML });
+          `</div>\n\n**Expectations:**\n- Start Immediately\n- Work Silently and Independently\n- Cellphones Free Zone\n- 100% Engaged. ALL STUDENTS WORKING!!\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`;
+        problemsSlides.push({ title: "11. Independent Practice", content: chunkHTML });
       }
+    } else {
+      problemsSlides.push({ 
+        title: "11. Independent Practice", 
+        content: `**Directions:**\n${plan.independent_practice || 'Complete assigned problems.'}\n\n**Expectations:**\n- Start Immediately\n- Work Silently and Independently\n- Cellphones Free Zone\n- 100% Engaged. ALL STUDENTS WORKING!!\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
+      });
     }
 
-    const baseSlides = [
-      { title: plan.topic, content: `**Objective:** ${plan.objective_3m}\n\n**Standard:** ${plan.standard}` },
-      { title: "Do Now", content: plan.do_now },
-      { title: "Direct Instruction", content: plan.direct_instruction },
-      { title: "Group Practice", content: plan.group_practice },
-      ...problemsSlides,
-      { title: "Exit Ticket", content: plan.exit_ticket }
-    ].filter(s => s.content && s.content.trim() !== '');
-
-    // Split slides that have '---'
-    const slides = [];
-    baseSlides.forEach(slide => {
-      // Split by --- (with optional surrounding whitespace)
-      const parts = slide.content.split(/(?:\r?\n)?---(?:\r?\n)?/);
+    // Process Direct Instruction into multiple slides if --- is present
+    const diSlides = [];
+    if (plan.direct_instruction) {
+      const parts = plan.direct_instruction.split(/(?:\r?\n)?---(?:\r?\n)?/);
       parts.forEach((part, idx) => {
         if (part.trim()) {
-          slides.push({
-            title: parts.length > 1 ? `${slide.title} (Part ${idx + 1})` : slide.title,
-            content: part.trim()
+          diSlides.push({
+            title: parts.length > 1 ? `6. Direct Instruction / Launch (Part ${idx + 1})` : "6. Direct Instruction / Launch",
+            content: part.trim() + `\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>`
           });
         }
       });
-    });
+    }
 
-    const slidesJSON = JSON.stringify(slides).replace(/</g, '\\u003c');
+    const cfuText = plan.checks_for_understanding && plan.checks_for_understanding.length > 0 
+      ? plan.checks_for_understanding[0].cfu 
+      : 'Turn and talk to your neighbor about the core concept we just discussed.';
+
+    const baseSlides = [
+      { title: plan.topic, content: `## Welcome to Class!\n\nGet ready to start.` },
+      { 
+        title: "1. Spired Do Now", 
+        content: `**Directions:**\n${plan.do_now || ''}\n\n**Expectations:**\n- Enter classroom SILENTLY\n- Start IMMEDIATELY\n- Work SILENTLY and INDEPENDENTLY\n- Cell phone Free Zone\n- 100% Engaged ALL STUDENTS WORKING!!\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
+      },
+      { 
+        title: "2. Classroom Expectations", 
+        content: `- No Cellphones\n- Drop pencils when completed\n- Communicate with respect\n- Raise your hand` 
+      },
+      { 
+        title: "3. Today @ A Glance", 
+        content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` 
+      },
+      { 
+        title: "4. Future Planning Forward", 
+        content: `Use this time to have students document their homework, upcoming assignments/quizzes, test, etc.\n\n*Upcoming:* _______________________` 
+      },
+      { 
+        title: "5. Student Shout out", 
+        content: `*Recognize students for their accomplishments (academic, behavior, extracurricular, etc.)*\n\n**Today's Shout Outs:**\n- \n- ` 
+      },
+      ...diSlides,
+      { 
+        title: "7. Formative Assessment #1", 
+        content: `**Check for understanding:**\n${cfuText}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>` 
+      },
+      { 
+        title: "8. Guided Practice / Monitor", 
+        content: `- Guided Practice = Students should have at least 2 opportunities to practice with the teacher before being released.\n- Monitor students data and output.\n- Scaffolded practice` 
+      },
+      { 
+        title: "10. Group Practice", 
+        content: `**Directions:**\n${plan.group_practice || ''}\n\n**Expectations:**\n- Start IMMEDIATELY\n- Work silently & independently OR voice level 1 in pairs (6 inches)\n- Actively participate, collaborate and contribute\n- Be prepared to share out\n- Cell Phone Free Zone\n- 100% Engaged ALL STUDENTS WORKING!!\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>` 
+      },
+      ...problemsSlides,
+      { 
+        title: "13. Exit Ticket (Formative Assessment #3)", 
+        content: `**Directions:**\n${plan.exit_ticket || ''}\n\n**Expectations:**\n- Start IMMEDIATELY\n- Work SILENTLY and INDEPENDENTLY\n- Cell phone Free Zone\n- 100% Engaged ALL STUDENTS WORKING!\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
+      }
+    ];
+
+    const slidesJSON = JSON.stringify(baseSlides).replace(/</g, '\\u003c');
 
     const html = `
       <html>
@@ -118,7 +169,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
               display: flex; flex-direction: column; justify-content: center; align-items: center;
               height: 100vh; padding: 40px 100px; box-sizing: border-box; overflow-y: auto;
             }
-            h1 { font-size: 4vw; color: #4338ca; margin-bottom: 40px; text-align: center; }
+            h1 { font-size: 4vw; color: #00e676; margin-bottom: 20px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;}
             .content-wrapper { width: 100%; max-width: 1400px; }
             .content { font-size: 2.2vw; line-height: 1.6; }
             .content p { margin-bottom: 20px; }
@@ -127,7 +178,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             .content strong { color: #334155; }
             
             /* Practice Problems Grid */
-            .problems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; }
+            .problems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; margin-bottom: 20px;}
             .problem-box { 
               border: 2px solid #cbd5e1; padding: 20px; border-radius: 12px; 
               background: #fff; text-align: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
@@ -146,9 +197,28 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             button:hover:not(:disabled) { background: #c7d2fe; }
             button:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
             .progress { font-size: 20px; font-weight: bold; padding-top: 10px; color: #64748b; }
+
+            /* Timer Styles */
+            .timer {
+              display: inline-block;
+              background: linear-gradient(135deg, #f59e0b, #d97706);
+              color: white;
+              font-size: 4vw;
+              font-weight: bold;
+              padding: 10px 40px;
+              border-radius: 12px;
+              cursor: pointer;
+              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2);
+              margin-top: 20px;
+              transition: transform 0.1s;
+              text-align: center;
+              border: 4px solid #fff;
+            }
+            .timer:active { transform: scale(0.95); }
+            .timer-container { text-align: center; width: 100%; }
           </style>
         </head>
-        <body>
+        <body tabindex="0">
           <div id="slide-content" class="slide-container"></div>
           <div class="controls">
             <button id="prevBtn" onclick="prevSlide()">Previous</button>
@@ -158,21 +228,48 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           <script>
             const slides = ${slidesJSON};
             let current = 0;
+            let activeTimer = null;
             
-            // Configure marked to allow breaks
             marked.setOptions({ breaks: true });
             
             function renderSlide() {
+              if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
               const currentSlide = slides[current];
+              let parsedContent = marked.parse(currentSlide.content);
+              
+              // Wrap timer in a centered container if it exists
+              parsedContent = parsedContent.replace(/<div class="timer"/g, '<div class="timer-container"><div class="timer"');
+              parsedContent = parsedContent.replace(/<\/div><\/p>/g, '</div></div></p>'); // Fix marked p tag wrapping
+
               document.getElementById('slide-content').innerHTML = \`
                 <div class="content-wrapper">
                   <h1>\${currentSlide.title}</h1>
-                  <div class="content">\${marked.parse(currentSlide.content)}</div>
+                  <div class="content">\${parsedContent}</div>
                 </div>
               \`;
               document.getElementById('progress').innerText = (current + 1) + ' / ' + slides.length;
               document.getElementById('prevBtn').disabled = current === 0;
               document.getElementById('nextBtn').disabled = current === slides.length - 1;
+            }
+
+            function startTimer(el, minutes) {
+              if (el.dataset.running) return;
+              el.dataset.running = "true";
+              let time = minutes * 60;
+              
+              if (activeTimer) clearInterval(activeTimer);
+              
+              activeTimer = setInterval(() => {
+                time--;
+                let m = Math.floor(time / 60);
+                let s = time % 60;
+                el.innerText = m + ":" + (s < 10 ? "0" : "") + s;
+                if (time <= 0) {
+                  clearInterval(activeTimer);
+                  el.style.background = "linear-gradient(135deg, #ef4444, #b91c1c)";
+                  el.innerText = "TIME'S UP!";
+                }
+              }, 1000);
             }
 
             function nextSlide() {
@@ -190,23 +287,25 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             }
 
             document.addEventListener('keydown', (e) => {
-              // Standard presentation clickers send these keys for NEXT
               if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) {
-                e.preventDefault(); // Prevent page scrolling
+                e.preventDefault(); 
                 nextSlide();
-              } 
-              // Standard presentation clickers send these keys for PREVIOUS
-              else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) {
-                e.preventDefault(); // Prevent page scrolling
+              } else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) {
+                e.preventDefault(); 
                 prevSlide();
+              } else if (e.key === 'b' || e.key === '.') {
+                 // Black screen toggle for clicker
+                 const body = document.body;
+                 body.style.backgroundColor = body.style.backgroundColor === 'black' ? '#f8fafc' : 'black';
+                 document.getElementById('slide-content').style.display = body.style.backgroundColor === 'black' ? 'none' : 'flex';
+                 document.querySelector('.controls').style.display = body.style.backgroundColor === 'black' ? 'none' : 'flex';
               }
             });
 
-            // Force focus so clicker events are captured immediately
             window.focus();
             document.body.focus();
             
-            document.documentElement.requestFullscreen().catch(e => console.log('Fullscreen rejected by browser.'));
+            document.documentElement.requestFullscreen().catch(e => console.log('Fullscreen rejected.'));
             renderSlide();
           </script>
         </body>
