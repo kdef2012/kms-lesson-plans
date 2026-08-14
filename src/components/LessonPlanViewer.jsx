@@ -65,6 +65,10 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
 
   const handlePresent = () => {
     const presentWindow = window.open('', '_blank');
+    if (!presentWindow) {
+      alert("Presentation popup was blocked! Please allow popups for this site to view the presentation.");
+      return;
+    }
     
     // Helper to generate the essential question
     const getEssentialQuestion = (obj) => {
@@ -239,7 +243,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
               
               // Wrap timer in a centered container if it exists
               parsedContent = parsedContent.replace(/<div class="timer"/g, '<div class="timer-container"><div class="timer"');
-              parsedContent = parsedContent.replace(/<\/div><\/p>/g, '</div></div></p>'); // Fix marked p tag wrapping
+              parsedContent = parsedContent.replace(/<\\/div><\\/p>/g, '</div></div></p>'); // Fix marked p tag wrapping
 
               document.getElementById('slide-content').innerHTML = \`
                 <div class="content-wrapper">
@@ -302,10 +306,21 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
               }
             });
 
-            window.focus();
-            document.body.focus();
+            try {
+              window.focus();
+              document.body.focus();
+            } catch(e) {}
             
-            document.documentElement.requestFullscreen().catch(e => console.log('Fullscreen rejected.'));
+            try {
+              if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(e => console.log('Fullscreen rejected.'));
+              } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+              }
+            } catch(e) {
+              console.log('Fullscreen error:', e);
+            }
+            
             renderSlide();
           </script>
         </body>
