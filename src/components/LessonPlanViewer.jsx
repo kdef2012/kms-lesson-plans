@@ -174,7 +174,16 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       }
     ];
 
-    const slidesJSON = JSON.stringify(baseSlides).replace(/</g, '\\u003c');
+    const processedSlides = baseSlides.map(slide => {
+      let content = slide.content || "";
+      // Double-escape backslashes so marked doesn't remove them
+      content = content.replace(/\\/g, '\\\\');
+      // Replace literal pi with $\pi$
+      content = content.replace(/\bpi\b/gi, '$\\pi$');
+      return { ...slide, content };
+    });
+
+    const slidesJSON = JSON.stringify(processedSlides).replace(/</g, '\\u003c');
 
     const html = `
       <html>
@@ -259,14 +268,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             function renderSlide() {
               if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
               const currentSlide = slides[current];
-              
-              // Prevent marked from eating backslashes by double-escaping them
-              // Also convert any literal "pi" words into $\pi$ just in case
-              let rawContent = currentSlide.content || "";
-              rawContent = rawContent.replace(/\\/g, '\\\\');
-              rawContent = rawContent.replace(/\\bpi\\b/gi, '$\\\\pi$');
-
-              let parsedContent = marked.parse(rawContent);
+              let parsedContent = marked.parse(currentSlide.content);
               
               // Wrap timer in a centered container if it exists
               parsedContent = parsedContent.replace(/<div class="timer"/g, '<div class="timer-container"><div class="timer"');
