@@ -66,22 +66,41 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
   const handlePresent = () => {
     const presentWindow = window.open('', '_blank');
     
-    // Consolidate practice problems into a single markdown string with HTML grid
-    let problemsSlideContent = '';
+    // Consolidate practice problems into chunks of 5
+    const problemsSlides = [];
     if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
-      problemsSlideContent = `<div class="problems-grid">\n` + 
-        plan.structured_exemplars.map(ex => `  <div class="problem-box">**${ex.question}**</div>\n`).join('') + 
-        `</div>`;
+      for (let i = 0; i < plan.structured_exemplars.length; i += 5) {
+        const chunk = plan.structured_exemplars.slice(i, i + 5);
+        const chunkHTML = `<div class="problems-grid">\n` + 
+          chunk.map(ex => `  <div class="problem-box">**${ex.question}**</div>\n`).join('') + 
+          `</div>`;
+        problemsSlides.push({ title: "Practice Problems", content: chunkHTML });
+      }
     }
 
-    const slides = [
+    const baseSlides = [
       { title: plan.topic, content: `**Objective:** ${plan.objective_3m}\n\n**Standard:** ${plan.standard}` },
       { title: "Do Now", content: plan.do_now },
       { title: "Direct Instruction", content: plan.direct_instruction },
       { title: "Group Practice", content: plan.group_practice },
-      ...(problemsSlideContent ? [{ title: "Practice Problems", content: problemsSlideContent }] : []),
+      ...problemsSlides,
       { title: "Exit Ticket", content: plan.exit_ticket }
     ].filter(s => s.content && s.content.trim() !== '');
+
+    // Split slides that have '---'
+    const slides = [];
+    baseSlides.forEach(slide => {
+      // Split by --- (with optional surrounding whitespace)
+      const parts = slide.content.split(/(?:\r?\n)?---(?:\r?\n)?/);
+      parts.forEach((part, idx) => {
+        if (part.trim()) {
+          slides.push({
+            title: parts.length > 1 ? `${slide.title} (Part ${idx + 1})` : slide.title,
+            content: part.trim()
+          });
+        }
+      });
+    });
 
     const slidesJSON = JSON.stringify(slides).replace(/</g, '\\u003c');
 

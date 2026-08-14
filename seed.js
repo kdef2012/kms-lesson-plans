@@ -42,41 +42,71 @@ const run = async () => {
     });
   }
 
-  // 8/14: Rational & Irrational Numbers (85-minute block)
+  // 8/14: Rational & Irrational Numbers (90-minute block)
   lessonPlans.push({
     date_start: '2026-08-14', week_label: '8/10-8/14',
     topic: 'Rational & Irrational Numbers (Envision T1 - 2, Open-Up U8 Lesson 3)',
     objective_3m: 'Students will classify real numbers as rational or irrational and justify their reasoning through collaborative sorting and independent practice.',
     standard: '8.NS.1',
-    do_now: '**(10 minutes)** Convert 1/3, 1/4, and 2/9 to decimals. What do you notice about the patterns? Which ones stop, and which ones repeat?',
-    direct_instruction: '**(20 minutes)** Define rational vs irrational numbers. Discuss non-terminating, non-repeating decimals (like pi and non-perfect square roots). Show visual examples of the real number system diagram.',
-    group_practice: '**(25 minutes)** Card Sort Activity: Students work in pairs to sort 20 different numbers (fractions, decimals, perfect squares, non-perfect squares, and pi) into Rational and Irrational columns. Students must write a one-sentence justification for 5 of their placements.',
-    independent_practice: '**(20 minutes)** Independent Worksheet covering 10 classification problems (from EnVision and Open-Up) with required written justifications.',
+    do_now: '**(10 minutes)** Vocabulary Primer & Number Patterns:\n\n1. Define "ratio" in your own words.\n2. Convert 1/3, 1/4, and 2/9 to decimals.\n\n*What do you notice about the patterns? Which ones stop, and which ones repeat?*',
+    direct_instruction: '**(25 minutes) The Real Number System Tutorial**\n\n• **Rational Numbers:** Any number that can be written as a simple fraction (a ratio of two integers). \n\nWhen you convert a rational number to a decimal, it will ALWAYS either:\n  1. **Terminate** (stop) ... example: 1/4 = 0.25\n  2. **Repeat** a pattern ... example: 1/3 = 0.333...\n\n*(Note: All integers are rational because they can be written over 1, e.g., -5 = -5/1)*\n\n---\n\n• **Irrational Numbers:** Numbers that CANNOT be written as a simple fraction. \n\nWhen you look at their decimal form, they:\n  1. Go on forever (Non-terminating)\n  2. NEVER repeat a pattern (Non-repeating)\n\n---\n\n• **Perfect vs. Non-Perfect Squares:**\n  - √9 is Rational because 9 is a perfect square (√9 = 3).\n  - √10 is Irrational because 10 is NOT a perfect square. Its decimal is non-terminating and non-repeating (~3.1622...)\n\n• **The Pi Trap:**\n  - The exact symbol π is IRRATIONAL (it goes on forever without repeating).\n  - The rounded number 3.14 is RATIONAL (it stops at the 4).\n\n---\n\n**Turn and Talk (2 minutes):**\nLook at the number 0.121212... Is it rational or irrational? Explain your reasoning to your partner.',
+    group_practice: '**(25 minutes)** Card Sort Activity: Students work in pairs to sort 20 different numbers (fractions, decimals, perfect squares, non-perfect squares, and π) into Rational and Irrational columns.\n\nStudents must write a one-sentence justification for 5 of their placements.',
+    independent_practice: '**(20 minutes)** Independent Practice: Classify the following 10 problems and provide a justification for each.',
     structured_exemplars: [
       {
-        question: 'Classify as rational or irrational: 0.333...',
+        question: '1. Classify: 0.333...',
         correct_answer: 'Rational. It is a repeating decimal and can be written as the fraction 1/3.',
         misconception: 'Irrational, because "it goes on forever". \n\nIntervention: Clarify that going on forever WITH a pattern (repeating) makes it rational.'
       },
       {
-        question: 'Classify as rational or irrational: sqrt(10)',
-        correct_answer: 'Irrational. 10 is not a perfect square, so its square root is a non-terminating, non-repeating decimal (~3.1622...).',
+        question: '2. Classify: √10',
+        correct_answer: 'Irrational. 10 is not a perfect square, so its decimal is non-terminating and non-repeating.',
         misconception: 'Rational, because 10 is an even number. \n\nIntervention: Remind students that only perfect squares yield rational square roots.'
       },
       {
-        question: 'Classify as rational or irrational: -5',
-        correct_answer: 'Rational. All integers are rational because they can be written as a fraction over 1 (e.g., -5/1).',
+        question: '3. Classify: -5',
+        correct_answer: 'Rational. It is an integer and can be written as -5/1.',
         misconception: 'Irrational, because it is negative. \n\nIntervention: Remind students that negative signs do not affect whether a number can be written as a ratio.'
       },
       {
-        question: 'Classify as rational or irrational: 3.14',
-        correct_answer: 'Rational. It is a terminating decimal (it ends after the 4), which can be written as 314/100.',
-        misconception: 'Irrational, because it is pi. \n\nIntervention: Emphasize the difference between the exact symbol pi (irrational) and the rounded decimal 3.14 (rational).',
+        question: '4. Classify: 3.14',
+        correct_answer: 'Rational. It is a terminating decimal (it ends after the 4).',
+        misconception: 'Irrational, because it is pi. \n\nIntervention: Emphasize the difference between the exact symbol π (irrational) and the rounded decimal 3.14 (rational).',
+      },
+      {
+        question: '5. Classify: √16',
+        correct_answer: 'Rational. 16 is a perfect square (√16 = 4), which can be written as 4/1.',
+        misconception: 'Irrational, because it is a square root. \n\nIntervention: Remind students that they must evaluate the square root first to see if it is a perfect square.'
+      },
+      {
+        question: '6. Classify: π',
+        correct_answer: 'Irrational. It is a non-terminating, non-repeating decimal.',
+        misconception: 'Rational, because it is equal to 3.14. \n\nIntervention: Remind students that 3.14 is only an approximation, the actual value of π goes on forever.'
+      },
+      {
+        question: '7. Classify: 1/7',
+        correct_answer: 'Rational. It is already written as a ratio of two integers.',
+        misconception: 'Irrational, because its decimal looks weird. \n\nIntervention: If a number is written as a simple fraction, it is automatically rational by definition.'
+      },
+      {
+        question: '8. Classify: 0.123456...',
+        correct_answer: 'Irrational. The decimal goes on forever without a repeating pattern.',
+        misconception: 'Rational, because it is a pattern of numbers. \n\nIntervention: Distinguish between a sequence of numbers and a true repeating pattern (like 0.121212...).'
+      },
+      {
+        question: '9. Classify: 4.5',
+        correct_answer: 'Rational. It is a terminating decimal, which can be written as 45/10 or 9/2.',
+        misconception: 'Irrational, because it has a decimal. \n\nIntervention: Remind students that terminating decimals are always rational.'
+      },
+      {
+        question: '10. Classify: √2',
+        correct_answer: 'Irrational. 2 is not a perfect square.',
+        misconception: 'Rational, because 2 is an even number. \n\nIntervention: Remind students that only perfect squares are rational.'
       }
     ],
     criteria_for_success: 'Students correctly classify at least 8/10 real numbers and provide mathematically sound justifications.',
-    exit_ticket: '**(10 minutes)** Is the square root of 2 rational or irrational? Explain why using the definitions discussed in class.',
-    checks_for_understanding: [{ cfu: 'Why is pi considered an irrational number, but 3.14 is rational?', method: 'Cold Call / DOK 3' }]
+    exit_ticket: '**(10 minutes)** Is the square root of 2 (√2) rational or irrational? Explain why using the definitions discussed in class.\n\n*(Last 2 minutes: Ask 2 students to share out their reasoning with the class).*',
+    checks_for_understanding: [{ cfu: 'Why is π considered an irrational number, but 3.14 is rational?', method: 'Cold Call / DOK 3' }]
   });
 
   // --- WEEK 2 (8/17 - 8/21) ---
