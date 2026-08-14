@@ -190,9 +190,14 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             }
 
             document.addEventListener('keydown', (e) => {
-              if (e.key === 'ArrowRight' || e.key === ' ') {
+              // Standard presentation clickers send these keys for NEXT
+              if (['ArrowRight', 'ArrowDown', 'PageDown', ' ', 'Enter'].includes(e.key)) {
+                e.preventDefault(); // Prevent page scrolling
                 nextSlide();
-              } else if (e.key === 'ArrowLeft') {
+              } 
+              // Standard presentation clickers send these keys for PREVIOUS
+              else if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(e.key)) {
+                e.preventDefault(); // Prevent page scrolling
                 prevSlide();
               }
             });
