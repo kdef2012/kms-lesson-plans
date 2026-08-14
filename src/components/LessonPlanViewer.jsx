@@ -80,20 +80,37 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       return "How can we " + eq + "?";
     };
 
-    // Consolidate practice problems into chunks of 5
+    // Split problems across practice sections
+    let guidedHTML = `**Guided Notes & Practice:**\nFollow along with the teacher on the board.`;
+    let groupHTML = `**Directions:**\n${plan.group_practice || 'Work collaboratively on the assigned problems.'}\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>`;
     const problemsSlides = [];
-    if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
-      for (let i = 0; i < plan.structured_exemplars.length; i += 5) {
-        const chunk = plan.structured_exemplars.slice(i, i + 5);
+
+    if (plan.structured_exemplars && plan.structured_exemplars.length >= 4) {
+      // Guided Practice (first 2 problems)
+      const guidedChunk = plan.structured_exemplars.slice(0, 2);
+      guidedHTML = `<div class="problems-grid">\n` + 
+          guidedChunk.map(ex => `  <div class="problem-box">**${ex.question}**</div>\n`).join('') + 
+          `</div>`;
+          
+      // Group Practice (next 2 problems)
+      const groupChunk = plan.structured_exemplars.slice(2, 4);
+      groupHTML = `<div class="problems-grid">\n` + 
+          groupChunk.map(ex => `  <div class="problem-box">**${ex.question}**</div>\n`).join('') + 
+          `</div>\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>`;
+          
+      // Independent Practice (remaining problems)
+      const indChunk = plan.structured_exemplars.slice(4);
+      for (let i = 0; i < indChunk.length; i += 6) {
+        const chunk = indChunk.slice(i, i + 6);
         const chunkHTML = `<div class="problems-grid">\n` + 
           chunk.map(ex => `  <div class="problem-box">**${ex.question}**</div>\n`).join('') + 
-          `</div>\n\n**Expectations:**\n- Start Immediately\n- Work Silently and Independently\n- Cellphones Free Zone\n- 100% Engaged. ALL STUDENTS WORKING!!\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`;
+          `</div>\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`;
         problemsSlides.push({ title: "11. Independent Practice", content: chunkHTML });
       }
     } else {
       problemsSlides.push({ 
         title: "11. Independent Practice", 
-        content: `**Directions:**\n${plan.independent_practice || 'Complete assigned problems.'}\n\n**Expectations:**\n- Start Immediately\n- Work Silently and Independently\n- Cellphones Free Zone\n- 100% Engaged. ALL STUDENTS WORKING!!\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
+        content: `**Directions:**\n${plan.independent_practice || 'Complete assigned problems.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
       });
     }
 
@@ -119,7 +136,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       { title: plan.topic, content: `## Welcome to Class!\n\nGet ready to start.` },
       { 
         title: "1. Spired Do Now", 
-        content: `**Directions:**\n${plan.do_now || ''}\n\n**Expectations:**\n- Enter classroom SILENTLY\n- Start IMMEDIATELY\n- Work SILENTLY and INDEPENDENTLY\n- Cell phone Free Zone\n- 100% Engaged ALL STUDENTS WORKING!!\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
+        content: `**Directions:**\n${plan.do_now || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
       },
       { 
         title: "2. Classroom Expectations", 
@@ -131,11 +148,11 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       },
       { 
         title: "4. Future Planning Forward", 
-        content: `Use this time to have students document their homework, upcoming assignments/quizzes, test, etc.\n\n*Upcoming:* _______________________` 
+        content: `` 
       },
       { 
-        title: "5. Student Shout out", 
-        content: `*Recognize students for their accomplishments (academic, behavior, extracurricular, etc.)*\n\n**Today's Shout Outs:**\n- \n- ` 
+        title: "5. Student Shoutouts", 
+        content: `` 
       },
       ...diSlides,
       { 
@@ -143,17 +160,17 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
         content: `**Check for understanding:**\n${cfuText}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>` 
       },
       { 
-        title: "8. Guided Practice / Monitor", 
-        content: `- Guided Practice = Students should have at least 2 opportunities to practice with the teacher before being released.\n- Monitor students data and output.\n- Scaffolded practice` 
+        title: "8. Guided Practice", 
+        content: guidedHTML 
       },
       { 
         title: "10. Group Practice", 
-        content: `**Directions:**\n${plan.group_practice || ''}\n\n**Expectations:**\n- Start IMMEDIATELY\n- Work silently & independently OR voice level 1 in pairs (6 inches)\n- Actively participate, collaborate and contribute\n- Be prepared to share out\n- Cell Phone Free Zone\n- 100% Engaged ALL STUDENTS WORKING!!\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>` 
+        content: groupHTML 
       },
       ...problemsSlides,
       { 
         title: "13. Exit Ticket (Formative Assessment #3)", 
-        content: `**Directions:**\n${plan.exit_ticket || ''}\n\n**Expectations:**\n- Start IMMEDIATELY\n- Work SILENTLY and INDEPENDENTLY\n- Cell phone Free Zone\n- 100% Engaged ALL STUDENTS WORKING!\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
+        content: `**Directions:**\n${plan.exit_ticket || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
       }
     ];
 
@@ -164,6 +181,9 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
         <head>
           <title>Presentation: ${plan.topic}</title>
           <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+          <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+          <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
           <style>
             body { 
               margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -171,14 +191,14 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             }
             .slide-container {
               display: flex; flex-direction: column; justify-content: center; align-items: center;
-              height: 100vh; padding: 40px 100px; box-sizing: border-box; overflow-y: auto;
+              height: 100vh; padding: 20px 80px; box-sizing: border-box; overflow-y: auto;
             }
-            h1 { font-size: 4vw; color: #00e676; margin-bottom: 20px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;}
+            h1 { font-size: 3.5vw; color: #00e676; margin-bottom: 15px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;}
             .content-wrapper { width: 100%; max-width: 1400px; }
-            .content { font-size: 2.2vw; line-height: 1.6; }
-            .content p { margin-bottom: 20px; }
-            .content ul, .content ol { margin-top: 10px; margin-bottom: 20px; padding-left: 40px; }
-            .content li { margin-bottom: 15px; }
+            .content { font-size: 1.8vw; line-height: 1.5; }
+            .content p { margin-bottom: 15px; }
+            .content ul, .content ol { margin-top: 5px; margin-bottom: 15px; padding-left: 40px; }
+            .content li { margin-bottom: 10px; }
             .content strong { color: #334155; }
             
             /* Practice Problems Grid */
@@ -251,6 +271,14 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
                   <div class="content">\${parsedContent}</div>
                 </div>
               \`;
+              if (window.renderMathInElement) {
+                window.renderMathInElement(document.getElementById('slide-content'), {
+                  delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                  ]
+                });
+              }
               document.getElementById('progress').innerText = (current + 1) + ' / ' + slides.length;
               document.getElementById('prevBtn').disabled = current === 0;
               document.getElementById('nextBtn').disabled = current === slides.length - 1;
