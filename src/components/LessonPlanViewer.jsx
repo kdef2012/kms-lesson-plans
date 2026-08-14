@@ -132,6 +132,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       ? plan.checks_for_understanding[0].cfu 
       : 'Turn and talk to your neighbor about the core concept we just discussed.';
 
+    const expectationsContent = `- No Cellphones\n- Drop pencils when completed\n- Communicate with respect\n- Raise your hand`;
+
     const baseSlides = [
       { title: plan.topic, content: `## Welcome to Class!\n\nGet ready to start.` },
       { 
@@ -140,7 +142,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       },
       { 
         title: "2. Classroom Expectations", 
-        content: `- No Cellphones\n- Drop pencils when completed\n- Communicate with respect\n- Raise your hand` 
+        content: expectationsContent 
       },
       { 
         title: "3. Today @ A Glance", 
@@ -160,12 +162,24 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
         content: `**Check for understanding:**\n${cfuText}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>` 
       },
       { 
+        title: "Classroom Expectations (Reminder)", 
+        content: expectationsContent 
+      },
+      { 
         title: "8. Guided Practice", 
         content: guidedHTML 
       },
       { 
+        title: "Classroom Expectations (Reminder)", 
+        content: expectationsContent 
+      },
+      { 
         title: "10. Group Practice", 
         content: groupHTML 
+      },
+      { 
+        title: "Classroom Expectations (Reminder)", 
+        content: expectationsContent 
       },
       ...problemsSlides,
       { 
