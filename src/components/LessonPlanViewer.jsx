@@ -14,18 +14,27 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     
     let exemplarsHTML = '';
     if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
-      exemplarsHTML = plan.structured_exemplars.map((ex, i) => `
-        <div style="margin-bottom: 30px;">
-          <p style="font-size: 18px;"><strong>${i + 1}.</strong> ${ex.question}</p>
-          <div style="border: 1px solid #aaa; height: 150px; margin-top: 10px; border-radius: 4px;"></div>
-        </div>
-      `).join('');
+      exemplarsHTML = plan.structured_exemplars.map((ex, i) => {
+        const q = ex.question.replace(/\bpi\b/gi, '$\\pi$');
+        return `
+          <div style="margin-bottom: 30px;">
+            <p style="font-size: 18px;"><strong>${i + 1}.</strong> ${q}</p>
+            <div style="border: 1px solid #aaa; height: 150px; margin-top: 10px; border-radius: 4px;"></div>
+          </div>
+        `;
+      }).join('');
     }
+
+    const doNowContent = (plan.do_now || '').replace(/\bpi\b/gi, '$\\pi$');
+    const exitTicketContent = (plan.exit_ticket || '').replace(/\bpi\b/gi, '$\\pi$');
 
     const html = `
       <html>
         <head>
           <title>${plan.topic} - Worksheet</title>
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+          <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
           <style>
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; line-height: 1.6; color: #333; }
             .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2d3748; padding-bottom: 15px; margin-bottom: 30px; font-size: 18px; }
@@ -41,26 +50,39 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           </div>
           <h2>${plan.topic}</h2>
           
-          ${plan.do_now ? `
+          ${doNowContent ? `
             <h3>Warm Up (Do Now)</h3>
-            <p style="font-size: 18px;">${plan.do_now}</p>
+            <p style="font-size: 18px; white-space: pre-wrap;">${doNowContent}</p>
             <div class="box"></div>
           ` : ''}
 
           <h3>Practice Problems</h3>
           ${exemplarsHTML || '<div class="box"></div><div class="box"></div>'}
           
-          ${plan.exit_ticket ? `
+          ${exitTicketContent ? `
             <h3>Exit Ticket</h3>
-            <p style="font-size: 18px;">${plan.exit_ticket}</p>
+            <p style="font-size: 18px; white-space: pre-wrap;">${exitTicketContent}</p>
             <div class="box"></div>
           ` : ''}
+
+          <script>
+            window.onload = function() {
+              if (window.renderMathInElement) {
+                window.renderMathInElement(document.body, {
+                  delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                  ]
+                });
+              }
+              setTimeout(() => { window.print(); }, 500);
+            };
+          </script>
         </body>
       </html>
     `;
     printWindow.document.write(html);
     printWindow.document.close();
-    setTimeout(() => { printWindow.print(); }, 250);
   };
 
   const handlePresent = () => {
