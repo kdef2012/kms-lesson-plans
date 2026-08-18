@@ -190,10 +190,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
 
     const processedSlides = baseSlides.map(slide => {
       let content = slide.content || "";
-      // Double-escape backslashes so marked doesn't remove them
-      content = content.replace(/\\/g, '\\\\');
-      // Replace literal pi with $\pi$
-      content = content.replace(/\bpi\b/gi, '$\\pi$');
+      // Replace literal pi with $\pi$ (using two backslashes so JSON.stringify makes it safe)
+      content = content.replace(/\bpi\b/gi, '$\\\\pi$');
       return { ...slide, content };
     });
 
@@ -205,8 +203,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           <title>Presentation: ${plan.topic}</title>
           <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
           <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-          <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-          <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+          <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
           <style>
             body { 
               margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -295,22 +293,14 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
                 </div>
               \`;
               
-              // Retry KaTeX rendering until the script is loaded
-              let retries = 0;
-              function tryRenderMath() {
-                if (window.renderMathInElement) {
-                  window.renderMathInElement(document.getElementById('slide-content'), {
-                    delimiters: [
-                      {left: '$$', right: '$$', display: true},
-                      {left: '$', right: '$', display: false}
-                    ]
-                  });
-                } else if (retries < 10) {
-                  retries++;
-                  setTimeout(tryRenderMath, 200);
-                }
+              if (window.renderMathInElement) {
+                window.renderMathInElement(document.getElementById('slide-content'), {
+                  delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                  ]
+                });
               }
-              tryRenderMath();
               
               document.getElementById('progress').innerText = (current + 1) + ' / ' + slides.length;
               document.getElementById('prevBtn').disabled = current === 0;
@@ -382,7 +372,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
               console.log('Fullscreen error:', e);
             }
             
-            renderSlide();
+            // Allow scripts to load before rendering first slide
+            setTimeout(renderSlide, 100);
           </script>
         </body>
       </html>
@@ -390,6 +381,21 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     presentWindow.document.write(html);
     presentWindow.document.close();
   };
+
+  const viewerRef = React.useRef(null);
+  useEffect(() => {
+    if (viewerRef.current && window.renderMathInElement) {
+      // Small timeout to ensure React DOM is painted before we mutate it with KaTeX
+      setTimeout(() => {
+        window.renderMathInElement(viewerRef.current, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ]
+        });
+      }, 50);
+    }
+  });
 
   useEffect(() => {
     if (plan) {
@@ -501,7 +507,116 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
   };
 
   return (
-    <div>
+    <div ref={viewerRef}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #eee', paddingBottom: '20px', marginBottom: '20px' }}>
+        <div>
+          <h2 style={{ margin: '0 0 5px 0', color: 'var(--kms-purple-dark)' }}>{plan.topic}</h2>
+          <p style={{ margin: 0, color: '#666' }}>Date: <strong>{format(new Date(plan.date_start), 'MMMM d, yyyy')}</strong> | Week: <strong>{plan.week_label}</strong></p>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button onClick={handlePresent} className="btn" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--kms-purple)', color: 'white' }}>
+            <Play size={18} /> Present
+          </button>
+          <button onClick={handlePrintWorksheet} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Printer size={18} /> Worksheet
+          </button>
+          {plan.pdf_url && (
+            <a href={plan.pdf_url} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+              <Download size={18} /> PDF
+            </a>
+          )}
+        </div>
+      </div>
+
+      <p style={{ fontStyle: 'italic', color: '#666', marginBottom: '20px', fontSize: '14px' }}>
+        Click on any section to view or add comments.
+      </p>
+
+      <Section id="objective_3m" title="3M Objective" content={plan.objective_3m} />
+      <Section id="standard" title="Standard" content={plan.standard} />
+      <Section id="do_now" title="Do Now (Spiral Topics)" content={plan.do_now} />
+      <Section id="direct_instruction" title="Direct Instruction (Launch)" content={plan.direct_instruction} />
+      <Section id="group_practice" title="Group Practice" content={plan.group_practice} />
+      
+      {/* Advanced Exemplar Section */}
+      <Section id="independent_practice" title="Independent Practice (Exemplar)">
+        {plan.exemplar_image_url && (
+          <div style={{ marginBottom: '20px' }}>
+            <h5 style={{ margin: '0 0 10px 0', color: '#555', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <ImageIcon size={16} /> Handwritten Exemplar
+            </h5>
+            <a href={plan.exemplar_image_url} target="_blank" rel="noopener noreferrer">
+              <img 
+                src={plan.exemplar_image_url} 
+                alt="Handwritten Exemplar" 
+                style={{ maxWidth: '100%', maxHeight: '400px', borderRadius: '8px', border: '1px solid #ddd' }} 
+              />
+            </a>
+          </div>
+        )}
+        
+        {plan.structured_exemplars && plan.structured_exemplars.length > 0 ? (
+          <div>
+            <h5 style={{ margin: '0 0 15px 0', color: '#555' }}>Structured Problem Breakdown</h5>
+            {plan.structured_exemplars.map((ex, idx) => (
+              <div key={idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
+                <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
+                  Problem {idx + 1}: {ex.question}
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#fff' }}>
+                  <div style={{ flex: '1 1 50%', padding: '15px', borderRight: '1px solid #eee' }}>
+                    <div style={{ color: 'var(--kms-teal-dark)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
+                      <CheckCircle2 size={16} /> Correct Process / Answer
+                    </div>
+                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.correct_answer}</div>
+                  </div>
+                  <div style={{ flex: '1 1 50%', padding: '15px', backgroundColor: '#fff5f5' }}>
+                    <div style={{ color: '#d32f2f', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
+                      <AlertTriangle size={16} /> Anticipated Misconception & Intervention
+                    </div>
+                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.misconception}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p style={{ margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>{plan.independent_practice}</p>
+        )}
+      </Section>
+      
+      <Section id="criteria_for_success" title="Criteria for Success" content={plan.criteria_for_success} />
+      <Section id="exit_ticket" title="Exit Ticket" content={plan.exit_ticket} />
+
+      {/* Legacy check to avoid errors if not defined in older data */}
+      {plan.checks_for_understanding && plan.checks_for_understanding.length > 0 && (
+        <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#fafafa', borderRadius: '8px', borderLeft: '4px solid var(--kms-teal)' }}>
+          <h4 style={{ margin: '0 0 10px 0', color: 'var(--kms-purple-dark)' }}>Checks for Understanding</h4>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ borderBottom: '2px solid var(--kms-teal-light)' }}>
+                <th style={{ padding: '8px 0', width: '50%' }}>CFU</th>
+                <th style={{ padding: '8px 0' }}>Method/DOK</th>
+              </tr>
+            </thead>
+            <tbody>
+              {plan.checks_for_understanding.map((cfu, index) => (
+                <tr key={index} style={{ borderBottom: '1px solid #ddd' }}>
+                  <td style={{ padding: '8px 0' }}>{cfu.cfu}</td>
+                  <td style={{ padding: '8px 0' }}>{cfu.method}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+    </div>
+  );
+};
+
+export default LessonPlanViewer;
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #eee', paddingBottom: '20px', marginBottom: '20px' }}>
         <div>
           <h2 style={{ margin: '0 0 5px 0', color: 'var(--kms-purple-dark)' }}>{plan.topic}</h2>
