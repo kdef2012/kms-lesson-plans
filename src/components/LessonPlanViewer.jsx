@@ -554,7 +554,11 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #eee', paddingBottom: '20px', marginBottom: '20px' }}>
         <div>
           <h2 style={{ margin: '0 0 5px 0', color: 'var(--kms-purple-dark)' }}>{plan.topic}</h2>
-          <p style={{ margin: 0, color: '#666' }}>Date: <strong>{format(new Date(plan.date_start), 'MMMM d, yyyy')}</strong> | Week: <strong>{plan.week_label}</strong></p>
+          {plan.week_label === 'Emergency Sub Plans' ? (
+            <p style={{ margin: 0, color: '#666' }}><strong>{plan.week_label}</strong></p>
+          ) : (
+            <p style={{ margin: 0, color: '#666' }}>Date: <strong>{format(new Date(plan.date_start), 'MMMM d, yyyy')}</strong> | Week: <strong>{plan.week_label}</strong></p>
+          )}
         </div>
         
         <div style={{ display: 'flex', gap: '10px' }}>

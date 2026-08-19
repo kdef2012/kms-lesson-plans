@@ -104,7 +104,9 @@ const AdminDashboard = ({ onLogout, pin, role, adminName }) => {
                           }}
                           onClick={() => setSelectedPlan(plan)}
                         >
-                          {format(parseISO(plan.date_start), 'EEEE (M/d)')} - {plan.topic || 'No Topic'}
+                          {plan.week_label === 'Emergency Sub Plans' 
+                            ? plan.topic || 'Emergency Plan' 
+                            : `${format(parseISO(plan.date_start), 'EEEE (M/d)')} - ${plan.topic || 'No Topic'}`}
                         </button>
                       </li>
                     ))}
