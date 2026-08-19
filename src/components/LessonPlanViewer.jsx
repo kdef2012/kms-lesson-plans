@@ -32,9 +32,9 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       <html>
         <head>
           <title>${plan.topic} - Worksheet</title>
-          <link rel="stylesheet" href="/katex/katex.min.css">
-          <script src="/katex/katex.min.js"></script>
-          <script src="/katex/auto-render.min.js"></script>
+          <link rel="stylesheet" href="${window.location.origin}/katex/katex.min.css">
+          <script src="${window.location.origin}/katex/katex.min.js"></script>
+          <script src="${window.location.origin}/katex/auto-render.min.js"></script>
           <style>
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; line-height: 1.6; color: #333; }
             .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2d3748; padding-bottom: 15px; margin-bottom: 30px; font-size: 18px; }
@@ -232,10 +232,10 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       <html>
         <head>
           <title>Presentation: ${plan.topic}</title>
-          <script src="/marked.min.js"></script>
-          <link rel="stylesheet" href="/katex/katex.min.css">
-          <script src="/katex/katex.min.js"></script>
-          <script src="/katex/auto-render.min.js"></script>
+          <script src="${window.location.origin}/marked.min.js"></script>
+          <link rel="stylesheet" href="${window.location.origin}/katex/katex.min.css">
+          <script src="${window.location.origin}/katex/katex.min.js"></script>
+          <script src="${window.location.origin}/katex/auto-render.min.js"></script>
           <style>
             body { 
               margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
