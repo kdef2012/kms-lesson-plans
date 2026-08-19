@@ -32,9 +32,9 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       <html>
         <head>
           <title>${plan.topic} - Worksheet</title>
-          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-          <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-          <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+          <link rel="stylesheet" href="/katex/katex.min.css">
+          <script src="/katex/katex.min.js"></script>
+          <script src="/katex/auto-render.min.js"></script>
           <style>
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; line-height: 1.6; color: #333; }
             .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2d3748; padding-bottom: 15px; margin-bottom: 30px; font-size: 18px; }
@@ -109,37 +109,39 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       return "How can we " + eq + "?";
     };
 
-    // Split problems across practice sections
-    let guidedHTML = `**Guided Notes & Practice:**\nFollow along with the teacher on the board.`;
-    let groupHTML = `**Directions:**\n${plan.group_practice || 'Work collaboratively on the assigned problems.'}\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>`;
     const problemsSlides = [];
 
-    if (plan.structured_exemplars && plan.structured_exemplars.length >= 4) {
-      // Guided Practice (first 2 problems)
+    let guidedHTML = '';
+    if (plan.structured_exemplars && plan.structured_exemplars.length >= 2) {
       const guidedChunk = plan.structured_exemplars.slice(0, 2);
       guidedHTML = `<div class="problems-grid">\n` + 
-          guidedChunk.map(ex => `  <div class="problem-box">**${ex.question}**</div>\n`).join('') + 
+          guidedChunk.map(ex => `  <div class="problem-box"><strong>${ex.question}</strong></div>\n`).join('') + 
           `</div>`;
-          
-      // Group Practice (next 2 problems)
+    }
+
+    // Group Practice (next 2 problems)
+    let groupHTML = '';
+    if (plan.structured_exemplars && plan.structured_exemplars.length >= 4) {
       const groupChunk = plan.structured_exemplars.slice(2, 4);
       groupHTML = `<div class="problems-grid">\n` + 
-          groupChunk.map(ex => `  <div class="problem-box">**${ex.question}**</div>\n`).join('') + 
+          groupChunk.map(ex => `  <div class="problem-box"><strong>${ex.question}</strong></div>\n`).join('') + 
           `</div>\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>`;
-          
-      // Independent Practice (remaining problems)
+    }
+
+    // Independent Practice (remaining problems)
+    if (plan.structured_exemplars && plan.structured_exemplars.length > 4) {
       const indChunk = plan.structured_exemplars.slice(4);
       for (let i = 0; i < indChunk.length; i += 6) {
         const chunk = indChunk.slice(i, i + 6);
         const chunkHTML = `<div class="problems-grid">\n` + 
-          chunk.map(ex => `  <div class="problem-box">**${ex.question}**</div>\n`).join('') + 
+          chunk.map((ex, idx) => `  <div class="problem-box"><strong>${i + idx + 5}. ${ex.question}</strong></div>\n`).join('') + 
           `</div>\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`;
         problemsSlides.push({ title: "11. Independent Practice", content: chunkHTML });
       }
     } else {
       problemsSlides.push({ 
         title: "11. Independent Practice", 
-        content: `**Directions:**\n${plan.independent_practice || 'Complete assigned problems.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
+        content: `<strong>Directions:</strong>\n${plan.independent_practice || 'Complete the assigned independent practice problems quietly.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
       });
     }
 
@@ -230,10 +232,10 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       <html>
         <head>
           <title>Presentation: ${plan.topic}</title>
-          <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-          <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-          <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+          <script src="/marked.min.js"></script>
+          <link rel="stylesheet" href="/katex/katex.min.css">
+          <script src="/katex/katex.min.js"></script>
+          <script src="/katex/auto-render.min.js"></script>
           <style>
             body { 
               margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
