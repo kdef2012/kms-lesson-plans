@@ -66,7 +66,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           ` : ''}
 
           <script>
-            window.onload = function() {
+            let retries = 0;
+            function tryRender() {
               if (window.renderMathInElement) {
                 window.renderMathInElement(document.body, {
                   delimiters: [
@@ -74,9 +75,15 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
                     {left: '$', right: '$', display: false}
                   ]
                 });
+                setTimeout(() => { window.print(); }, 500);
+              } else if (retries < 20) {
+                retries++;
+                setTimeout(tryRender, 100);
+              } else {
+                window.print();
               }
-              setTimeout(() => { window.print(); }, 500);
-            };
+            }
+            window.onload = tryRender;
           </script>
         </body>
       </html>
@@ -315,14 +322,22 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
                 </div>
               \`;
               
-              if (window.renderMathInElement) {
-                window.renderMathInElement(document.getElementById('slide-content'), {
-                  delimiters: [
-                    {left: '$$', right: '$$', display: true},
-                    {left: '$', right: '$', display: false}
-                  ]
-                });
+              // Retry KaTeX rendering until the script is loaded
+              let retries = 0;
+              function tryRenderMath() {
+                if (window.renderMathInElement) {
+                  window.renderMathInElement(document.getElementById('slide-content'), {
+                    delimiters: [
+                      {left: '$$', right: '$$', display: true},
+                      {left: '$', right: '$', display: false}
+                    ]
+                  });
+                } else if (retries < 20) {
+                  retries++;
+                  setTimeout(tryRenderMath, 100);
+                }
               }
+              tryRenderMath();
               
               document.getElementById('progress').innerText = (current + 1) + ' / ' + slides.length;
               document.getElementById('prevBtn').disabled = current === 0;
@@ -406,17 +421,21 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
 
   const viewerRef = React.useRef(null);
   useEffect(() => {
-    if (viewerRef.current && window.renderMathInElement) {
-      // Small timeout to ensure React DOM is painted before we mutate it with KaTeX
-      setTimeout(() => {
+    let retries = 0;
+    const tryRender = () => {
+      if (viewerRef.current && window.renderMathInElement) {
         window.renderMathInElement(viewerRef.current, {
           delimiters: [
             {left: '$$', right: '$$', display: true},
             {left: '$', right: '$', display: false}
           ]
         });
-      }, 50);
-    }
+      } else if (retries < 20) {
+        retries++;
+        setTimeout(tryRender, 100);
+      }
+    };
+    tryRender();
   });
 
   useEffect(() => {
