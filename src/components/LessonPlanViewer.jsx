@@ -73,7 +73,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
                   delimiters: [
                     {left: '$$', right: '$$', display: true},
                     {left: '$', right: '$', display: false}
-                  ]
+                  ],
+                  throwOnError: false
                 });
                 setTimeout(() => { window.print(); }, 500);
               } else if (retries < 20) {
@@ -332,7 +333,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
                     delimiters: [
                       {left: '$$', right: '$$', display: true},
                       {left: '$', right: '$', display: false}
-                    ]
+                    ],
+                    throwOnError: false
                   });
                 } else if (retries < 20) {
                   retries++;
@@ -430,7 +432,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           delimiters: [
             {left: '$$', right: '$$', display: true},
             {left: '$', right: '$', display: false}
-          ]
+          ],
+          throwOnError: false
         });
       } else if (retries < 20) {
         retries++;
