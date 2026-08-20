@@ -57,7 +57,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           ` : ''}
 
           <h3>Practice Problems</h3>
-          ${exemplarsHTML || '<div class="box"></div><div class="box"></div>'}
+          ${guidedHTML ? '<h3>Guided Practice (We Do)</h3>' + guidedHTML : ''}\n          ${groupHTML ? '<h3>Group Practice (You Do Together)</h3>' + groupHTML : ''}\n          ${indepHTML ? '<h3>Independent Practice (You Do)</h3>' + indepHTML : ''}\n          ${(!guidedHTML && !groupHTML && !indepHTML) ? '<div class="box"></div><div class="box"></div>' : ''}
           
           ${exitTicketContent ? `
             <h3>Exit Ticket</h3>
