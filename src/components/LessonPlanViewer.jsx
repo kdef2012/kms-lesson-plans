@@ -4,6 +4,19 @@ import { MessageSquare, Send, Download, Image as ImageIcon, AlertTriangle, Check
 import { format } from 'date-fns';
 
 const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
+  const renderMath = (text) => {
+    if (!text) return "";
+    let t = text.replace(/\bpi\b/gi, '\\pi');
+    if (!window.katex) return t;
+    try {
+      t = t.replace(/\$\$([\s\S]*?)\$\$/g, (m, math) => window.katex.renderToString(math, {displayMode: true, throwOnError: false}));
+      t = t.replace(/\$([^\n]*?)\$/g, (m, math) => window.katex.renderToString(math, {displayMode: false, throwOnError: false}));
+      return t;
+    } catch (e) {
+      return text;
+    }
+  };
+
   const [comments, setComments] = useState({}); // Grouped by section
   const [activeCommentSection, setActiveCommentSection] = useState(null);
   const [newComment, setNewComment] = useState('');
@@ -33,8 +46,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
         <head>
           <title>${plan.topic} - Worksheet</title>
           <link rel="stylesheet" href="${window.location.origin}/katex/katex.min.css">
-          <script src="${window.location.origin}/katex/katex.min.js"></script>
-          <script src="${window.location.origin}/katex/auto-render.min.js"></script>
+          
           <style>
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; line-height: 1.6; color: #333; }
             .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2d3748; padding-bottom: 15px; margin-bottom: 30px; font-size: 18px; }
@@ -66,25 +78,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           ` : ''}
 
           <script>
-            let retries = 0;
-            function tryRender() {
-              if (window.renderMathInElement) {
-                window.renderMathInElement(document.body, {
-                  delimiters: [
-                    {left: '$$', right: '$$', display: true},
-                    {left: '$', right: '$', display: false}
-                  ],
-                  throwOnError: false
-                });
-                setTimeout(() => { window.print(); }, 500);
-              } else if (retries < 20) {
-                retries++;
-                setTimeout(tryRender, 100);
-              } else {
-                window.print();
-              }
-            }
-            window.onload = tryRender;
+            window.onload = function() { setTimeout(() => window.print(), 500); };
           </script>
         </body>
       </html>
@@ -235,8 +229,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           <title>Presentation: ${plan.topic}</title>
           <script src="${window.location.origin}/marked.min.js"></script>
           <link rel="stylesheet" href="${window.location.origin}/katex/katex.min.css">
-          <script src="${window.location.origin}/katex/katex.min.js"></script>
-          <script src="${window.location.origin}/katex/auto-render.min.js"></script>
+          
           <style>
             body { 
               margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -326,22 +319,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
               \`;
               
               // Retry KaTeX rendering until the script is loaded
-              let retries = 0;
-              function tryRenderMath() {
-                if (window.renderMathInElement) {
-                  window.renderMathInElement(document.getElementById('slide-content'), {
-                    delimiters: [
-                      {left: '$$', right: '$$', display: true},
-                      {left: '$', right: '$', display: false}
-                    ],
-                    throwOnError: false
-                  });
-                } else if (retries < 20) {
-                  retries++;
-                  setTimeout(tryRenderMath, 100);
-                }
-              }
-              tryRenderMath();
+              
               
               document.getElementById('progress').innerText = (current + 1) + ' / ' + slides.length;
               document.getElementById('prevBtn').disabled = current === 0;
