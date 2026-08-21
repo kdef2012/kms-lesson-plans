@@ -217,6 +217,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       let content = slide.content || "";
       // Replace literal pi with $\pi$ (using two backslashes so JSON.stringify makes it safe)
       content = content.replace(/\bpi\b/gi, '$\\\\pi$');
+      content = renderMath(content);
       return { ...slide, content };
     });
 
