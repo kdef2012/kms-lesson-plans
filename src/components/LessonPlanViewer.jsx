@@ -117,7 +117,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       const guidedChunk = plan.structured_exemplars.slice(0, 2);
       guidedHTML = `<div class="problems-grid">\n` + 
           guidedChunk.map(ex => `  <div class="problem-box"><strong>${renderMath(ex.question)}</strong></div>\n`).join('') + 
-          `</div>`;
+          `</div>\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>`;
     }
 
     // Group Practice (next 4 problems)
@@ -241,7 +241,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             }
             .slide-container {
               display: flex; flex-direction: column; justify-content: center; align-items: center;
-              height: 100vh; padding: 20px 80px; box-sizing: border-box; overflow-y: auto;
+              height: 100vh; padding: 40px 80px 100px 80px; box-sizing: border-box; overflow-y: auto;
             }
             h1 { font-size: 3.5vw; color: #00e676; margin-bottom: 15px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;}
             .content-wrapper { width: 100%; max-width: 1400px; }
@@ -274,22 +274,25 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
 
             /* Timer Styles */
             .timer {
+              position: fixed;
+              top: 25px;
+              right: 40px;
+              z-index: 1000;
               display: inline-block;
               background: linear-gradient(135deg, #f59e0b, #d97706);
               color: white;
-              font-size: 4vw;
+              font-size: 2.5vw;
               font-weight: bold;
-              padding: 10px 40px;
+              padding: 15px 30px;
               border-radius: 12px;
               cursor: pointer;
               box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.2);
-              margin-top: 20px;
               transition: transform 0.1s;
               text-align: center;
               border: 4px solid #fff;
             }
             .timer:active { transform: scale(0.95); }
-            .timer-container { text-align: center; width: 100%; }
+            .timer-container { }
           </style>
         </head>
         <body tabindex="0">
