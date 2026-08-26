@@ -371,20 +371,19 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             let current = 0;
             let activeTimer = null;
             
-            window.onload = function() {
+            function initPresentation() {
               if (typeof marked !== 'undefined') {
                 marked.setOptions({ breaks: true });
+                renderSlide();
+              } else {
+                setTimeout(initPresentation, 50);
               }
-              renderSlide();
-            };
+            }
+            initPresentation();
             
             function renderSlide() {
               if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
               const currentSlide = slides[current];
-              if (typeof marked === 'undefined') {
-                setTimeout(renderSlide, 100);
-                return;
-              }
               let parsedContent = marked.parse(currentSlide.content);
               
               // Wrap timer in a centered container if it exists
@@ -659,6 +658,9 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
         <div style={{ display: 'flex', gap: '10px' }}>
           <button onClick={handlePresent} className="btn" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--kms-purple)', color: 'white' }}>
             <Play size={18} /> Present
+          </button>
+          <button onClick={handlePrintGuidedNotes} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Printer size={18} /> Guided Notes
           </button>
           <button onClick={handlePrintWorksheet} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Printer size={18} /> Worksheet
