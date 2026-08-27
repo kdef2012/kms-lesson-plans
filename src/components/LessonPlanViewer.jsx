@@ -382,12 +382,11 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
               const currentSlide = slides[current];
               let parsedContent = currentSlide.content;
 
-              document.getElementById('slide-content').innerHTML = \`
-                <div class="content-wrapper">
-                  <h1>\${currentSlide.title}</h1>
-                  <div class="content">\${parsedContent}</div>
-                </div>
-              \`;
+              document.getElementById('slide-content').innerHTML = 
+                '<div class="content-wrapper">' +
+                  '<h1>' + currentSlide.title + '</h1>' +
+                  '<div class="content">' + parsedContent + '</div>' +
+                '</div>';
               
               // Retry KaTeX rendering until the script is loaded
               
@@ -417,41 +416,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
               }, 1000);
             }
 
-            function printAll() {
-                if (activeTimer) clearInterval(activeTimer);
-                document.getElementById('controls-bar').style.display = 'none';
-                document.body.style.overflow = 'visible';
-                
-                let allHtml = '';
-                slides.forEach((slide) => {
-                  let parsedContent = marked.parse(slide.content, { breaks: true });
-                  parsedContent = parsedContent.replace(/<div class="timer"/g, '<div class="timer-container" style="display:none;"><div class="timer"');
-                  parsedContent = parsedContent.replace(/<\/div><\/p>/g, '</div></div></p>');
-                  
-                  allHtml += '<div style="min-height: 100vh; page-break-after: always; padding: 40px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;">' +
-                    '<div class="content-wrapper" style="width: 100%; max-width: 1400px; margin: 0 auto;">' +
-                      '<h1 style="color: #333; margin-bottom: 30px;">' + slide.title + '</h1>' +
-                      '<div class="content">' + parsedContent + '</div>' +
-                    '</div>' +
-                  '</div>';
-                });
-                
-                document.getElementById('slide-content').innerHTML = allHtml;
-                document.getElementById('slide-content').style.height = 'auto';
-                document.getElementById('slide-content').style.overflow = 'visible';
-                
-                setTimeout(() => {
-                  window.print();
-                  // Restore
-                  document.getElementById('controls-bar').style.display = 'flex';
-                  document.body.style.overflow = 'hidden';
-                  document.getElementById('slide-content').style.height = '100vh';
-                  document.getElementById('slide-content').style.overflow = 'auto';
-                  renderSlide();
-                }, 500);
-              }
-              
-              function nextSlide() {
+            function nextSlide() {
               if (current < slides.length - 1) {
                 current++;
                 renderSlide();
