@@ -34,8 +34,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     notesContent = renderMath(notesContent);
     // Convert markdown to HTML but replace **bold** with fill in the blank lines
     
-    const escapedNotes = JSON.stringify(notesContent).replace(/</g, '\\u003c');
-    let parsedNotes = '';
+    let parsedNotes = window.marked ? window.marked.parse(notesContent, { breaks: true }) : notesContent;
+    parsedNotes = parsedNotes.replace(/<strong>(.*?)<\/strong>/g, '<strong><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></strong> <span style="color: white; font-size: 1px;">$1</span>');
 
     let guidedHTML = '';
     if (plan.structured_exemplars && plan.structured_exemplars.length >= 2) {
@@ -53,7 +53,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     const html = 
       '<html>' +
         '<head>' +
-          '<script src="' + window.location.origin + '/marked.min.js"></script>' +
+
           '<title>' + plan.topic + ' - Guided Notes</title>' +
           '<link rel="stylesheet" href="' + window.location.origin + '/katex/katex.min.css">' +
           '<style>' +
@@ -75,24 +75,13 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           '<h2>Guided Notes: ' + plan.topic + '</h2>' +
           
           '<h3>Class Notes</h3>' +
-          '<div id="notes-content" class="notes-content">Loading notes...</div>' +
+          '<div class="notes-content">' + parsedNotes + '</div>' +
           
           '<h3>Guided Practice (We Do)</h3>' +
           guidedHTML +
           
           '<script>' +
-            'function initNotes() {' +
-              'if (typeof marked !== "undefined") {' +
-                'let raw = ' + escapedNotes + ';' +
-                'let parsed = marked.parse(raw, { breaks: true });' +
-                'parsed = parsed.replace(/<strong>(.*?)<\\/strong>/g, \'<strong><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></strong> <span style="color: white; font-size: 1px;">$1</span>\');' +
-                'document.getElementById("notes-content").innerHTML = parsed;' +
-                'setTimeout(() => window.print(), 500);' +
-              '} else {' +
-                'setTimeout(initNotes, 50);' +
-              '}' +
-            '}' +
-            'initNotes();' +
+            'window.onload = function() { setTimeout(() => window.print(), 500); };' +
           '</script>' +
         '</body>' +
       '</html>';
@@ -295,9 +284,13 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
 
     const processedSlides = baseSlides.map(slide => {
       let content = slide.content || "";
-      // Replace literal pi with $\pi$ (using two backslashes so JSON.stringify makes it safe)
       content = content.replace(/\bpi\b/gi, '$\\\\pi$');
       content = renderMath(content);
+      if (window.marked) {
+        content = window.marked.parse(content, { breaks: true });
+        content = content.replace(/<div class="timer"/g, '<div class="timer-container"><div class="timer"');
+        content = content.replace(/<\/div><\/p>/g, '</div></div></p>');
+      }
       return { ...slide, content };
     });
 
@@ -307,7 +300,6 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       <html>
         <head>
           <title>Presentation: ${plan.topic}</title>
-          <script src="${window.location.origin}/marked.min.js"></script>
           <link rel="stylesheet" href="${window.location.origin}/katex/katex.min.css">
           
           <style>
@@ -383,23 +375,12 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             let current = 0;
             let activeTimer = null;
             
-            function initPresentation() {
-              if (typeof marked !== 'undefined') {
-                renderSlide();
-              } else {
-                setTimeout(initPresentation, 50);
-              }
-            }
-            initPresentation();
+            renderSlide();
             
             function renderSlide() {
               if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
               const currentSlide = slides[current];
-              let parsedContent = marked.parse(currentSlide.content, { breaks: true });
-              
-              // Wrap timer in a centered container if it exists
-              parsedContent = parsedContent.replace(/<div class="timer"/g, '<div class="timer-container"><div class="timer"');
-              parsedContent = parsedContent.replace(/<\\/div><\\/p>/g, '</div></div></p>'); // Fix marked p tag wrapping
+              let parsedContent = currentSlide.content;
 
               document.getElementById('slide-content').innerHTML = \`
                 <div class="content-wrapper">
