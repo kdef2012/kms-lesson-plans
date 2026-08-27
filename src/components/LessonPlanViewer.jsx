@@ -34,8 +34,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     notesContent = renderMath(notesContent);
     // Convert markdown to HTML but replace **bold** with fill in the blank lines
     
-    let parsedNotes = marked.parse(notesContent);
-    parsedNotes = parsedNotes.replace(/<strong>(.*?)<\/strong>/g, '<strong><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></strong> <span style="color: white; font-size: 1px;">$1</span>');
+    const escapedNotes = JSON.stringify(notesContent).replace(/</g, '\\u003c');
+    let parsedNotes = '';
 
     let guidedHTML = '';
     if (plan.structured_exemplars && plan.structured_exemplars.length >= 2) {
@@ -53,6 +53,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     const html = 
       '<html>' +
         '<head>' +
+          '<script src="' + window.location.origin + '/marked.min.js"></script>' +
           '<title>' + plan.topic + ' - Guided Notes</title>' +
           '<link rel="stylesheet" href="' + window.location.origin + '/katex/katex.min.css">' +
           '<style>' +
@@ -74,13 +75,24 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           '<h2>Guided Notes: ' + plan.topic + '</h2>' +
           
           '<h3>Class Notes</h3>' +
-          '<div class="notes-content">' + parsedNotes + '</div>' +
+          '<div id="notes-content" class="notes-content">Loading notes...</div>' +
           
           '<h3>Guided Practice (We Do)</h3>' +
           guidedHTML +
           
           '<script>' +
-            'window.onload = function() { setTimeout(() => window.print(), 500); };' +
+            'function initNotes() {' +
+              'if (typeof marked !== "undefined") {' +
+                'let raw = ' + escapedNotes + ';' +
+                'let parsed = marked.parse(raw, { breaks: true });' +
+                'parsed = parsed.replace(/<strong>(.*?)<\\/strong>/g, \'<strong><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></strong> <span style="color: white; font-size: 1px;">$1</span>\');' +
+                'document.getElementById("notes-content").innerHTML = parsed;' +
+                'setTimeout(() => window.print(), 500);' +
+              '} else {' +
+                'setTimeout(initNotes, 50);' +
+              '}' +
+            '}' +
+            'initNotes();' +
           '</script>' +
         '</body>' +
       '</html>';
@@ -373,7 +385,6 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             
             function initPresentation() {
               if (typeof marked !== 'undefined') {
-                marked.setOptions({ breaks: true });
                 renderSlide();
               } else {
                 setTimeout(initPresentation, 50);
@@ -384,7 +395,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             function renderSlide() {
               if (activeTimer) { clearInterval(activeTimer); activeTimer = null; }
               const currentSlide = slides[current];
-              let parsedContent = marked.parse(currentSlide.content);
+              let parsedContent = marked.parse(currentSlide.content, { breaks: true });
               
               // Wrap timer in a centered container if it exists
               parsedContent = parsedContent.replace(/<div class="timer"/g, '<div class="timer-container"><div class="timer"');
@@ -432,7 +443,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
                 
                 let allHtml = '';
                 slides.forEach((slide) => {
-                  let parsedContent = marked.parse(slide.content);
+                  let parsedContent = marked.parse(slide.content, { breaks: true });
                   parsedContent = parsedContent.replace(/<div class="timer"/g, '<div class="timer-container" style="display:none;"><div class="timer"');
                   parsedContent = parsedContent.replace(/<\/div><\/p>/g, '</div></div></p>');
                   
