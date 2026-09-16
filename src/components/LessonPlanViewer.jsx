@@ -98,8 +98,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     }
     
     let worksheetProblemsHTML = '';
-    if (plan.structured_exemplars && plan.structured_exemplars.length > 6) {
-      const indChunk = plan.structured_exemplars.slice(6);
+    if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
+      const indChunk = plan.structured_exemplars;
       worksheetProblemsHTML = indChunk.map((ex, i) => {
         return `
           <div style="margin-bottom: 30px;">
@@ -190,15 +190,15 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     if (plan.structured_exemplars && plan.structured_exemplars.length >= 6) {
       const groupChunk = plan.structured_exemplars.slice(2, 6);
       groupHTML = `<div class="problems-grid">\n` + 
-          groupChunk.map(ex => `  <div class="problem-box"><strong>${renderMath(ex.question)}</strong></div>\n`).join('') + 
+          groupChunk.map((ex, idx) => `  <div class="problem-box"><strong>${idx + 1}. ${renderMath(ex.question)}</strong></div>\n`).join('') + 
           `</div>\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>`;
     }
 
     // Independent Practice (remaining 10 problems on one slide)
-    if (plan.structured_exemplars && plan.structured_exemplars.length > 6) {
-      const indChunk = plan.structured_exemplars.slice(6);
+    if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
+      const indChunk = plan.structured_exemplars;
       const chunkHTML = `<div class="problems-grid" style="grid-template-columns: repeat(4, 1fr); font-size: 14px;">\n` + 
-        indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 10px;"><strong>${idx + 7}. ${renderMath(ex.question)}</strong></div>\n`).join('') + 
+        indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 10px;"><strong>${idx + 1}. ${renderMath(ex.question)}</strong></div>\n`).join('') + 
         `</div>\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`;
       problemsSlides.push({ title: "11. Independent Practice (All 10)", content: chunkHTML });
     } else {
