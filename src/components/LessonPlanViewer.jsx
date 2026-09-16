@@ -43,7 +43,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       guidedHTML = guidedChunk.map((ex, i) => {
         return `
           <div style="margin-bottom: 20px; break-inside: avoid;">
-            <p style="font-size: 16px; margin-bottom: 5px;"><strong>Example ${i + 1}.</strong> ${renderMath(ex.question)}</p>
+            <p style="font-size: 16px; margin-bottom: 5px;"><strong>Example ${i + 1}.</strong> ${renderQuestionContent(ex)}</p>
             <div style="border: 1px dashed #aaa; height: 120px; border-radius: 4px;"></div>
           </div>
         `;
@@ -103,7 +103,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       worksheetProblemsHTML = indChunk.map((ex, i) => {
         return `
           <div style="margin-bottom: 30px;">
-            <p style="font-size: 18px;"><strong>${i + 1}.</strong> ${renderMath(ex.question)}</p>
+            <p style="font-size: 18px;"><strong>${i + 1}.</strong> ${renderQuestionContent(ex)}</p>
             <div style="border: 1px solid #aaa; height: 150px; margin-top: 10px; border-radius: 4px;"></div>
           </div>
         `;
@@ -181,7 +181,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     if (plan.structured_exemplars && plan.structured_exemplars.length >= 2) {
       const guidedChunk = plan.structured_exemplars.slice(0, 2);
       guidedHTML = `<div class="problems-grid">\n` + 
-          guidedChunk.map(ex => `  <div class="problem-box"><strong>${renderMath(ex.question)}</strong></div>\n`).join('') + 
+          guidedChunk.map(ex => `  <div class="problem-box"><strong>${renderQuestionContent(ex)}</strong></div>\n`).join('') + 
           `</div>\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>`;
     }
 
@@ -190,7 +190,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     if (plan.structured_exemplars && plan.structured_exemplars.length >= 6) {
       const groupChunk = plan.structured_exemplars.slice(2, 6);
       groupHTML = `<div class="problems-grid">\n` + 
-          groupChunk.map((ex, idx) => `  <div class="problem-box"><strong>${idx + 1}. ${renderMath(ex.question)}</strong></div>\n`).join('') + 
+          groupChunk.map((ex, idx) => `  <div class="problem-box"><strong>${idx + 1}. ${renderQuestionContent(ex)}</strong></div>\n`).join('') + 
           `</div>\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>`;
     }
 
@@ -198,7 +198,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
       const indChunk = plan.structured_exemplars;
       const chunkHTML = `<div class="problems-grid" style="grid-template-columns: repeat(4, 1fr); font-size: 14px;">\n` + 
-        indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 10px;"><strong>${idx + 1}. ${renderMath(ex.question)}</strong></div>\n`).join('') + 
+        indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 10px;"><strong>${idx + 1}. ${renderQuestionContent(ex)}</strong></div>\n`).join('') + 
         `</div>\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`;
       problemsSlides.push({ title: "11. Independent Practice (All 10)", content: chunkHTML });
     } else {
@@ -675,7 +675,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
             {plan.structured_exemplars.map((ex, idx) => (
               <div key={idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
                 <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
-                  Problem {idx + 1}: {ex.question}
+                  Problem {idx + 1}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex) }} />
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#fff' }}>
                   <div style={{ flex: '1 1 50%', padding: '15px', borderRight: '1px solid #eee' }}>
