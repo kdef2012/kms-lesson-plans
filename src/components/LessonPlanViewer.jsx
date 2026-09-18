@@ -225,11 +225,14 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       const cfuText = cfuMatch ? cfuMatch[1].trim() : "Show me on your fingers...";
 
       const eqMatch = plan.objective_3m ? plan.objective_3m.match(/SWBATs+(.*)/i) : null;
-      const getEssentialQuestion = (objective) => {
-        if (!objective) return "What is the key concept today?";
-        const eqMatch = objective.match(/SWBATs+(.*)/i);
-        const eq = eqMatch ? eqMatch[1].trim() : objective;
-        return "How can we " + eq + "?";
+      const getEssentialQuestion = (obj) => {
+        if (!obj) return "What is the core concept of today's lesson?";
+        let topic = obj.toLowerCase();
+        const m = topic.match(/involving (.*?) \(/);
+        if (m) {
+           return `How can we apply our understanding of ${m[1]} to solve real-world problems?`;
+        }
+        return "How can we apply today's concept to solve real-world problems?";
       };
 
       const problemsSlides = [];
@@ -341,29 +344,70 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
         { title: "1. Spiraled Do Now", content: `**Directions:**\n${plan.do_now || ''}` },
         { title: "2. Classroom Expectations", content: expectationsContent },
         { title: "3. Today @ A Glance", content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` },
-        
-        
+
+
         { 
           title: "4. Student Shoutouts", 
-          content: `<div style="text-align: center; position: relative; z-index: 10;">
-            <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
-            <div style="display: flex; justify-content: space-around; margin-top: 30px;">
-              <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-                <h4>Core 1</h4>
-                <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${plan.date_start === '2026-09-21' ? 'Bradley Fontaine' : 'Sarah Jenkins'}</p>
-              </div>
-              <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-teal-dark);">
-                <h4>Core 2</h4>
-                <p style="font-size: 24px; font-weight: bold; color: var(--kms-teal-dark);">${plan.date_start === '2026-09-21' ? 'Marcus Johnson' : 'David Chen'}</p>
-              </div>
-              <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-                <h4>Core 3</h4>
-                <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${plan.date_start === '2026-09-21' ? 'Emma Davis' : 'Michael Smith'}</p>
-              </div>
-            </div>
-            <div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;"></div>
-          </div>`
+          content: (() => {
+             const dateShoutouts = shoutouts[plan.date_start] || ["Bradley Fontaine", "Sarah Jenkins", "Marcus Johnson"];
+             const s1 = dateShoutouts[0] || "Student 1";
+             const s2 = dateShoutouts[1] || "Student 2";
+             const s3 = dateShoutouts[2] || "Student 3";
+             return `
+<div style="text-align: center; position: relative; z-index: 10;">
+  <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
+  <div style="display: flex; justify-content: space-around; margin-top: 30px;">
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 1</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s1}</p>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 2</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s2}</p>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 3</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s3}</p>
+    </div>
+  </div>
+</div>`;
+          })()
         },
+
+
+
+        { 
+          title: "4. Student Shoutouts", 
+          content: (() => {
+             const dateShoutouts = shoutouts[plan.date_start] || ["Bradley Fontaine", "Sarah Jenkins", "Marcus Johnson"];
+             const s1 = dateShoutouts[0] || "Student 1";
+             const s2 = dateShoutouts[1] || "Student 2";
+             const s3 = dateShoutouts[2] || "Student 3";
+             return `<div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;"></div>
+<div style="text-align: center; position: relative; z-index: 10;">
+  <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
+  <div style="display: flex; justify-content: space-around; margin-top: 30px;">
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 1</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s1}</p>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 2</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s2}</p>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 3</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s3}</p>
+    </div>
+  </div>
+</div>`;
+          })()
+        },
+
+
+        
+        
+        
 
         ...diSlides,
         { title: "7. Formative Assessment #1", content: `**Check for understanding:**\n${cfuText}` },
@@ -426,14 +470,15 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
     }
     
     // Helper to generate the essential question
-    const getEssentialQuestion = (obj) => {
-      if (!obj) return "What is the core concept of today's lesson?";
-      let eq = obj.toLowerCase();
-      if (eq.startsWith('students will ')) {
-        eq = eq.substring(14);
-      }
-      return "How can we " + eq + "?";
-    };
+      const getEssentialQuestion = (obj) => {
+        if (!obj) return "What is the core concept of today's lesson?";
+        let topic = obj.toLowerCase();
+        const m = topic.match(/involving (.*?) \(/);
+        if (m) {
+           return `How can we apply our understanding of ${m[1]} to solve real-world problems?`;
+        }
+        return "How can we apply today's concept to solve real-world problems?";
+      };
 
     const problemsSlides = [];
 
@@ -580,27 +625,7 @@ ${renderQuestionContent(ex)}
       },
       
       
-        { 
-          title: "4. Student Shoutouts", 
-          content: `<div style="text-align: center; position: relative; z-index: 10;">
-            <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
-            <div style="display: flex; justify-content: space-around; margin-top: 30px;">
-              <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-                <h4>Core 1</h4>
-                <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${plan.date_start === '2026-09-21' ? 'Bradley Fontaine' : 'Sarah Jenkins'}</p>
-              </div>
-              <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-teal-dark);">
-                <h4>Core 2</h4>
-                <p style="font-size: 24px; font-weight: bold; color: var(--kms-teal-dark);">${plan.date_start === '2026-09-21' ? 'Marcus Johnson' : 'David Chen'}</p>
-              </div>
-              <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-                <h4>Core 3</h4>
-                <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${plan.date_start === '2026-09-21' ? 'Emma Davis' : 'Michael Smith'}</p>
-              </div>
-            </div>
-            <div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;"></div>
-          </div>`
-        },
+        
 
       ...diSlides,
       { 
