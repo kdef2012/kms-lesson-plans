@@ -214,14 +214,13 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       }
 
       // We need to re-generate the slides array here just like handlePresent does
-      const cfuMatch = plan.direct_instruction ? plan.direct_instruction.match(/CFU:(.*?)(?:
-|$)/) : null;
+      const cfuMatch = plan.direct_instruction ? plan.direct_instruction.match(/CFU:(.*?)(?:\n|$)/) : null; // \n|$)/) : null;
       const cfuText = cfuMatch ? cfuMatch[1].trim() : "Show me on your fingers...";
 
-      const eqMatch = plan.objective_3m ? plan.objective_3m.match(/SWBATs+(.*)/i) : null;
+      const eqMatch = plan.objective_3m ? plan.objective_3m.match(/SWBAT\\s+(.*)/i) : null;
       const getEssentialQuestion = (objective) => {
         if (!objective) return "What is the key concept today?";
-        const eqMatch = objective.match(/SWBATs+(.*)/i);
+        const eqMatch = objective.match(/SWBAT\\s+(.*)/i);
         const eq = eqMatch ? eqMatch[1].trim() : objective;
         return "How can we " + eq + "?";
       };
@@ -300,7 +299,7 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
         ...diSlides,
         { title: "7. Formative Assessment #1", content: `**Check for understanding:**\n${cfuText}` },
         { title: "Classroom Expectations (Reminder)", content: expectationsContent },
-        ...guidedSlides,
+        
         { title: "Classroom Expectations (Reminder)", content: expectationsContent },
         ...groupSlides,
         { title: "Classroom Expectations (Reminder)", content: expectationsContent },
@@ -486,7 +485,7 @@ ${renderQuestionContent(ex)}
         title: "Classroom Expectations (Reminder)", 
         content: expectationsContent 
       },
-      ...guidedSlides,
+      
       { 
         title: "Classroom Expectations (Reminder)", 
         content: expectationsContent 
@@ -880,37 +879,7 @@ ${renderQuestionContent(ex)}
             </Section>
         )}
 
-        <Section id="guided_practice" title="Guided Practice (We Do)">
-            {plan.structured_exemplars && plan.structured_exemplars.length >= 2 ? (
-                <div>
-                    {plan.structured_exemplars.slice(0, 2).map((ex, idx) => (
-                        <div key={'guided-'+idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
-                            <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
-                                Problem {idx + 1}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex) }} />
-                            </div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#fff' }}>
-                                <div style={{ flex: '1 1 50%', padding: '15px', borderRight: '1px solid #eee' }}>
-                                    <div style={{ color: 'var(--kms-teal-dark)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
-                                        <CheckCircle2 size={16} /> Correct Process / Answer
-                                    </div>
-                                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.correct_answer}</div>
-                                </div>
-                                <div style={{ flex: '1 1 50%', padding: '15px', backgroundColor: '#fff5f5' }}>
-                                    <div style={{ color: '#d32f2f', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
-                                        <AlertTriangle size={16} /> Anticipated Misconception & Intervention
-                                    </div>
-                                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.misconception}</div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <div style={{ padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px', fontStyle: 'italic', color: '#666' }}>
-                    No guided practice problems found.
-                </div>
-            )}
-        </Section>
+        
 
         <Section id="group_practice" title="Group Practice">
             {plan.structured_exemplars && plan.structured_exemplars.length >= 6 ? (
