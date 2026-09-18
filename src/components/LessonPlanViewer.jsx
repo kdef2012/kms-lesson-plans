@@ -387,6 +387,36 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
              const s1 = dateShoutouts[0] || "Student 1";
              const s2 = dateShoutouts[1] || "Student 2";
              const s3 = dateShoutouts[2] || "Student 3";
+             return `
+<div style="text-align: center; position: relative; z-index: 10;">
+  <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
+  <div style="display: flex; justify-content: space-around; margin-top: 30px;">
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 1</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s1}</p>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 2</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s2}</p>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 3</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s3}</p>
+    </div>
+  </div>
+</div>`;
+          })()
+        },
+
+
+
+        { 
+          title: "4. Student Shoutouts", 
+          content: (() => {
+             const dateShoutouts = shoutouts[plan.date_start] || ["Bradley Fontaine", "Sarah Jenkins", "Marcus Johnson"];
+             const s1 = dateShoutouts[0] || "Student 1";
+             const s2 = dateShoutouts[1] || "Student 2";
+             const s3 = dateShoutouts[2] || "Student 3";
              return `<div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;"></div>
 <div style="text-align: center; position: relative; z-index: 10;">
   <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
@@ -631,7 +661,67 @@ ${renderQuestionContent(ex)}
       
         
 
-      ...diSlides,
+      
+
+        
+
+
+        { 
+          title: "4. Student Shoutouts", 
+          content: (() => {
+             const dateShoutouts = shoutouts[plan.date_start] || ["Bradley Fontaine", "Sarah Jenkins", "Marcus Johnson"];
+             const s1 = dateShoutouts[0] || "Student 1";
+             const s2 = dateShoutouts[1] || "Student 2";
+             const s3 = dateShoutouts[2] || "Student 3";
+             return `<div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;"></div>
+<div style="text-align: center; position: relative; z-index: 10;">
+  <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
+  <div style="display: flex; justify-content: space-around; margin-top: 30px;">
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 1</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s1}</p>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 2</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s2}</p>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 3</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s3}</p>
+    </div>
+  </div>
+</div>`;
+          })()
+        },
+{ 
+          title: "4. Student Shoutouts", 
+          content: (() => {
+             const dateShoutouts = shoutouts[plan.date_start] || ["Bradley Fontaine", "Sarah Jenkins", "Marcus Johnson"];
+             const s1 = dateShoutouts[0] || "Student 1";
+             const s2 = dateShoutouts[1] || "Student 2";
+             const s3 = dateShoutouts[2] || "Student 3";
+             return `<div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;"></div>
+<div style="text-align: center; position: relative; z-index: 10;">
+  <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
+  <div style="display: flex; justify-content: space-around; margin-top: 30px;">
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 1</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s1}</p>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 2</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s2}</p>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 3</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s3}</p>
+    </div>
+  </div>
+</div>`;
+          })()
+        },
+
+...diSlides,
       { 
         title: "7. Formative Assessment #1", 
         content: `**Check for understanding:**\n${cfuText}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>` 
@@ -671,18 +761,16 @@ ${renderQuestionContent(ex)}
         <head>
           <title>Presentation: ${plan.topic}</title>
           <link rel="stylesheet" href="${window.location.origin}/katex/katex.min.css">
+          <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
           
           <style>
-            body { 
-              margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-              background-color: #f8fafc; color: #1e293b; overflow: hidden;
-            }
+            body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #6a0dad, #008080); color: #1e293b; overflow: hidden; }
             .slide-container {
               display: flex; flex-direction: column; justify-content: center; align-items: center;
               height: 100vh; padding: 40px 80px 100px 80px; box-sizing: border-box; overflow-y: auto;
             }
-            h1 { font-size: 3.5vw; color: #00e676; margin-bottom: 15px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;}
-            .content-wrapper { width: 100%; max-width: 1400px; }
+            h1 { font-size: 3.5vw; color: #300052; margin-bottom: 25px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;}
+            .content-wrapper { width: 100%; max-width: 1400px; background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
             .content { font-size: 1.8vw; line-height: 1.5; }
             .content p { margin-bottom: 15px; }
             .content ul, .content ol { margin-top: 5px; margin-bottom: 15px; padding-left: 40px; }
@@ -761,6 +849,13 @@ ${renderQuestionContent(ex)}
               // Retry KaTeX rendering until the script is loaded
               
               
+              
+              if (parsedContent.includes('confetti-container')) {
+                 setTimeout(() => {
+                   if(window.confetti) window.confetti({particleCount: 200, spread: 180});
+                 }, 300);
+              }
+
               document.getElementById('progress').innerText = (current + 1) + ' / ' + slides.length;
               document.getElementById('prevBtn').disabled = current === 0;
               document.getElementById('nextBtn').disabled = current === slides.length - 1;
