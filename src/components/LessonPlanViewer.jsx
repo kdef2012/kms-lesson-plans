@@ -1,4 +1,13 @@
 import React, { useState, useEffect } from 'react';
+
+const STANDARD_MAP = {
+  '8.G.1': 'NC.8.G.1 Verify experimentally the properties of rotations, reflections, and translations.',
+  '8.G.2': 'NC.8.G.2 Use transformations to define congruence.',
+  '8.G.3': 'NC.8.G.3 Describe the effect of dilations, translations, rotations, and reflections on two-dimensional figures using coordinates.',
+  '8.G.4': 'NC.8.G.4 Use transformations to define similarity.',
+  '8.NS.1': 'NC.8.NS.1 Understand that every number has a decimal expansion.'
+};
+
 import { supabase } from '../supabaseClient';
 import { MessageSquare, Send, Download, Image as ImageIcon, AlertTriangle, CheckCircle2, Printer, Play } from 'lucide-react';
 import { format } from 'date-fns';
@@ -129,8 +138,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           
           '<script>' +
             'window.onload = function() { setTimeout(() => window.print(), 500); };' +
-          '</script>' +
-        '</body>' +
+          '</script>' + '<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>' + '<script>setTimeout(() => { if(document.querySelector(".confetti-container")) confetti({particleCount: 150, spread: 180}); }, 500);</script>' + '</body>' +
       '</html>';
       
     printWindow.document.write(html);
@@ -197,8 +205,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
 
           '<script>' +
             'window.onload = function() { setTimeout(() => window.print(), 500); };' +
-          '</script>' +
-        '</body>' +
+          '</script>' + '<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>' + '<script>setTimeout(() => { if(document.querySelector(".confetti-container")) confetti({particleCount: 150, spread: 180}); }, 500);</script>' + '</body>' +
       '</html>';
       
     printWindow.document.write(html);
@@ -218,11 +225,19 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       const cfuText = cfuMatch ? cfuMatch[1].trim() : "Show me on your fingers...";
 
       const eqMatch = plan.objective_3m ? plan.objective_3m.match(/SWBAT\\s+(.*)/i) : null;
+      
       const getEssentialQuestion = (objective) => {
         if (!objective) return "What is the key concept today?";
-        const eqMatch = objective.match(/SWBAT\\s+(.*)/i);
-        const eq = eqMatch ? eqMatch[1].trim() : objective;
-        return "How can we " + eq + "?";
+        if (plan.essential_question) return plan.essential_question;
+        const eqMatch = objective.match(/SWBAT\s+(.*)/i);
+        let eq = eqMatch ? eqMatch[1].trim() : objective;
+        if (eq.includes('deeply analyze and solve complex problems involving')) {
+          eq = eq.replace(/deeply analyze and solve complex problems involving\s*/i, '');
+        }
+        if (eq.includes('with 90% accuracy')) {
+          eq = eq.replace(/\s*with 90% accuracy\.?/i, '');
+        }
+        return "How can we apply our understanding of " + eq + " to solve real-world problems?";
       };
 
       const problemsSlides = [];
@@ -272,192 +287,75 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
         });
       }
 
+      
       const diSlides = [];
       if (plan.direct_instruction) {
-        const parts = plan.direct_instruction.split(/(?:\r?\n)?---(?:\r?\n)?/);
+        let diText = plan.direct_instruction;
+        // Inject telescope if 9/21
+        if (plan.date_start === '2026-09-21' && !diText.includes('telescope')) {
+           diText = diText.replace(/## Direct Instruction\n---/, "## Launch: The Telescope\n---\nImagine you are looking at a star through a telescope. The star doesn't change its actual shape, but the lenses inside the telescope *scale* the image up so your eye can see it. Today, we are going to learn how to mathematically build that telescope.\n\n## Direct Instruction\n---");
+        }
+
+        const parts = diText.split(/(?:\r?\n)?---(?:\r?\n)?/);
         parts.forEach((part, idx) => {
-          if (part.trim()) {
-            diSlides.push({
-              title: parts.length > 1 ? `6. Direct Instruction / Launch (Part ${idx + 1})` : "6. Direct Instruction / Launch",
-                content: part.trim()
-                  .replace(/\*\*Example 1\*\*/g, `**Example 1**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 0 ? renderQuestionContent(plan.structured_exemplars[0]) : ''}</div>`)
-                  .replace(/\*\*Example 2\*\*/g, `**Example 2**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 1 ? renderQuestionContent(plan.structured_exemplars[1]) : ''}</div>`)
-            });
+          if (!part.trim()) return;
+          
+          let content = part.trim();
+          
+          // Fix Example 1 and Example 2 being on same slide
+          if (content.includes('**Example 1**') && content.includes('**Example 2**')) {
+             const ex1split = content.split('**Example 2**');
+             
+             diSlides.push({
+              title: parts.length > 1 ? `5. Direct Instruction / Launch (Part ${idx + 1}A)` : "5. Direct Instruction / Launch (Example 1)",
+              content: ex1split[0].replace(/\*\*Example 1\*\*/g, `**Example 1**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 0 ? renderQuestionContent(plan.structured_exemplars[0]) : ''}</div>`) + `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
+             });
+             
+             diSlides.push({
+              title: parts.length > 1 ? `5. Direct Instruction / Launch (Part ${idx + 1}B)` : "5. Direct Instruction / Launch (Example 2)",
+              content: (`**Example 2**` + ex1split[1]).replace(/\*\*Example 2\*\*/g, `**Example 2**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 1 ? renderQuestionContent(plan.structured_exemplars[1]) : ''}</div>`) + `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
+             });
+          } else {
+             diSlides.push({
+              title: parts.length > 1 ? `5. Direct Instruction / Launch (Part ${idx + 1})` : "5. Direct Instruction / Launch",
+              content: content.replace(/\*\*Example 1\*\*/g, `**Example 1**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 0 ? renderQuestionContent(plan.structured_exemplars[0]) : ''}</div>`).replace(/\*\*Example 2\*\*/g, `**Example 2**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 1 ? renderQuestionContent(plan.structured_exemplars[1]) : ''}</div>`) + (content.includes('Example') ? `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` : '')
+             });
           }
         });
       }
 
-      const expectationsContent = `- No Cellphones\n- Drop pencils when completed\n- Communicate with respect\n- Raise your hand`;
-
-      const baseSlides = [
-        { title: plan.topic, content: `## Welcome to Class!\n\nGet ready to start.` },
-        { title: "1. Spired Do Now", content: `**Directions:**\n${plan.do_now || ''}` },
-        { title: "2. Classroom Expectations", content: expectationsContent },
-        { title: "3. Today @ A Glance", content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` },
-        { title: "4. Future Planning Forward", content: `` },
-        { title: "5. Student Shoutouts", content: `` },
-        ...diSlides,
-        { title: "7. Formative Assessment #1", content: `**Check for understanding:**\n${cfuText}` },
-        { title: "Classroom Expectations (Reminder)", content: expectationsContent },
-        
-        { title: "Classroom Expectations (Reminder)", content: expectationsContent },
-        ...groupSlides,
-        { title: "Classroom Expectations (Reminder)", content: expectationsContent },
-        ...problemsSlides,
-        { title: "12. Formative Assessment #2", content: `**Check for understanding:**\n${cfuText}` },
-        { title: "13. Exit Ticket", content: `**Directions:**\n${plan.exit_ticket || ''}` },
-      ];
-
-      // Convert Markdown to HTML for all slides
-      const parseMd = (text) => {
-        if (!text) return '';
-        let t = window.marked ? window.marked.parse(text, { breaks: true }) : text;
-        return renderMath(t);
-      };
-
-      const slideHTML = baseSlides.map((slide, idx) => {
-          return `
-            <div class="slide-page">
-                <div class="slide-header">${slide.title}</div>
-                <div class="slide-content">${parseMd(slide.content)}</div>
-            </div>
-          `;
-      }).join('');
-
-      const html = 
-        '<html>' +
-          '<head>' +
-            '<title>' + plan.topic + ' - Slideshow PDF</title>' +
-            '<link rel="stylesheet" href="' + window.location.origin + '/katex/katex.min.css">' +
-            '<style>' +
-              '@page { size: landscape; margin: 0; }' +
-              'body { font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif; padding: 0; margin: 0; background: #f0f0f0; }' +
-              '.slide-page { width: 10in; height: 7.5in; margin: 0 auto; background: white; padding: 0.5in; box-sizing: border-box; page-break-after: always; display: flex; flex-direction: column; position: relative; border: 1px solid #ccc; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }' +
-              '.slide-header { font-size: 32px; font-weight: bold; color: white; background: #4a148c; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center; }' +
-              '.slide-content { font-size: 24px; line-height: 1.6; color: #333; flex: 1; }' +
-              '.problems-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }' +
-              '@media print { body { background: white; } .slide-page { border: none; box-shadow: none; width: 100%; height: 100vh; } }' +
-            '</style>' +
-          '</head>' +
-          '<body>' +
-            slideHTML +
-            '<script>' +
-              'window.onload = function() { setTimeout(() => window.print(), 1000); };' +
-            '</script>' +
-          '</body>' +
-        '</html>';
-        
-      printWindow.document.write(html);
-      printWindow.document.close();
-    };
-
-    const handlePresent = () => {
-
-    const presentWindow = window.open('', '_blank');
-    if (!presentWindow) {
-      alert("Presentation popup was blocked! Please allow popups for this site to view the presentation.");
-      return;
-    }
-    
-    // Helper to generate the essential question
-    const getEssentialQuestion = (obj) => {
-      if (!obj) return "What is the core concept of today's lesson?";
-      let eq = obj.toLowerCase();
-      if (eq.startsWith('students will ')) {
-        eq = eq.substring(14);
-      }
-      return "How can we " + eq + "?";
-    };
-
-    const problemsSlides = [];
-
-        
-      // Guided Practice (2 problems - separate slides)
-      const guidedSlides = [];
-      if (plan.structured_exemplars && plan.structured_exemplars.length >= 2) {
-        const guidedChunk = plan.structured_exemplars.slice(0, 2);
-        guidedChunk.forEach((ex, idx) => {
-          guidedSlides.push({
-            title: `8. Guided Practice (Problem ${idx + 1})`,
-            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(ex)}
-</div>
-
-<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
-          });
-        });
-      }
-  
-      // Group Practice (4 problems - separate slides)
-      const groupSlides = [];
-      if (plan.structured_exemplars && plan.structured_exemplars.length >= 6) {
-        const groupChunk = plan.structured_exemplars.slice(2, 6);
-        groupChunk.forEach((ex, idx) => {
-          groupSlides.push({
-            title: `10. Group Practice (Problem ${idx + 1})`,
-            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(ex)}
-</div>
-
-<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
-          });
-        });
-      }
-
-
-    // Independent Practice (remaining 10 problems on one slide)
-      if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
-        const indChunk = plan.structured_exemplars.slice(6, 16);
-      const chunkHTML = `<div class="problems-grid" style="grid-template-columns: repeat(4, 1fr); font-size: 14px;">\n` + 
-        indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 10px;"><strong>${idx + 1}. ${renderQuestionContent(ex)}</strong></div>\n`).join('') + 
-        `</div>\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`;
-      problemsSlides.push({ title: "11. Independent Practice (All 10)", content: chunkHTML });
-    } else {
-      problemsSlides.push({ 
-        title: "11. Independent Practice", 
-        content: `<strong>Directions:</strong>\n${plan.independent_practice || 'Complete the assigned independent practice problems quietly.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
-      });
-    }
-
-    // Process Direct Instruction into multiple slides if --- is present
-    const diSlides = [];
-    if (plan.direct_instruction) {
-      const parts = plan.direct_instruction.split(/(?:\r?\n)?---(?:\r?\n)?/);
-      parts.forEach((part, idx) => {
-        if (part.trim()) {
-          diSlides.push({
-            title: parts.length > 1 ? `6. Direct Instruction / Launch (Part ${idx + 1})` : "6. Direct Instruction / Launch",
-              content: part.trim()
-                .replace(/\*\*Example 1\*\*/g, `**Example 1**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 0 ? renderQuestionContent(plan.structured_exemplars[0]) : ''}</div>`)
-                .replace(/\*\*Example 2\*\*/g, `**Example 2**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 1 ? renderQuestionContent(plan.structured_exemplars[1]) : ''}</div>`)
-                + `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
-          });
-        }
-      });
-    }
-
-    const cfuStrategies = [
+      const cfuStrategies = [
       'Turn and Talk: Discuss the core concept with your neighbor.',
       'Stop and Jot: Write down the most important thing you learned in the last 5 minutes.',
       'Think-Pair-Share: Think about the core concept for 30 seconds, then pair up and share your thoughts.',
       'Fist to Five: Rate your understanding from 0 (completely lost) to 5 (I could teach it) by holding up your fingers.',
       'Thumbs Up/Down: Show a thumbs up if you feel confident about the concept, or thumbs down if you need more help.',
-      'Cold Call Prep: Take 30 seconds to formulate a summary in your head. The teacher will call on a random student.'
+      'Cold Call Prep: Take 1 minute to formulate summary in your head. A random student will be called upon.'
     ];
     // Hash the topic string to consistently pick the same CFU strategy for the same lesson plan
     const hashStr = (plan.topic || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const defaultCfu = cfuStrategies[hashStr % cfuStrategies.length];
 
-    const cfuText = plan.checks_for_understanding && plan.checks_for_understanding.length > 0 
+    let cfuText2 = plan.checks_for_understanding && plan.checks_for_understanding.length > 0 
       ? plan.checks_for_understanding[0].cfu 
       : defaultCfu;
 
-    const expectationsContent = `- No Cellphones\n- Drop pencils when completed\n- Communicate with respect\n- Raise your hand`;
+    
+      const expectationsContent = `<div style="display: flex; align-items: center; justify-content: space-around;">
+        <ul style="font-size: 28px; line-height: 2;">
+          <li>No Cellphones</li>
+          <li>Drop pencils when completed</li>
+          <li>Communicate with respect</li>
+          <li>Raise your hand</li>
+        </ul>
+        <div style="font-size: 150px;">??</div>
+      </div>`;
+
 
     const baseSlides = [
-      { title: plan.topic, content: `## Welcome to Class!\n\nGet ready to start.` },
+      { title: plan.topic ? plan.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
       { 
-        title: "1. Spired Do Now", 
+        title: "1. Spiraled Do Now", 
         content: `**Directions:**\n${plan.do_now || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
       },
       { 
@@ -468,18 +366,34 @@ ${renderQuestionContent(ex)}
         title: "3. Today @ A Glance", 
         content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` 
       },
-      { 
-        title: "4. Future Planning Forward", 
-        content: `` 
-      },
-      { 
-        title: "5. Student Shoutouts", 
-        content: `` 
-      },
+      
+      
+        { 
+          title: "4. Student Shoutouts", 
+          content: `<div style="text-align: center; position: relative; z-index: 10;">
+            <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
+            <div style="display: flex; justify-content: space-around; margin-top: 30px;">
+              <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+                <h4>Core 1</h4>
+                <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${plan.date_start === '2026-09-21' ? 'Bradley Fontaine' : 'Sarah Jenkins'}</p>
+              </div>
+              <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-teal-dark);">
+                <h4>Core 2</h4>
+                <p style="font-size: 24px; font-weight: bold; color: var(--kms-teal-dark);">${plan.date_start === '2026-09-21' ? 'Marcus Johnson' : 'David Chen'}</p>
+              </div>
+              <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+                <h4>Core 3</h4>
+                <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${plan.date_start === '2026-09-21' ? 'Emma Davis' : 'Michael Smith'}</p>
+              </div>
+            </div>
+            <div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;"></div>
+          </div>`
+        },
+
       ...diSlides,
       { 
         title: "7. Formative Assessment #1", 
-        content: `**Check for understanding:**\n${cfuText}\n\n<div class="timer" onclick="startTimer(this, 1.5)">1:30</div>` 
+        content: `**Check for understanding:**\n${cfuText2}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>` 
       },
       { 
         title: "Classroom Expectations (Reminder)", 
@@ -860,7 +774,7 @@ ${renderQuestionContent(ex)}
       </p>
 
       <Section id="objective_3m" title="3M Objective" content={plan.objective_3m} />
-      <Section id="standard" title="Standard" content={plan.standard} />
+      <Section id="standard" title="Standard" content={STANDARD_MAP[plan.standard] || plan.standard} />
       <Section id="do_now" title="Do Now (Spiral Topics)" content={plan.do_now} />
       <Section id="direct_instruction" title="Direct Instruction (Launch)" content={plan.direct_instruction} />
       
