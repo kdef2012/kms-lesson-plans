@@ -686,13 +686,15 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
           
           <style>
             body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #6a0dad, #008080); color: #1e293b; overflow: hidden; }
+            .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+            .katex { max-width: 100%; white-space: normal; word-wrap: break-word; }
             .slide-container {
               display: flex; flex-direction: column; justify-content: center; align-items: center;
               height: 100vh; padding: 40px 80px 100px 80px; box-sizing: border-box; overflow-y: auto;
             }
             h1 { font-size: 3.5vw; color: #300052; margin-bottom: 25px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;}
             .content-wrapper { width: 100%; max-width: 1400px; background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-            .content { font-size: 1.8vw; line-height: 1.5; }
+            .content { font-size: clamp(14px, 1.5vw, 24px); line-height: 1.5; }
             .content p { margin-bottom: 15px; }
             .content ul, .content ol { margin-top: 5px; margin-bottom: 15px; padding-left: 40px; }
             .content li { margin-bottom: 10px; }
@@ -701,7 +703,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
             /* Practice Problems Grid */
             .problems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; margin-bottom: 20px;}
             .problem-box { 
-              word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; hyphens: auto; 
+              word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; hyphens: auto; overflow: auto; max-width: 100%; 
               border: 2px solid #cbd5e1; padding: 20px; border-radius: 12px; 
               background: #fff; text-align: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
               display: flex; align-items: center; justify-content: center; min-height: 100px;
