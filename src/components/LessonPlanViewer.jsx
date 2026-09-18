@@ -711,54 +711,118 @@ ${renderQuestionContent(ex)}
       <Section id="standard" title="Standard" content={plan.standard} />
       <Section id="do_now" title="Do Now (Spiral Topics)" content={plan.do_now} />
       <Section id="direct_instruction" title="Direct Instruction (Launch)" content={plan.direct_instruction} />
-      <Section id="group_practice" title="Group Practice" content={plan.group_practice} />
       
-      {/* Advanced Exemplar Section */}
-      <Section id="independent_practice" title="Independent Practice (Exemplar)">
+        {/* Advanced Exemplar Section */}
         {plan.exemplar_image_url && (
-          <div style={{ marginBottom: '20px' }}>
-            <h5 style={{ margin: '0 0 10px 0', color: '#555', display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <ImageIcon size={16} /> Handwritten Exemplar
-            </h5>
-            <a href={plan.exemplar_image_url} target="_blank" rel="noopener noreferrer">
-              <img 
-                src={plan.exemplar_image_url} 
-                alt="Handwritten Exemplar" 
-                style={{ maxWidth: '100%', maxHeight: '400px', borderRadius: '8px', border: '1px solid #ddd' }} 
-              />
-            </a>
-          </div>
-        )}
-        
-        {plan.structured_exemplars && plan.structured_exemplars.length > 0 ? (
-          <div>
-            <h5 style={{ margin: '0 0 15px 0', color: '#555' }}>Structured Problem Breakdown</h5>
-            {plan.structured_exemplars.map((ex, idx) => (
-              <div key={idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
-                <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
-                  Problem {idx + 1}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex) }} />
+            <Section id="exemplar_image" title="Handwritten Exemplar">
+                <div style={{ marginBottom: '20px' }}>
+                    <a href={plan.exemplar_image_url} target="_blank" rel="noopener noreferrer">
+                        <img 
+                            src={plan.exemplar_image_url} 
+                            alt="Handwritten Exemplar" 
+                            style={{ maxWidth: '100%', maxHeight: '400px', borderRadius: '8px', border: '1px solid #ddd' }} 
+                        />
+                    </a>
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#fff' }}>
-                  <div style={{ flex: '1 1 50%', padding: '15px', borderRight: '1px solid #eee' }}>
-                    <div style={{ color: 'var(--kms-teal-dark)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
-                      <CheckCircle2 size={16} /> Correct Process / Answer
-                    </div>
-                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.correct_answer}</div>
-                  </div>
-                  <div style={{ flex: '1 1 50%', padding: '15px', backgroundColor: '#fff5f5' }}>
-                    <div style={{ color: '#d32f2f', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
-                      <AlertTriangle size={16} /> Anticipated Misconception & Intervention
-                    </div>
-                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.misconception}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p style={{ margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>{plan.independent_practice}</p>
+            </Section>
         )}
-      </Section>
+
+        <Section id="guided_practice" title="Guided Practice (We Do)">
+            {plan.structured_exemplars && plan.structured_exemplars.length >= 2 ? (
+                <div>
+                    {plan.structured_exemplars.slice(0, 2).map((ex, idx) => (
+                        <div key={'guided-'+idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
+                            <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
+                                Problem {idx + 1}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex) }} />
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#fff' }}>
+                                <div style={{ flex: '1 1 50%', padding: '15px', borderRight: '1px solid #eee' }}>
+                                    <div style={{ color: 'var(--kms-teal-dark)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
+                                        <CheckCircle2 size={16} /> Correct Process / Answer
+                                    </div>
+                                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.correct_answer}</div>
+                                </div>
+                                <div style={{ flex: '1 1 50%', padding: '15px', backgroundColor: '#fff5f5' }}>
+                                    <div style={{ color: '#d32f2f', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
+                                        <AlertTriangle size={16} /> Anticipated Misconception & Intervention
+                                    </div>
+                                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.misconception}</div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div style={{ padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px', fontStyle: 'italic', color: '#666' }}>
+                    No guided practice problems found.
+                </div>
+            )}
+        </Section>
+
+        <Section id="group_practice" title="Group Practice">
+            {plan.structured_exemplars && plan.structured_exemplars.length >= 6 ? (
+                <div>
+                    {plan.structured_exemplars.slice(2, 6).map((ex, idx) => (
+                        <div key={'group-'+idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
+                            <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
+                                Problem {idx + 3}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex) }} />
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#fff' }}>
+                                <div style={{ flex: '1 1 50%', padding: '15px', borderRight: '1px solid #eee' }}>
+                                    <div style={{ color: 'var(--kms-teal-dark)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
+                                        <CheckCircle2 size={16} /> Correct Process / Answer
+                                    </div>
+                                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.correct_answer}</div>
+                                </div>
+                                <div style={{ flex: '1 1 50%', padding: '15px', backgroundColor: '#fff5f5' }}>
+                                    <div style={{ color: '#d32f2f', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
+                                        <AlertTriangle size={16} /> Anticipated Misconception & Intervention
+                                    </div>
+                                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.misconception}</div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div style={{ padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px', fontStyle: 'italic', color: '#666' }}>
+                    No group practice problems found.
+                </div>
+            )}
+        </Section>
+
+        <Section id="independent_practice" title="Independent Practice">
+            {plan.structured_exemplars && plan.structured_exemplars.length >= 16 ? (
+                <div>
+                    {plan.structured_exemplars.slice(6, 16).map((ex, idx) => (
+                        <div key={'ind-'+idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
+                            <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
+                                Problem {idx + 7}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex) }} />
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#fff' }}>
+                                <div style={{ flex: '1 1 50%', padding: '15px', borderRight: '1px solid #eee' }}>
+                                    <div style={{ color: 'var(--kms-teal-dark)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
+                                        <CheckCircle2 size={16} /> Correct Process / Answer
+                                    </div>
+                                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.correct_answer}</div>
+                                </div>
+                                <div style={{ flex: '1 1 50%', padding: '15px', backgroundColor: '#fff5f5' }}>
+                                    <div style={{ color: '#d32f2f', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
+                                        <AlertTriangle size={16} /> Anticipated Misconception & Intervention
+                                    </div>
+                                    <div style={{ whiteSpace: 'pre-wrap', fontSize: '14px' }}>{ex.misconception}</div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <div style={{ padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px', fontStyle: 'italic', color: '#666' }}>
+                    No independent practice problems found.
+                </div>
+            )}
+        </Section>
+
       
       <Section id="criteria_for_success" title="Criteria for Success" content={plan.criteria_for_success} />
       <Section id="exit_ticket" title="Exit Ticket" content={plan.exit_ticket} />
