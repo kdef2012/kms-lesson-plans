@@ -79,6 +79,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
 
   const [comments, setComments] = useState({}); // Grouped by section
   const [activeCommentSection, setActiveCommentSection] = useState(null);
+  const [shoutouts, setShoutouts] = useState({});
+  useEffect(() => { fetch('/shoutouts.json').then(r => r.json()).then(d => setShoutouts(d)).catch(e => console.error('No shoutouts found', e)); }, []);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -350,65 +352,7 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
         { title: "3. Today @ A Glance", content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` },
 
 
-        { 
-          title: "4. Student Shoutouts", 
-          content: (() => {
-             const dateShoutouts = shoutouts[plan.date_start] || ["Bradley Fontaine", "Sarah Jenkins", "Marcus Johnson"];
-             const s1 = dateShoutouts[0] || "Student 1";
-             const s2 = dateShoutouts[1] || "Student 2";
-             const s3 = dateShoutouts[2] || "Student 3";
-             return `
-<div style="text-align: center; position: relative; z-index: 10;">
-  <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
-  <div style="display: flex; justify-content: space-around; margin-top: 30px;">
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-      <h4>Core 1</h4>
-      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s1}</p>
-    </div>
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-      <h4>Core 2</h4>
-      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s2}</p>
-    </div>
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-      <h4>Core 3</h4>
-      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s3}</p>
-    </div>
-  </div>
-</div>`;
-          })()
-        },
-
-
-
-        { 
-          title: "4. Student Shoutouts", 
-          content: (() => {
-             const dateShoutouts = shoutouts[plan.date_start] || ["Bradley Fontaine", "Sarah Jenkins", "Marcus Johnson"];
-             const s1 = dateShoutouts[0] || "Student 1";
-             const s2 = dateShoutouts[1] || "Student 2";
-             const s3 = dateShoutouts[2] || "Student 3";
-             return `
-<div style="text-align: center; position: relative; z-index: 10;">
-  <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
-  <div style="display: flex; justify-content: space-around; margin-top: 30px;">
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-      <h4>Core 1</h4>
-      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s1}</p>
-    </div>
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-      <h4>Core 2</h4>
-      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s2}</p>
-    </div>
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-      <h4>Core 3</h4>
-      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s3}</p>
-    </div>
-  </div>
-</div>`;
-          })()
-        },
-
-
+        
 
         { 
           title: "4. Student Shoutouts", 
@@ -437,13 +381,7 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
 </div>`;
           })()
         },
-
-
-        
-        
-        
-
-        ...diSlides,
+...diSlides,
         { title: "7. Formative Assessment #1", content: `**Check for understanding:**\n${cfuText}` },
         { title: "Classroom Expectations (Reminder)", content: expectationsContent },
         ...groupSlides,
@@ -666,6 +604,8 @@ ${renderQuestionContent(ex)}
         
 
 
+        
+
         { 
           title: "4. Student Shoutouts", 
           content: (() => {
@@ -693,34 +633,6 @@ ${renderQuestionContent(ex)}
 </div>`;
           })()
         },
-{ 
-          title: "4. Student Shoutouts", 
-          content: (() => {
-             const dateShoutouts = shoutouts[plan.date_start] || ["Bradley Fontaine", "Sarah Jenkins", "Marcus Johnson"];
-             const s1 = dateShoutouts[0] || "Student 1";
-             const s2 = dateShoutouts[1] || "Student 2";
-             const s3 = dateShoutouts[2] || "Student 3";
-             return `<div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;"></div>
-<div style="text-align: center; position: relative; z-index: 10;">
-  <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
-  <div style="display: flex; justify-content: space-around; margin-top: 30px;">
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-      <h4>Core 1</h4>
-      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s1}</p>
-    </div>
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-      <h4>Core 2</h4>
-      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s2}</p>
-    </div>
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-      <h4>Core 3</h4>
-      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s3}</p>
-    </div>
-  </div>
-</div>`;
-          })()
-        },
-
 ...diSlides,
       { 
         title: "7. Formative Assessment #1", 
