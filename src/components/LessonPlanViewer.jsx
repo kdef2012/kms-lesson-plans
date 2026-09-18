@@ -56,13 +56,17 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     }
     
     if (ex.type === 'matching' && ex.matchingPrompts && ex.matchingOptions) {
-      html += '<div style="display: flex; justify-content: space-around; width: 100%; margin-top: 15px; font-size: 0.85em; text-align: left;">' +
+        const shiftedOptions = [...ex.matchingOptions];
+        if (shiftedOptions.length > 1) {
+            shiftedOptions.unshift(shiftedOptions.pop());
+        }
+        html += '<div style="display: flex; justify-content: space-around; width: 100%; margin-top: 15px; font-size: 0.85em; text-align: left;">' +
         '<div><ul style="list-style-type: decimal; padding-left: 20px;">' + ex.matchingPrompts.map(p => '<li style="margin-bottom:8px;">' + renderMath(p.text) + '</li>').join('') + '</ul></div>' +
-        '<div><ul style="list-style-type: upper-alpha; padding-left: 20px;">' + ex.matchingOptions.map(o => '<li style="margin-bottom:8px;">' + renderMath(o.text) + '</li>').join('') + '</ul></div>' +
-      '</div>';
-    }
-    
-    if (ex.type === 'drag-and-drop' && ex.prompts && ex.options) {
+        '<div><ul style="list-style-type: upper-alpha; padding-left: 20px;">' + shiftedOptions.map(o => '<li style="margin-bottom:8px;">' + renderMath(o.text) + '</li>').join('') + '</ul></div>' +
+        '</div>';
+      }
+
+      if (ex.type === 'drag-and-drop' && ex.prompts && ex.options) {
       html += '<div style="margin-top: 15px; font-size: 0.85em; text-align: left; width: 100%;">' +
         '<div style="border: 1px dashed #666; padding: 10px; margin-bottom: 10px; text-align: center; border-radius: 4px;"><strong>Word Bank:</strong><br/>' + ex.options.map(o => renderMath(o)).join(' &nbsp;|&nbsp; ') + '</div>' +
         '<div style="display: flex; gap: 10px; justify-content: space-between;">' + 
