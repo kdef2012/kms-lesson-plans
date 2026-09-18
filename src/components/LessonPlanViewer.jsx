@@ -29,12 +29,21 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
   };
 
   
-  const renderQuestionContent = (ex) => {
+  
+  const renderQuestionContent = (ex, index = 0) => {
     let html = renderMath(ex.question);
     
     if (ex.type === 'multiple-choice' && ex.options) {
-      html += '<ol style="list-style-type: upper-alpha; margin-left: 20px; margin-top: 10px; font-size: 0.9em; text-align: left;">' + ex.options.map(o => '<li style="margin-bottom:4px;">' + renderMath(o) + '</li>').join('') + '</ol>';
+      // Deterministically shuffle based on question string length + index
+      let opts = [...ex.options];
+      let seed = (ex.question || '').length + index;
+      for (let i = opts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.abs(Math.sin(seed++) * 10000)) % (i + 1);
+        [opts[i], opts[j]] = [opts[j], opts[i]];
+      }
+      html += '<ol style="list-style-type: upper-alpha; margin-left: 20px; margin-top: 10px; font-size: 0.9em; text-align: left;">' + opts.map(o => '<li style="margin-bottom:4px;">' + renderMath(o) + '</li>').join('') + '</ol>';
     }
+
     
     if (ex.type === 'interactive-graph' && ex.visualData && ex.visualData.originalPolygon) {
       const gridMax = 10;
@@ -105,7 +114,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       guidedHTML = guidedChunk.map((ex, i) => {
         return `
           <div style="margin-bottom: 20px; break-inside: avoid;">
-            <p style="font-size: 16px; margin-bottom: 5px;"><strong>Example ${i + 1}.</strong> ${renderQuestionContent(ex)}</p>
+            <p style="font-size: 16px; margin-bottom: 5px;"><strong>Example ${i + 1}.</strong> ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}</p>
             <div style="border: 1px dashed #aaa; height: 120px; border-radius: 4px;"></div>
           </div>
         `;
@@ -164,7 +173,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       worksheetProblemsHTML = indChunk.map((ex, i) => {
         return `
           <div style="margin-bottom: 30px;">
-            <p style="font-size: 18px;"><strong>${i + 1}.</strong> ${renderQuestionContent(ex)}</p>
+            <p style="font-size: 18px;"><strong>${i + 1}.</strong> ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}</p>
             <div style="border: 1px solid #aaa; height: 150px; margin-top: 10px; border-radius: 4px;"></div>
           </div>
         `;
@@ -251,7 +260,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           guidedSlides.push({
             title: `8. Guided Practice (Problem ${idx + 1})`,
             content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(ex)}
+${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
 </div>`
           });
         });
@@ -265,7 +274,7 @@ ${renderQuestionContent(ex)}
           groupSlides.push({
             title: `10. Group Practice (Problem ${idx + 1})`,
             content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(ex)}
+${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
 </div>`
           });
         });
@@ -276,7 +285,7 @@ ${renderQuestionContent(ex)}
         const indChunk = plan.structured_exemplars.slice(6, 16);
         const chunkHTML = `<div class="problems-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px; font-size: 16px;">
 ` + 
-          indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; page-break-inside: avoid;"><strong>${idx + 1}. ${renderQuestionContent(ex)}</strong></div>
+          indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; page-break-inside: avoid;"><strong>${idx + 1}. ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}</strong></div>
 `).join('') + 
           `</div>`;
         problemsSlides.push({ title: "11. Independent Practice (All 10)", content: chunkHTML });
@@ -348,7 +357,7 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
       const baseSlides = [
         { title: plan.topic ? plan.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
         { title: "1. Spiraled Do Now", content: `**Directions:**\n${plan.do_now || ''}` },
-        { title: "2. Classroom Expectations", content: expectationsContent },
+        { title: "2. Classroom Expectations", content: expectationsContent + '<div style="display: flex; justify-content: center; align-items: center; margin-top: 20px;"><img src="/owl.jpg" alt="Owl" style="height: 250px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>' },
         { title: "3. Today @ A Glance", content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` },
 
 
@@ -463,7 +472,7 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
           guidedSlides.push({
             title: `8. Guided Practice (Problem ${idx + 1})`,
             content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(ex)}
+${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
 </div>
 
 <div class="timer" onclick="startTimer(this, 5)">5:00</div>`
@@ -479,7 +488,7 @@ ${renderQuestionContent(ex)}
           groupSlides.push({
             title: `10. Group Practice (Problem ${idx + 1})`,
             content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(ex)}
+${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
 </div>
 
 <div class="timer" onclick="startTimer(this, 5)">5:00</div>`
@@ -492,7 +501,7 @@ ${renderQuestionContent(ex)}
       if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
         const indChunk = plan.structured_exemplars.slice(6, 16);
       const chunkHTML = `<div class="problems-grid" style="grid-template-columns: repeat(4, 1fr); font-size: 14px;">\n` + 
-        indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 10px;"><strong>${idx + 1}. ${renderQuestionContent(ex)}</strong></div>\n`).join('') + 
+        indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 10px;"><strong>${idx + 1}. ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}</strong></div>\n`).join('') + 
         `</div>\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`;
       problemsSlides.push({ title: "11. Independent Practice (All 10)", content: chunkHTML });
     } else {
@@ -692,6 +701,7 @@ ${renderQuestionContent(ex)}
             /* Practice Problems Grid */
             .problems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; margin-bottom: 20px;}
             .problem-box { 
+              word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; hyphens: auto; 
               border: 2px solid #cbd5e1; padding: 20px; border-radius: 12px; 
               background: #fff; text-align: center; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
               display: flex; align-items: center; justify-content: center; min-height: 100px;
@@ -1044,7 +1054,7 @@ ${renderQuestionContent(ex)}
                     {plan.structured_exemplars.slice(2, 6).map((ex, idx) => (
                         <div key={'group-'+idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
                             <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
-                                Problem {idx + 3}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex) }} />
+                                Problem {idx + 3}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0)) }} />
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#fff' }}>
                                 <div style={{ flex: '1 1 50%', padding: '15px', borderRight: '1px solid #eee' }}>
@@ -1076,7 +1086,7 @@ ${renderQuestionContent(ex)}
                     {plan.structured_exemplars.slice(6, 16).map((ex, idx) => (
                         <div key={'ind-'+idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
                             <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
-                                Problem {idx + 7}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex) }} />
+                                Problem {idx + 7}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0)) }} />
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#fff' }}>
                                 <div style={{ flex: '1 1 50%', padding: '15px', borderRight: '1px solid #eee' }}>
