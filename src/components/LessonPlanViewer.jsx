@@ -142,7 +142,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
           
           '<script>' +
             'window.onload = function() { setTimeout(() => window.print(), 500); };' +
-          '</script>' + '<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>' + '<script>setTimeout(() => { if(document.querySelector(".confetti-container")) confetti({particleCount: 150, spread: 180}); }, 500);</script>' + '</body>' +
+          ('<' + '/script>') + '<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"><' + '/script>' + '<script>setTimeout(() => { if(document.querySelector(".confetti-container")) confetti({particleCount: 150, spread: 180}); }, 500);<' + '/script>' + '</body>' +
       '</html>';
       
     printWindow.document.write(html);
@@ -209,7 +209,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
 
           '<script>' +
             'window.onload = function() { setTimeout(() => window.print(), 500); };' +
-          '</script>' + '<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>' + '<script>setTimeout(() => { if(document.querySelector(".confetti-container")) confetti({particleCount: 150, spread: 180}); }, 500);</script>' + '</body>' +
+          ('<' + '/script>') + '<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"><' + '/script>' + '<script>setTimeout(() => { if(document.querySelector(".confetti-container")) confetti({particleCount: 150, spread: 180}); }, 500);<' + '/script>' + '</body>' +
       '</html>';
       
     printWindow.document.write(html);
@@ -488,7 +488,7 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
             slideHTML +
             '<script>' +
               'window.onload = function() { setTimeout(() => window.print(), 1000); };' +
-            '</script>' + '<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>' + '<script>setTimeout(() => { if(document.querySelector(".confetti-container")) confetti({particleCount: 150, spread: 180}); }, 500);</script>' + '</body>' +
+            ('<' + '/script>') + '<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"><' + '/script>' + '<script>setTimeout(() => { if(document.querySelector(".confetti-container")) confetti({particleCount: 150, spread: 180}); }, 500);<' + '/script>' + '</body>' +
         '</html>';
         
       printWindow.document.write(html);
@@ -761,7 +761,7 @@ ${renderQuestionContent(ex)}
         <head>
           <title>Presentation: ${plan.topic}</title>
           <link rel="stylesheet" href="${window.location.origin}/katex/katex.min.css">
-          <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js">${"<"}/script>
           
           <style>
             body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #6a0dad, #008080); color: #1e293b; overflow: hidden; }
@@ -928,7 +928,7 @@ ${renderQuestionContent(ex)}
             
             // Allow scripts to load before rendering first slide
             setTimeout(renderSlide, 100);
-          </script>
+          ${"<"}/script>
         </body>
       </html>
     `;
