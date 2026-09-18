@@ -146,7 +146,7 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
     
     let worksheetProblemsHTML = '';
     if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
-      const indChunk = plan.structured_exemplars;
+      const indChunk = plan.structured_exemplars.slice(6, 16);
       worksheetProblemsHTML = indChunk.map((ex, i) => {
         return `
           <div style="margin-bottom: 30px;">
@@ -224,26 +224,43 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
 
     const problemsSlides = [];
 
-        let guidedHTML = '';
-    if (plan.structured_exemplars && plan.structured_exemplars.length >= 2) {
-      const guidedChunk = plan.structured_exemplars.slice(0, 2);
-      guidedHTML = `<div class="problems-grid">\n` + 
-          guidedChunk.map(ex => `  <div class="problem-box"><strong>${renderQuestionContent(ex)}</strong></div>\n`).join('') + 
-          `</div>\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>`;
-    }
+        
+      // Guided Practice (2 problems - separate slides)
+      const guidedSlides = [];
+      if (plan.structured_exemplars && plan.structured_exemplars.length >= 2) {
+        const guidedChunk = plan.structured_exemplars.slice(0, 2);
+        guidedChunk.forEach((ex, idx) => {
+          guidedSlides.push({
+            title: `8. Guided Practice (Problem ${idx + 1})`,
+            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+${renderQuestionContent(ex)}
+</div>
 
-    // Group Practice (next 4 problems)
-    let groupHTML = '';
-    if (plan.structured_exemplars && plan.structured_exemplars.length >= 6) {
-      const groupChunk = plan.structured_exemplars.slice(2, 6);
-      groupHTML = `<div class="problems-grid">\n` + 
-          groupChunk.map((ex, idx) => `  <div class="problem-box"><strong>${idx + 1}. ${renderQuestionContent(ex)}</strong></div>\n`).join('') + 
-          `</div>\n\n<div class="timer" onclick="startTimer(this, 10)">10:00</div>`;
-    }
+<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
+          });
+        });
+      }
+  
+      // Group Practice (4 problems - separate slides)
+      const groupSlides = [];
+      if (plan.structured_exemplars && plan.structured_exemplars.length >= 6) {
+        const groupChunk = plan.structured_exemplars.slice(2, 6);
+        groupChunk.forEach((ex, idx) => {
+          groupSlides.push({
+            title: `10. Group Practice (Problem ${idx + 1})`,
+            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+${renderQuestionContent(ex)}
+</div>
+
+<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
+          });
+        });
+      }
+
 
     // Independent Practice (remaining 10 problems on one slide)
-    if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
-      const indChunk = plan.structured_exemplars;
+      if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
+        const indChunk = plan.structured_exemplars.slice(6, 16);
       const chunkHTML = `<div class="problems-grid" style="grid-template-columns: repeat(4, 1fr); font-size: 14px;">\n` + 
         indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 10px;"><strong>${idx + 1}. ${renderQuestionContent(ex)}</strong></div>\n`).join('') + 
         `</div>\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`;
@@ -321,18 +338,12 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
         title: "Classroom Expectations (Reminder)", 
         content: expectationsContent 
       },
-      { 
-        title: "8. Guided Practice", 
-        content: guidedHTML 
-      },
+      ...guidedSlides,
       { 
         title: "Classroom Expectations (Reminder)", 
         content: expectationsContent 
       },
-      { 
-        title: "10. Group Practice", 
-        content: groupHTML 
-      },
+      ...groupSlides,
       { 
         title: "Classroom Expectations (Reminder)", 
         content: expectationsContent 
