@@ -357,7 +357,7 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
       const baseSlides = [
         { title: plan.topic ? plan.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
         { title: "1. Spiraled Do Now", content: `**Directions:**\n${plan.do_now || ''}` },
-        { title: "2. Classroom Expectations", content: expectationsContent + '<div style="display: flex; justify-content: center; align-items: center; margin-top: 20px;"><img src="${window.location.origin}/owl.jpg" alt="Owl" style="height: 250px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>' },
+        { title: "2. Classroom Expectations", content: expectationsContent + '<div style="display: flex; justify-content: center; align-items: center; margin-top: 20px;"><img src="' + window.location.origin + '/owl.jpg" alt="Owl" style="height: 250px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>' },
         { title: "3. Today @ A Glance", content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` },
 
 
