@@ -14,7 +14,7 @@ import { format } from 'date-fns';
 
 
 
-const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
+const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
   const renderMath = (text) => {
     if (!text) return "";
     let t = text.replace(/\bpi\b/gi, '\\pi');
@@ -236,201 +236,8 @@ const LessonPlanViewer = ({ plan, viewerPin, adminName }) => {
       }
 
       // We need to re-generate the slides array here just like handlePresent does
-      const cfuMatch = plan.direct_instruction ? plan.direct_instruction.match(/CFU:(.*?)(?:\n|$)/) : null;
-      const cfuText = cfuMatch ? cfuMatch[1].trim() : "Show me on your fingers...";
-
-      const eqMatch = plan.objective_3m ? plan.objective_3m.match(/SWBATs+(.*)/i) : null;
-      const getEssentialQuestion = (obj) => {
-        if (!obj) return "What is the core concept of today's lesson?";
-        let topic = obj.toLowerCase();
-        const m = topic.match(/involving (.*?) \(/);
-        if (m) {
-           return `How can we apply our understanding of ${m[1]} to solve real-world problems?`;
-        }
-        return "How can we apply today's concept to solve real-world problems?";
-      };
-
-      const problemsSlides = [];
-
-      // Guided Practice (2 problems - separate slides)
-      const guidedSlides = [];
-      if (plan.structured_exemplars && plan.structured_exemplars.length >= 2) {
-        const guidedChunk = plan.structured_exemplars.slice(0, 2);
-        guidedChunk.forEach((ex, idx) => {
-          guidedSlides.push({
-            title: `8. Guided Practice (Problem ${idx + 1})`,
-            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
-</div>`
-          });
-        });
-      }
-  
-      // Group Practice (4 problems - separate slides)
-      const groupSlides = [];
-      if (plan.structured_exemplars && plan.structured_exemplars.length >= 6) {
-        const groupChunk = plan.structured_exemplars.slice(2, 6);
-        groupChunk.forEach((ex, idx) => {
-          groupSlides.push({
-            title: `10. Group Practice (Problem ${idx + 1})`,
-            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
-</div>`
-          });
-        });
-      }
-
-      // Independent Practice (remaining 10 problems on one slide)
-      if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
-        const indChunk = plan.structured_exemplars.slice(6, 16);
-        const chunkHTML = `<div class="problems-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px; font-size: 16px;">
-` + 
-          indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; page-break-inside: avoid;"><strong>${idx + 1}. ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}</strong></div>
-`).join('') + 
-          `</div>`;
-        problemsSlides.push({ title: "11. Independent Practice (All 10)", content: chunkHTML });
-      } else {
-        problemsSlides.push({ 
-          title: "11. Independent Practice", 
-          content: `<strong>Directions:</strong>
-${plan.independent_practice || 'Complete the assigned independent practice problems quietly.'}`
-        });
-      }
-
       
-      const diSlides = [];
-      if (plan.direct_instruction) {
-        let diText = plan.direct_instruction;
-        // Inject telescope launch for 9/21
-        if (plan.date_start === '2026-09-21' && !diText.includes('telescope')) {
-           diText = diText.replace(/## Direct Instruction\s*---/i, "## Launch: The Telescope\n---\nImagine you are looking at a star through a telescope. The star doesn't change its actual shape, but the lenses inside the telescope *scale* the image up so your eye can see it. Today, we are going to learn how to mathematically build that telescope.\n\n## Direct Instruction\n---");
-        }
-        
-        // Split by markdown headings
-        const blocks = diText.split(/(?=## )/);
-        
-        blocks.forEach((block, idx) => {
-          if (!block.trim()) return;
-          
-          let title = "Direct Instruction";
-          const titleMatch = block.match(/## (.*?)\n/);
-          if (titleMatch) {
-             title = titleMatch[1].trim();
-             block = block.replace(/## .*?\n/, '');
-          }
-          block = block.replace(/^---\n/, ''); // remove stray dashes
-
-          let content = block.trim();
-          
-          if (content.includes('**Example 1**') && content.includes('**Example 2**')) {
-             const ex1split = content.split('**Example 2**');
-             diSlides.push({
-              title: `${title} (Example 1)`,
-              content: ex1split[0].replace(/\*\*Example 1\*\*/g, `**Example 1**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 0 ? renderQuestionContent(plan.structured_exemplars[0]) : ''}</div>`) + `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
-             });
-             diSlides.push({
-              title: `${title} (Example 2)`,
-              content: (`**Example 2**` + ex1split[1]).replace(/\*\*Example 2\*\*/g, `**Example 2**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 1 ? renderQuestionContent(plan.structured_exemplars[1]) : ''}</div>`) + `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
-             });
-          } else {
-             diSlides.push({
-              title: title,
-              content: content.replace(/\*\*Example 1\*\*/g, `**Example 1**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 0 ? renderQuestionContent(plan.structured_exemplars[0]) : ''}</div>`).replace(/\*\*Example 2\*\*/g, `**Example 2**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 1 ? renderQuestionContent(plan.structured_exemplars[1]) : ''}</div>`) + (content.includes('Example') ? `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` : '')
-             });
-          }
-        });
-      }
-
-
-      
-      const expectationsContent = `<div style="display: flex; align-items: center; justify-content: space-around; padding: 20px;">
-        <ul style="font-size: 32px; line-height: 2.2;">
-          <li>No Cellphones</li>
-          <li>Drop pencils when completed</li>
-          <li>Communicate with respect</li>
-          <li>Raise your hand</li>
-        </ul>
-        <div><img src="${window.location.origin}/owl-transparent.png" alt="Owl" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
-      </div>`;
-
-
-      const baseSlides = [
-        { title: plan.topic ? plan.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
-        { title: "1. Spiraled Do Now", content: `**Directions:**\n${plan.do_now || ''}` },
-        { title: "2. Classroom Expectations", content: expectationsContent },
-        { title: "3. Today @ A Glance", content: `<div style="display: flex; justify-content: center; margin-top: 20px;"><img src="https://images.unsplash.com/photo-1632516643720-e7f0d7e6a604?q=80&w=600&auto=format&fit=crop" alt="Math" style="height: 180px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" crossorigin="anonymous" /></div>\n\n**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` },
-
-
-        
-
-        { 
-          title: "4. Student Shoutouts", 
-          content: (() => {
-             
-             const getMostRecentShoutouts = (targetDate) => {
-               // First check exact date and see if it has at least one real name
-               if (shoutouts[targetDate] && shoutouts[targetDate].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3")) {
-                 return shoutouts[targetDate];
-               }
-               // Otherwise, find the most recent date before targetDate that has real names
-               const pastDates = Object.keys(shoutouts)
-                 .filter(d => d < targetDate && shoutouts[d].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3"))
-                 .sort((a,b) => new Date(b) - new Date(a));
-               
-               if (pastDates.length > 0) return shoutouts[pastDates[0]];
-               
-               // Fallback if absolutely no past dates have data
-               return ["TBD", "TBD", "TBD"];
-             };
-             const dateShoutouts = getMostRecentShoutouts(plan.date_start);
-             const s1 = dateShoutouts[0] || "Student 1";
-             const s2 = dateShoutouts[1] || "Student 2";
-             const s3 = dateShoutouts[2] || "Student 3";
-             return `<div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; padding: 40px 0; pointer-events: none; z-index: -1;"></div>
-<div style="text-align: center; position: relative; z-index: 10;">
-  <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
-  <div style="display: flex; justify-content: space-around; margin-top: 30px;">
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-      <h4>Core 1</h4>
-      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s1}</p>
-    </div>
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-      <h4>Core 2</h4>
-      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s2}</p>
-    </div>
-    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
-      <h4>Core 3</h4>
-      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s3}</p>
-    </div>
-  </div>
-</div>`;
-          })()
-        },
-...diSlides,
-        { title: "7. Formative Assessment #1", content: `**Check for understanding:**\n${cfuText}` },
-        { title: "Classroom Expectations (Reminder)", content: expectationsContent },
-        ...groupSlides,
-        { title: "Classroom Expectations (Reminder)", content: expectationsContent },
-        ...problemsSlides,
-        { title: "12. Formative Assessment #2", content: `**Check for understanding:**\n${cfuText}` },
-        { title: "13. Exit Ticket", content: `**Directions:**\n${plan.exit_ticket || ''}` },
-      ];
-
-      // Convert Markdown to HTML for all slides
-      const parseMd = (text) => {
-        if (!text) return '';
-        let t = window.marked ? window.marked.parse(text, { breaks: true }) : text;
-        return renderMath(t);
-      };
-
-      const slideHTML = baseSlides.map((slide, idx) => {
-          return `
-            <div class="slide-page">
-                <div class="slide-header">${slide.title}</div>
-                <div class="slide-content">${parseMd(slide.content)}</div>
-            </div>
-          `;
-      }).join('');
+      const slideHTML = buildSlideshowHTML(plan);
 
       const html = 
         '<html>' +
@@ -1021,6 +828,261 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
     );
   };
 
+  
+    const buildSlideshowHTML = (p) => {
+        const cfuMatch = p.direct_instruction ? p.direct_instruction.match(/CFU:(.*?)(?:\n|$)/) : null;
+      const cfuText = cfuMatch ? cfuMatch[1].trim() : "Show me on your fingers...";
+
+      const eqMatch = p.objective_3m ? p.objective_3m.match(/SWBATs+(.*)/i) : null;
+      const getEssentialQuestion = (obj) => {
+        if (!obj) return "What is the core concept of today's lesson?";
+        let topic = obj.toLowerCase();
+        const m = topic.match(/involving (.*?) \(/);
+        if (m) {
+           return `How can we apply our understanding of ${m[1]} to solve real-world problems?`;
+        }
+        return "How can we apply today's concept to solve real-world problems?";
+      };
+
+      const problemsSlides = [];
+
+      // Guided Practice (2 problems - separate slides)
+      const guidedSlides = [];
+      if (p.structured_exemplars && p.structured_exemplars.length >= 2) {
+        const guidedChunk = p.structured_exemplars.slice(0, 2);
+        guidedChunk.forEach((ex, idx) => {
+          guidedSlides.push({
+            title: `8. Guided Practice (Problem ${idx + 1})`,
+            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
+</div>`
+          });
+        });
+      }
+  
+      // Group Practice (4 problems - separate slides)
+      const groupSlides = [];
+      if (p.structured_exemplars && p.structured_exemplars.length >= 6) {
+        const groupChunk = p.structured_exemplars.slice(2, 6);
+        groupChunk.forEach((ex, idx) => {
+          groupSlides.push({
+            title: `10. Group Practice (Problem ${idx + 1})`,
+            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
+</div>`
+          });
+        });
+      }
+
+      // Independent Practice (remaining 10 problems on one slide)
+      if (p.structured_exemplars && p.structured_exemplars.length > 0) {
+        const indChunk = p.structured_exemplars.slice(6, 16);
+        const chunkHTML = `<div class="problems-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px; font-size: 16px;">
+` + 
+          indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; page-break-inside: avoid;"><strong>${idx + 1}. ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}</strong></div>
+`).join('') + 
+          `</div>`;
+        problemsSlides.push({ title: "11. Independent Practice (All 10)", content: chunkHTML });
+      } else {
+        problemsSlides.push({ 
+          title: "11. Independent Practice", 
+          content: `<strong>Directions:</strong>
+${p.independent_practice || 'Complete the assigned independent practice problems quietly.'}`
+        });
+      }
+
+      
+      const diSlides = [];
+      if (p.direct_instruction) {
+        let diText = p.direct_instruction;
+        // Inject telescope launch for 9/21
+        if (p.date_start === '2026-09-21' && !diText.includes('telescope')) {
+           diText = diText.replace(/## Direct Instruction\s*---/i, "## Launch: The Telescope\n---\nImagine you are looking at a star through a telescope. The star doesn't change its actual shape, but the lenses inside the telescope *scale* the image up so your eye can see it. Today, we are going to learn how to mathematically build that telescope.\n\n## Direct Instruction\n---");
+        }
+        
+        // Split by markdown headings
+        const blocks = diText.split(/(?=## )/);
+        
+        blocks.forEach((block, idx) => {
+          if (!block.trim()) return;
+          
+          let title = "Direct Instruction";
+          const titleMatch = block.match(/## (.*?)\n/);
+          if (titleMatch) {
+             title = titleMatch[1].trim();
+             block = block.replace(/## .*?\n/, '');
+          }
+          block = block.replace(/^---\n/, ''); // remove stray dashes
+
+          let content = block.trim();
+          
+          if (content.includes('**Example 1**') && content.includes('**Example 2**')) {
+             const ex1split = content.split('**Example 2**');
+             diSlides.push({
+              title: `${title} (Example 1)`,
+              content: ex1split[0].replace(/\*\*Example 1\*\*/g, `**Example 1**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${p.structured_exemplars && p.structured_exemplars.length > 0 ? renderQuestionContent(p.structured_exemplars[0]) : ''}</div>`) + `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
+             });
+             diSlides.push({
+              title: `${title} (Example 2)`,
+              content: (`**Example 2**` + ex1split[1]).replace(/\*\*Example 2\*\*/g, `**Example 2**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${p.structured_exemplars && p.structured_exemplars.length > 1 ? renderQuestionContent(p.structured_exemplars[1]) : ''}</div>`) + `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
+             });
+          } else {
+             diSlides.push({
+              title: title,
+              content: content.replace(/\*\*Example 1\*\*/g, `**Example 1**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${p.structured_exemplars && p.structured_exemplars.length > 0 ? renderQuestionContent(p.structured_exemplars[0]) : ''}</div>`).replace(/\*\*Example 2\*\*/g, `**Example 2**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${p.structured_exemplars && p.structured_exemplars.length > 1 ? renderQuestionContent(p.structured_exemplars[1]) : ''}</div>`) + (content.includes('Example') ? `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` : '')
+             });
+          }
+        });
+      }
+
+
+      
+      const expectationsContent = `<div style="display: flex; align-items: center; justify-content: space-around; padding: 20px;">
+        <ul style="font-size: 32px; line-height: 2.2;">
+          <li>No Cellphones</li>
+          <li>Drop pencils when completed</li>
+          <li>Communicate with respect</li>
+          <li>Raise your hand</li>
+        </ul>
+        <div><img src="${window.location.origin}/owl-transparent.png" alt="Owl" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
+      </div>`;
+
+
+      const baseSlides = [
+        { title: p.topic ? p.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
+        { title: "1. Spiraled Do Now", content: `**Directions:**\n${p.do_now || ''}` },
+        { title: "2. Classroom Expectations", content: expectationsContent },
+        { title: "3. Today @ A Glance", content: `<div style="display: flex; justify-content: center; margin-top: 20px;"><img src="https://images.unsplash.com/photo-1632516643720-e7f0d7e6a604?q=80&w=600&auto=format&fit=crop" alt="Math" style="height: 180px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" crossorigin="anonymous" /></div>\n\n**SWBAT (Objective):**\n${p.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(p.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` },
+
+
+        
+
+        { 
+          title: "4. Student Shoutouts", 
+          content: (() => {
+             
+             const getMostRecentShoutouts = (targetDate) => {
+               // First check exact date and see if it has at least one real name
+               if (shoutouts[targetDate] && shoutouts[targetDate].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3")) {
+                 return shoutouts[targetDate];
+               }
+               // Otherwise, find the most recent date before targetDate that has real names
+               const pastDates = Object.keys(shoutouts)
+                 .filter(d => d < targetDate && shoutouts[d].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3"))
+                 .sort((a,b) => new Date(b) - new Date(a));
+               
+               if (pastDates.length > 0) return shoutouts[pastDates[0]];
+               
+               // Fallback if absolutely no past dates have data
+               return ["TBD", "TBD", "TBD"];
+             };
+             const dateShoutouts = getMostRecentShoutouts(p.date_start);
+             const s1 = dateShoutouts[0] || "Student 1";
+             const s2 = dateShoutouts[1] || "Student 2";
+             const s3 = dateShoutouts[2] || "Student 3";
+             return `<div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; padding: 40px 0; pointer-events: none; z-index: -1;"></div>
+<div style="text-align: center; position: relative; z-index: 10;">
+  <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
+  <div style="display: flex; justify-content: space-around; margin-top: 30px;">
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 1</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s1}</p>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 2</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s2}</p>
+    </div>
+    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">
+      <h4>Core 3</h4>
+      <p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">${s3}</p>
+    </div>
+  </div>
+</div>`;
+          })()
+        },
+...diSlides,
+        { title: "7. Formative Assessment #1", content: `**Check for understanding:**\n${cfuText}` },
+        { title: "Classroom Expectations (Reminder)", content: expectationsContent },
+        ...groupSlides,
+        { title: "Classroom Expectations (Reminder)", content: expectationsContent },
+        ...problemsSlides,
+        { title: "12. Formative Assessment #2", content: `**Check for understanding:**\n${cfuText}` },
+        { title: "13. Exit Ticket", content: `**Directions:**\n${p.exit_ticket || ''}` },
+      ];
+
+      // Convert Markdown to HTML for all slides
+      const parseMd = (text) => {
+        if (!text) return '';
+        let t = window.marked ? window.marked.parse(text, { breaks: true }) : text;
+        return renderMath(t);
+      };
+
+      const slideHTML = baseSlides.map((slide, idx) => {
+          return `
+            <div class="slide-page">
+                <div class="slide-header">${slide.title}</div>
+                <div class="slide-content">${parseMd(slide.content)}</div>
+            </div>
+          `;
+      }).join('');
+
+      
+        return slideHTML;
+    };
+
+
+    const handlePrintWeekSlideshows = () => {
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        alert("Slideshow popup was blocked! Please allow popups.");
+        return;
+      }
+      
+      if (!weekPlans || weekPlans.length === 0) return;
+      
+      const slideHTML = weekPlans.map(p => buildSlideshowHTML(p)).join('<div style="page-break-after: always; height: 0; padding: 0; border: none; margin: 0;"></div>');
+      
+      const html = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Week Slideshows</title>
+            <link href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" rel="stylesheet">
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; background: #f0f2f5; }
+              .slide-page { width: 1024px; height: 768px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; page-break-after: always; page-break-inside: avoid; position: relative; }
+              .slide-header { background: #4B0082; color: white; padding: 25px 40px; font-size: 32px; font-weight: bold; border-bottom: 6px solid #008080; }
+              .slide-content { flex: 1; padding: 40px; font-size: 28px; line-height: 1.6; overflow-y: auto; }
+              .timer-container { position: absolute; bottom: 30px; right: 40px; }
+              .timer { background: #008080; color: white; padding: 10px 25px; border-radius: 30px; font-weight: bold; font-family: monospace; font-size: 32px; border: 3px solid #004c4c; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+              .problem-box { border: 2px solid #ccc; border-radius: 8px; background: white; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+              .problem-header { background: #f8f9fa; padding: 15px 20px; border-bottom: 2px solid #eee; font-weight: bold; color: #4B0082; font-size: 24px; }
+              .problem-body { padding: 20px; }
+              
+              /* Math rendering fixes */
+              .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+              .katex { max-width: 100%; white-space: normal; word-wrap: break-word; }
+              
+              @media print {
+                @page { size: landscape; margin: 0; }
+                body { background: white; }
+                .slide-page { margin: 0; box-shadow: none; border-radius: 0; width: 100%; height: 100vh; }
+              }
+            </style>
+          </head>
+          <body>
+            ${slideHTML}
+            <script>window.onload = function() { setTimeout(() => window.print(), 1000); };</script>
+            <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+            <script>setTimeout(() => { if(document.querySelector(".confetti-container")) confetti({particleCount: 150, spread: 180}); }, 500);</script>
+          </body>
+        </html>`;
+        
+      printWindow.document.write(html);
+      printWindow.document.close();
+    };
+
+
   return (
     <div ref={viewerRef}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #eee', paddingBottom: '20px', marginBottom: '20px' }}>
@@ -1041,19 +1103,20 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
             <button onClick={handlePrintSlideshow} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Printer size={18} /> Print Slideshow
             </button>
-
-          <button onClick={handlePrintGuidedNotes} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Printer size={18} /> Guided Notes
-          </button>
-          <button onClick={handlePrintWorksheet} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Printer size={18} /> Worksheet
-          </button>
-          {plan.pdf_url && (
-            <a href={plan.pdf_url} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
-              <Download size={18} /> PDF
-            </a>
+            {plan.pdf_url && (
+              <a href={plan.pdf_url} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+                <Download size={18} /> PDF
+              </a>
+            )}
+          </div>
+          {weekPlans && weekPlans.length > 0 && (
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #eee' }}>
+              <span style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', color: 'var(--kms-purple)', marginRight: '10px' }}>Entire Week:</span>
+              <button onClick={handlePrintWeekSlideshows} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Printer size={18} /> Print Slideshows
+              </button>
+            </div>
           )}
-        </div>
       </div>
 
       <p style={{ fontStyle: 'italic', color: '#666', marginBottom: '20px', fontSize: '14px' }}>

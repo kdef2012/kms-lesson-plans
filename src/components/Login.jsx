@@ -41,7 +41,7 @@ const Login = ({ onLogin }) => {
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <input
-            type="password"
+            type="password" autoComplete="new-password"
             className="input-field"
             placeholder="4-Digit PIN"
             maxLength={4}
