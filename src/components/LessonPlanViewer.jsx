@@ -830,8 +830,26 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
 
   
     const buildSlideshowHTML = (p) => {
-        const cfuMatch = p.direct_instruction ? p.direct_instruction.match(/CFU:(.*?)(?:\n|$)/) : null;
-      const cfuText = cfuMatch ? cfuMatch[1].trim() : "Show me on your fingers...";
+        
+    const cfuStrategies = [
+      'Turn and Talk: Discuss the core concept with your neighbor.',
+      'Stop and Jot: Write down the most important thing you learned in the last 5 minutes.',
+      'Think-Pair-Share: Think about the core concept for 30 seconds, then pair up and share your thoughts.',
+      'Fist to Five: Rate your understanding from 0 (completely lost) to 5 (I could teach it) by holding up your fingers.',
+      'Thumbs Up/Down: Show a thumbs up if you feel confident about the concept, or thumbs down if you need more help.',
+      'Cold Call Prep: Take 1 minute to formulate summary in your head. A random student will be called upon.'
+    ];
+    const hashStr = (p.topic || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const defaultCfu = cfuStrategies[hashStr % cfuStrategies.length];
+    
+    let cfuText = p.checks_for_understanding && p.checks_for_understanding.length > 0 
+      ? p.checks_for_understanding[0].cfu 
+      : defaultCfu;
+      
+    if (p.date_start === '2026-09-21') {
+       cfuText = 'Cold Call Prep: Take 1 minute to formulate summary in your head. A random student will be called upon.';
+    }
+
 
       const eqMatch = p.objective_3m ? p.objective_3m.match(/SWBATs+(.*)/i) : null;
       const getEssentialQuestion = (obj) => {
