@@ -1024,8 +1024,8 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
         ...groupSlides,
         { title: "Classroom Expectations (Reminder)", content: expectationsContent },
         ...problemsSlides,
-        { title: "12. Formative Assessment #2", content: `**Check for understanding:**\n${cfuText}` },
-        { title: "13. Exit Ticket", content: `**Directions:**\n${p.exit_ticket || ''}` },
+        
+        { title: "13. Exit Ticket (Formative Assessment #3)", content: `**Directions:**\n${p.exit_ticket || ''}` },
       ];
 
       // Convert Markdown to HTML for all slides
