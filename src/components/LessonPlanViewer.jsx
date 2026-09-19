@@ -1029,11 +1029,16 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
       ];
 
       // Convert Markdown to HTML for all slides
+      
       const parseMd = (text) => {
         if (!text) return '';
-        let t = window.marked ? window.marked.parse(text, { breaks: true }) : text;
-        return renderMath(t);
+        let t = renderMath(text);
+        if (window.marked) {
+          t = window.marked.parse(t, { breaks: true });
+        }
+        return t;
       };
+
 
       const slideHTML = baseSlides.map((slide, idx) => {
           return `
