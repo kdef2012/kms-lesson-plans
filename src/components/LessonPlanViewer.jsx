@@ -355,9 +355,9 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
 
 
       const baseSlides = [
-        { title: plan.topic ? plan.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
+        { title: plan.topic ? plan.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
         { title: "1. Spiraled Do Now", content: `**Directions:**\n${plan.do_now || ''}` },
-        { title: "2. Classroom Expectations", content: expectationsContent + '<div style="display: flex; justify-content: center; align-items: center; margin-top: 20px;"><img src="/owl.jpg" alt="Owl" style="height: 250px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>' },
+        { title: "2. Classroom Expectations", content: expectationsContent + '<div style="display: flex; justify-content: center; align-items: center; margin-top: 20px;"><img src="${window.location.origin}/owl.jpg" alt="Owl" style="height: 250px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>' },
         { title: "3. Today @ A Glance", content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` },
 
 
@@ -366,11 +366,11 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
         { 
           title: "4. Student Shoutouts", 
           content: (() => {
-             const dateShoutouts = shoutouts[plan.date_start] || ["Bradley Fontaine", "Sarah Jenkins", "Marcus Johnson"];
+             const dateShoutouts = shoutouts[plan.date_start] || ["TBD", "TBD", "TBD"];
              const s1 = dateShoutouts[0] || "Student 1";
              const s2 = dateShoutouts[1] || "Student 2";
              const s3 = dateShoutouts[2] || "Student 3";
-             return `<div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;"></div>
+             return `<div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; padding: 40px 0; pointer-events: none; z-index: -1;"></div>
 <div style="text-align: center; position: relative; z-index: 10;">
   <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
   <div style="display: flex; justify-content: space-around; margin-top: 30px;">
@@ -591,7 +591,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
 
 
     const baseSlides = [
-      { title: plan.topic ? plan.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
+      { title: plan.topic ? plan.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
       { 
         title: "1. Spiraled Do Now", 
         content: `**Directions:**\n${plan.do_now || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
@@ -618,11 +618,11 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
         { 
           title: "4. Student Shoutouts", 
           content: (() => {
-             const dateShoutouts = shoutouts[plan.date_start] || ["Bradley Fontaine", "Sarah Jenkins", "Marcus Johnson"];
+             const dateShoutouts = shoutouts[plan.date_start] || ["TBD", "TBD", "TBD"];
              const s1 = dateShoutouts[0] || "Student 1";
              const s2 = dateShoutouts[1] || "Student 2";
              const s3 = dateShoutouts[2] || "Student 3";
-             return `<div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1;"></div>
+             return `<div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; padding: 40px 0; pointer-events: none; z-index: -1;"></div>
 <div style="text-align: center; position: relative; z-index: 10;">
   <h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>
   <div style="display: flex; justify-content: space-around; margin-top: 30px;">
@@ -692,7 +692,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
               display: flex; flex-direction: column; justify-content: center; align-items: center;
               height: 100vh; padding: 40px 80px 100px 80px; box-sizing: border-box; overflow-y: auto;
             }
-            h1 { font-size: 3.5vw; color: #300052; margin-bottom: 25px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;}
+            h1 { font-size: clamp(24px, 3.5vw, 48px); color: #300052; margin-bottom: 25px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;}
             .content-wrapper { width: 100%; max-width: 1400px; background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
             .content { font-size: clamp(14px, 1.5vw, 24px); line-height: 1.5; }
             .content p { margin-bottom: 15px; }
