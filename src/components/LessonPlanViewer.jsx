@@ -366,7 +366,23 @@ ${plan.independent_practice || 'Complete the assigned independent practice probl
         { 
           title: "4. Student Shoutouts", 
           content: (() => {
-             const dateShoutouts = shoutouts[plan.date_start] || ["TBD", "TBD", "TBD"];
+             
+             const getMostRecentShoutouts = (targetDate) => {
+               // First check exact date and see if it has at least one real name
+               if (shoutouts[targetDate] && shoutouts[targetDate].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3")) {
+                 return shoutouts[targetDate];
+               }
+               // Otherwise, find the most recent date before targetDate that has real names
+               const pastDates = Object.keys(shoutouts)
+                 .filter(d => d < targetDate && shoutouts[d].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3"))
+                 .sort((a,b) => new Date(b) - new Date(a));
+               
+               if (pastDates.length > 0) return shoutouts[pastDates[0]];
+               
+               // Fallback if absolutely no past dates have data
+               return ["TBD", "TBD", "TBD"];
+             };
+             const dateShoutouts = getMostRecentShoutouts(plan.date_start);
              const s1 = dateShoutouts[0] || "Student 1";
              const s2 = dateShoutouts[1] || "Student 2";
              const s3 = dateShoutouts[2] || "Student 3";
@@ -618,7 +634,23 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
         { 
           title: "4. Student Shoutouts", 
           content: (() => {
-             const dateShoutouts = shoutouts[plan.date_start] || ["TBD", "TBD", "TBD"];
+             
+             const getMostRecentShoutouts = (targetDate) => {
+               // First check exact date and see if it has at least one real name
+               if (shoutouts[targetDate] && shoutouts[targetDate].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3")) {
+                 return shoutouts[targetDate];
+               }
+               // Otherwise, find the most recent date before targetDate that has real names
+               const pastDates = Object.keys(shoutouts)
+                 .filter(d => d < targetDate && shoutouts[d].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3"))
+                 .sort((a,b) => new Date(b) - new Date(a));
+               
+               if (pastDates.length > 0) return shoutouts[pastDates[0]];
+               
+               // Fallback if absolutely no past dates have data
+               return ["TBD", "TBD", "TBD"];
+             };
+             const dateShoutouts = getMostRecentShoutouts(plan.date_start);
              const s1 = dateShoutouts[0] || "Student 1";
              const s2 = dateShoutouts[1] || "Student 2";
              const s3 = dateShoutouts[2] || "Student 3";
