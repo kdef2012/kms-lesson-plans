@@ -1103,6 +1103,13 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
             <button onClick={handlePrintSlideshow} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Printer size={18} /> Print Slideshow
             </button>
+            
+            <button onClick={handlePrintGuidedNotes} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Printer size={18} /> Guided Notes
+            </button>
+            <button onClick={handlePrintWorksheet} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Printer size={18} /> Worksheet
+            </button>
             {plan.pdf_url && (
               <a href={plan.pdf_url} target="_blank" rel="noopener noreferrer" className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
                 <Download size={18} /> PDF

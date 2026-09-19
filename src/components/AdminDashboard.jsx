@@ -120,7 +120,7 @@ const AdminDashboard = ({ onLogout, pin, role, adminName }) => {
         {/* Lesson Plan Viewer */}
         <div className="glass" style={{ padding: '20px' }}>
           {selectedPlan ? (
-            <LessonPlanViewer plan={selectedPlan} viewerPin={pin} adminName={adminName} />
+            <LessonPlanViewer plan={selectedPlan} weekPlans={groupedPlans[selectedPlan.week_label]} viewerPin={pin} adminName={adminName} />
           ) : (
             <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
               <p>Select a date from the sidebar to view the lesson plan.</p>
