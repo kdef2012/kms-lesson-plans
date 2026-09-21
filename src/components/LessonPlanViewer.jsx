@@ -970,7 +970,7 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
         { title: p.topic ? p.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
         { title: "1. Spiraled Do Now", content: `**Directions:**\n${p.do_now || ''}` },
         { title: "2. Classroom Expectations", content: expectationsContent },
-        { title: "3. Today @ A Glance", content: `<div style="display: flex; justify-content: center; margin-top: 20px;"><img src="https://images.unsplash.com/photo-1632516643720-e7f0d7e6a604?q=80&w=600&auto=format&fit=crop" alt="Math" style="height: 180px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);" crossorigin="anonymous" /></div>\n\n**SWBAT (Objective):**\n${p.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(p.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` },
+        { title: "3. Today @ A Glance", content: `**SWBAT (Objective):**\n${p.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(p.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` },
 
 
         
