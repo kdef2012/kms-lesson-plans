@@ -896,15 +896,17 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
         });
       }
 
-      // Independent Practice (remaining 10 problems on one slide)
+      // Independent Practice (every problem on its own slide for printing)
       if (p.structured_exemplars && p.structured_exemplars.length > 0) {
         const indChunk = p.structured_exemplars.slice(6, 16);
-        const chunkHTML = `<div class="problems-grid" style="grid-template-columns: repeat(2, 1fr); gap: 20px; font-size: 16px;">
-` + 
-          indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 15px; border: 1px solid #ddd; border-radius: 8px; page-break-inside: avoid;"><strong>${idx + 1}. ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}</strong></div>
-`).join('') + 
-          `</div>`;
-        problemsSlides.push({ title: "11. Independent Practice (All 10)", content: chunkHTML });
+        indChunk.forEach((ex, idx) => {
+          problemsSlides.push({
+            title: `11. Independent Practice (Problem ${idx + 1})`,
+            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+${renderQuestionContent(ex, idx)}
+</div>`
+          });
+        });
       } else {
         problemsSlides.push({ 
           title: "11. Independent Practice", 
