@@ -321,14 +321,16 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
 
 
     // Independent Practice (every problem on its own slide for printing)
-      if (p.structured_exemplars && p.structured_exemplars.length > 0) {
-        const indChunk = p.structured_exemplars.slice(6, 16);
+      if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
+        const indChunk = plan.structured_exemplars.slice(6, 16);
         indChunk.forEach((ex, idx) => {
           problemsSlides.push({
             title: `11. Independent Practice (Problem ${idx + 1})`,
             content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
 ${renderQuestionContent(ex, idx)}
-</div>`
+</div>
+
+<div class="timer" onclick="startTimer(this, 3)">3:00</div>`
           });
         });
       } else {
