@@ -320,14 +320,18 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
       }
 
 
-    // Independent Practice (remaining 10 problems on one slide)
-      if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
-        const indChunk = plan.structured_exemplars.slice(6, 16);
-      const chunkHTML = `<div class="problems-grid" style="grid-template-columns: repeat(4, 1fr); font-size: 14px;">\n` + 
-        indChunk.map((ex, idx) => `  <div class="problem-box" style="padding: 10px;"><strong>${idx + 1}. ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}</strong></div>\n`).join('') + 
-        `</div>\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`;
-      problemsSlides.push({ title: "11. Independent Practice (All 10)", content: chunkHTML });
-    } else {
+    // Independent Practice (every problem on its own slide for printing)
+      if (p.structured_exemplars && p.structured_exemplars.length > 0) {
+        const indChunk = p.structured_exemplars.slice(6, 16);
+        indChunk.forEach((ex, idx) => {
+          problemsSlides.push({
+            title: `11. Independent Practice (Problem ${idx + 1})`,
+            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+${renderQuestionContent(ex, idx)}
+</div>`
+          });
+        });
+      } else {
       problemsSlides.push({ 
         title: "11. Independent Practice", 
         content: `<strong>Directions:</strong>\n${plan.independent_practice || 'Complete the assigned independent practice problems quietly.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
