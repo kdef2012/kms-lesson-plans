@@ -320,8 +320,14 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
       }
 
 
-    // Independent Practice (every problem on its own slide for printing)
+    // Independent Practice (every problem on its own slide for presentation)
       if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
+        // Always show the directions first with a 15 min timer
+        problemsSlides.push({ 
+          title: "11. Independent Practice (Directions)", 
+          content: `<strong>Directions:</strong>\n${plan.independent_practice || 'Complete the assigned independent practice problems quietly.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
+        });
+        
         const indChunk = plan.structured_exemplars.slice(6, 16);
         indChunk.forEach((ex, idx) => {
           problemsSlides.push({
@@ -900,6 +906,11 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
 
       // Independent Practice (every problem on its own slide for printing)
       if (p.structured_exemplars && p.structured_exemplars.length > 0) {
+        problemsSlides.push({ 
+          title: "11. Independent Practice (Directions)", 
+          content: `<strong>Directions:</strong>\n${p.independent_practice || 'Complete the assigned independent practice problems quietly.'}`
+        });
+        
         const indChunk = p.structured_exemplars.slice(6, 16);
         indChunk.forEach((ex, idx) => {
           problemsSlides.push({
