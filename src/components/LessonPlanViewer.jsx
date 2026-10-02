@@ -1190,7 +1190,7 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
           {plan.week_label === 'Emergency Sub Plans' ? (
             <p style={{ margin: 0, color: '#666' }}><strong>{plan.week_label}</strong></p>
           ) : (
-            <p style={{ margin: 0, color: '#666' }}>Date: <strong>{format(new Date(plan.date_start), 'MMMM d, yyyy')}</strong> | Week: <strong>{plan.week_label}</strong></p>
+            <p style={{ margin: 0, color: '#666' }}>Date: <strong>{format(new Date(plan.date_start + 'T12:00:00'), 'MMMM d, yyyy')}</strong> | Week: <strong>{plan.week_label}</strong></p>
           )}
         </div>
         
