@@ -9,6 +9,7 @@ const STANDARD_MAP = {
 };
 
 import { supabase } from '../supabaseClient';
+import pptxgen from 'pptxgenjs';
 import { MessageSquare, Send, Download, Image as ImageIcon, AlertTriangle, CheckCircle2, Printer, Play } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -228,7 +229,51 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
   };
 
   
+    const buildPlanPptx = (pres, p) => {
+        if (p.do_now) {
+            let slide = pres.addSlide();
+            slide.addText('Do Now', { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
+            let text = String(p.do_now).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
+            slide.addText(text, { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
+        }
+        if (p.direct_instruction) {
+            let slide = pres.addSlide();
+            slide.addText('Direct Instruction', { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
+            let text = String(p.direct_instruction).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
+            slide.addText(text, { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
+        }
+        if (p.structured_practice && Array.isArray(p.structured_practice)) {
+            p.structured_practice.forEach((ex, i) => {
+                let slide = pres.addSlide();
+                slide.addText('Structured Practice ' + (i+1), { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
+                let text = ex.question ? String(ex.question).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim() : '';
+                
+                if (ex.options) {
+                    text += '\n\n' + ex.options.map((o, idx) => String.fromCharCode(65+idx) + '. ' + String(o).replace(/<[^>]*>?/gm, ' ').trim()).join('\n');
+                }
+                slide.addText(text, { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
+            });
+        }
+        if (p.exit_ticket && Array.isArray(p.exit_ticket)) {
+            p.exit_ticket.forEach((ex, i) => {
+                let slide = pres.addSlide();
+                slide.addText('Exit Ticket ' + (i+1), { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
+                let text = ex.question ? String(ex.question).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim() : '';
+                if (ex.options) {
+                    text += '\n\n' + ex.options.map((o, idx) => String.fromCharCode(65+idx) + '. ' + String(o).replace(/<[^>]*>?/gm, ' ').trim()).join('\n');
+                }
+                slide.addText(text, { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
+            });
+        }
+    };
+
     const handlePrintSlideshow = () => {
+        const pres = new pptxgen();
+        buildPlanPptx(pres, plan);
+        pres.writeFile({ fileName: (plan.topic || "Lesson") + "_Slides.pptx" });
+    };
+
+    const handlePrintSlideshowOld = () => {
       const printWindow = window.open('', '_blank');
       if (!printWindow) {
         alert("Slideshow popup was blocked! Please allow popups.");
@@ -1074,6 +1119,18 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
 
 
     const handlePrintWeekSlideshows = () => {
+        const pres = new pptxgen();
+        if (weekPlans) {
+            weekPlans.forEach(p => {
+                let slide = pres.addSlide();
+                slide.addText(p.topic || "Lesson", { x: 0.5, y: 2.5, w: "90%", fontSize: 48, bold: true, color: "4B0082", align: "center" });
+                buildPlanPptx(pres, p);
+            });
+        }
+        pres.writeFile({ fileName: "Week_Slides.pptx" });
+    };
+
+    const handlePrintWeekSlideshowsOld = () => {
       const printWindow = window.open('', '_blank');
       if (!printWindow) {
         alert("Slideshow popup was blocked! Please allow popups.");
@@ -1143,7 +1200,7 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
               <Play size={18} /> Present
             </button>
             <button onClick={handlePrintSlideshow} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Printer size={18} /> Print Slideshow
+              <Download size={18} /> PPT Slideshow
             </button>
             
             <button onClick={handlePrintGuidedNotes} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1162,7 +1219,7 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #eee' }}>
               <span style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', color: 'var(--kms-purple)', marginRight: '10px' }}>Entire Week:</span>
               <button onClick={handlePrintWeekSlideshows} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Printer size={18} /> Print Slideshows
+                <Download size={18} /> PPT Week Slideshows
               </button>
             </div>
           )}
