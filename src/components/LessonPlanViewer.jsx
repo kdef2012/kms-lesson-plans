@@ -234,7 +234,43 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
 
   
         const buildPlanPptx = (pres, p) => {
-        const stripHtml = (html) => html ? String(html).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim() : '';
+                        const stripHtml = (html) => {
+            if (!html) return '';
+            let t = String(html);
+            
+            // Markdown Headings and Bold/Italic
+            t = t.replace(/^###?\s+/gm, '');
+            t = t.replace(/\*\*(.*?)\*\*/g, '$1');
+            t = t.replace(/\*(.*?)\*/g, '$1');
+            
+            // Math conversions
+            t = t.replace(/\\pi/g, '\u03C0');
+            t = t.replace(/\\cdot/g, '\u00B7');
+            t = t.replace(/\\times/g, '\u00D7');
+            t = t.replace(/\\div/g, '\u00F7');
+            t = t.replace(/\\leq/g, '\u2264');
+            t = t.replace(/\\geq/g, '\u2265');
+            t = t.replace(/\\neq/g, '\u2260');
+            t = t.replace(/\\approx/g, '\u2248');
+            t = t.replace(/\\sqrt\{?([^\}]+)\}?/g, '\u221A($1)');
+            t = t.replace(/\\frac\{([^\}]+)\}\{([^\}]+)\}/g, '$1/$2');
+            
+            const superscripts = {
+                '0': '\u2070', '1': '\u00B9', '2': '\u00B2', '3': '\u00B3', '4': '\u2074',
+                '5': '\u2075', '6': '\u2076', '7': '\u2077', '8': '\u2078', '9': '\u2079',
+                '-': '\u207B', 'x': '\u02E3', 'y': '\u02B8', 'n': '\u207F'
+            };
+            
+            t = t.replace(/\^\{([^\}]+)\}/g, (m, p1) => p1.split('').map(c => superscripts[c] || c).join(''));
+            t = t.replace(/\^(.)/g, (m, p1) => superscripts[p1] || p1);
+            
+            // Strip $ math delimiters
+            t = t.replace(/\$/g, '');
+            
+            // Strip HTML
+            t = t.replace(/<[^>]*>?/gm, ' ');
+            return t.replace(/\s+/g, ' ').trim();
+        };
         const renderProb = (ex) => {
             let t = stripHtml(ex.text || ex.question || '');
             if (ex.options) {
