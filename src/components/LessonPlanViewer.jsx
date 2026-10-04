@@ -21,18 +21,18 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
         let se = p.structured_exemplars || [];
         if (se.length === 10) {
             se = [
-                { text: "Teacher will provide Example 1." },
-                { text: "Teacher will provide Example 2." },
-                { text: "Teacher will provide Group Practice 1." },
-                { text: "Teacher will provide Group Practice 2." },
-                { text: "Teacher will provide Group Practice 3." },
-                { text: "Teacher will provide Group Practice 4." },
+                { text: "Teacher will provide Example 1 on the board.", question: "Teacher will provide Example 1 on the board." },
+                { text: "Teacher will provide Example 2 on the board.", question: "Teacher will provide Example 2 on the board." },
+                { text: "Teacher will provide Group Practice 1 on the board.", question: "Teacher will provide Group Practice 1 on the board." },
+                { text: "Teacher will provide Group Practice 2 on the board.", question: "Teacher will provide Group Practice 2 on the board." },
+                { text: "Teacher will provide Group Practice 3 on the board.", question: "Teacher will provide Group Practice 3 on the board." },
+                { text: "Teacher will provide Group Practice 4 on the board.", question: "Teacher will provide Group Practice 4 on the board." },
                 ...se
             ];
         } else if (se.length > 0 && se.length < 16) {
-            se = [...se, ...Array(16 - se.length).fill({ text: "See worksheet for problem." })];
+            se = [...se, ...Array(16 - se.length).fill({ text: "See worksheet for problem.", question: "See worksheet for problem." })];
         } else if (se.length === 0) {
-            se = Array(16).fill({ text: "See worksheet for problem." });
+            se = Array(16).fill({ text: "See worksheet for problem.", question: "See worksheet for problem." });
         }
         return { ...p, structured_exemplars: se };
     };
@@ -521,7 +521,23 @@ ${renderQuestionContent(ex, idx)}
       </div>`;
 
 
-    const baseSlides = [
+    
+      const exitTicketSlides = [];
+      if (plan.structured_exemplars && plan.structured_exemplars.length >= 16) {
+          const etChunk = plan.structured_exemplars.slice(14, 16);
+          etChunk.forEach((ex, idx) => {
+              exitTicketSlides.push({
+                  title: `13. Exit Ticket (Problem ${idx + 1})`,
+                  content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+${renderQuestionContent(ex, idx)}
+</div>
+
+<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
+              });
+          });
+      }
+      const baseSlides = [
+
       { title: plan.topic ? plan.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
       { 
         title: "1. Spiraled Do Now", 
@@ -1079,7 +1095,23 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
       </div>`;
 
 
+      
+      const exitTicketSlides = [];
+      if (plan.structured_exemplars && plan.structured_exemplars.length >= 16) {
+          const etChunk = plan.structured_exemplars.slice(14, 16);
+          etChunk.forEach((ex, idx) => {
+              exitTicketSlides.push({
+                  title: `13. Exit Ticket (Problem ${idx + 1})`,
+                  content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+${renderQuestionContent(ex, idx)}
+</div>
+
+<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
+              });
+          });
+      }
       const baseSlides = [
+
         { title: p.topic ? p.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
         { title: "1. Spiraled Do Now", content: `**Directions:**\n${p.do_now || ''}` },
         { title: "2. Classroom Expectations", content: expectationsContent },
