@@ -15,7 +15,30 @@ import { format } from 'date-fns';
 
 
 
-const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
+const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, viewerPin, adminName }) => {
+    const padPlan = (p) => {
+        if (!p) return p;
+        let se = p.structured_exemplars || [];
+        if (se.length === 10) {
+            se = [
+                { text: "Teacher will provide Example 1." },
+                { text: "Teacher will provide Example 2." },
+                { text: "Teacher will provide Group Practice 1." },
+                { text: "Teacher will provide Group Practice 2." },
+                { text: "Teacher will provide Group Practice 3." },
+                { text: "Teacher will provide Group Practice 4." },
+                ...se
+            ];
+        } else if (se.length > 0 && se.length < 16) {
+            se = [...se, ...Array(16 - se.length).fill({ text: "See worksheet for problem." })];
+        } else if (se.length === 0) {
+            se = Array(16).fill({ text: "See worksheet for problem." });
+        }
+        return { ...p, structured_exemplars: se };
+    };
+    
+    const plan = padPlan(originalPlan);
+    const weekPlans = originalWeekPlans ? originalWeekPlans.map(padPlan) : null;
   const renderMath = (text) => {
     if (!text) return "";
     let t = text.replace(/\bpi\b/gi, '\\pi');
@@ -170,7 +193,7 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
     
     let worksheetProblemsHTML = '';
     if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
-      const indChunk = plan.structured_exemplars.slice(6, 16);
+      const indChunk = plan.structured_exemplars.slice(6, 14);
       worksheetProblemsHTML = indChunk.map((ex, i) => {
         return `
           <div style="margin-bottom: 30px;">
@@ -229,42 +252,70 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
   };
 
   
-    const buildPlanPptx = (pres, p) => {
+        const buildPlanPptx = (pres, p) => {
+        const stripHtml = (html) => html ? String(html).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim() : '';
+        const renderProb = (ex) => {
+            let t = stripHtml(ex.text || ex.question || '');
+            if (ex.options) {
+                t += '\n\n' + ex.options.map((o, idx) => String.fromCharCode(65+idx) + '. ' + stripHtml(o)).join('\n');
+            }
+            return t;
+        };
+
+        // Do Now
         if (p.do_now) {
             let slide = pres.addSlide();
             slide.addText('Do Now', { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
-            let text = String(p.do_now).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
-            slide.addText(text, { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
+            slide.addText(stripHtml(p.do_now), { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
         }
+        
+        // Direct Instruction (Split)
         if (p.direct_instruction) {
+            const blocks = String(p.direct_instruction).split(/(?=## )/);
+            blocks.forEach((block) => {
+                if (!block.trim()) return;
+                let title = "Direct Instruction";
+                const titleMatch = block.match(/## (.*?)\n/);
+                if (titleMatch) {
+                   title = titleMatch[1].trim();
+                   block = block.replace(/## .*?\n/, '');
+                }
+                block = block.replace(/^---\n/, '');
+                let slide = pres.addSlide();
+                slide.addText(title, { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
+                slide.addText(stripHtml(block), { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
+            });
+        }
+        
+        const se = p.structured_exemplars || [];
+        
+        // Examples (2)
+        se.slice(0, 2).forEach((ex, i) => {
             let slide = pres.addSlide();
-            slide.addText('Direct Instruction', { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
-            let text = String(p.direct_instruction).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim();
-            slide.addText(text, { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
-        }
-        if (p.structured_practice && Array.isArray(p.structured_practice)) {
-            p.structured_practice.forEach((ex, i) => {
-                let slide = pres.addSlide();
-                slide.addText('Structured Practice ' + (i+1), { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
-                let text = ex.question ? String(ex.question).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim() : '';
-                
-                if (ex.options) {
-                    text += '\n\n' + ex.options.map((o, idx) => String.fromCharCode(65+idx) + '. ' + String(o).replace(/<[^>]*>?/gm, ' ').trim()).join('\n');
-                }
-                slide.addText(text, { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
-            });
-        }
-        if (p.exit_ticket && Array.isArray(p.exit_ticket)) {
-            p.exit_ticket.forEach((ex, i) => {
-                let slide = pres.addSlide();
-                slide.addText('Exit Ticket ' + (i+1), { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
-                let text = ex.question ? String(ex.question).replace(/<[^>]*>?/gm, ' ').replace(/\s+/g, ' ').trim() : '';
-                if (ex.options) {
-                    text += '\n\n' + ex.options.map((o, idx) => String.fromCharCode(65+idx) + '. ' + String(o).replace(/<[^>]*>?/gm, ' ').trim()).join('\n');
-                }
-                slide.addText(text, { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
-            });
-        }
+            slide.addText('Example ' + (i+1), { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
+            slide.addText(renderProb(ex), { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
+        });
+        
+        // Group Practice (4)
+        se.slice(2, 6).forEach((ex, i) => {
+            let slide = pres.addSlide();
+            slide.addText('Group Practice ' + (i+1), { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
+            slide.addText(renderProb(ex), { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
+        });
+        
+        // Independent Practice (8)
+        se.slice(6, 14).forEach((ex, i) => {
+            let slide = pres.addSlide();
+            slide.addText('Independent Practice ' + (i+1), { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
+            slide.addText(renderProb(ex), { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
+        });
+        
+        // Exit Ticket (2)
+        se.slice(14, 16).forEach((ex, i) => {
+            let slide = pres.addSlide();
+            slide.addText('Exit Ticket ' + (i+1), { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
+            slide.addText(renderProb(ex), { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
+        });
     };
 
     const handlePrintSlideshow = () => {
@@ -373,7 +424,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
           content: `<strong>Directions:</strong>\n${plan.independent_practice || 'Complete the assigned independent practice problems quietly.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
         });
         
-        const indChunk = plan.structured_exemplars.slice(6, 16);
+        const indChunk = plan.structured_exemplars.slice(6, 14);
         indChunk.forEach((ex, idx) => {
           problemsSlides.push({
             title: `11. Independent Practice (Problem ${idx + 1})`,
@@ -553,10 +604,7 @@ ${renderQuestionContent(ex, idx)}
         content: expectationsContent 
       },
       ...problemsSlides,
-      { 
-        title: "13. Exit Ticket (Formative Assessment #3)", 
-        content: `**Directions:**\n${plan.exit_ticket || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
-      }
+      { title: "13. Exit Ticket (Directions)", content: `**Directions:**\n${plan.exit_ticket || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` }, ...exitTicketSlides
     ];
 
     const processedSlides = baseSlides.map(slide => {
@@ -887,6 +935,7 @@ ${renderQuestionContent(ex, idx)}
 
   
     const buildSlideshowHTML = (p) => {
+            
         
     const cfuStrategies = [
       'Turn and Talk: Discuss the core concept with your neighbor.',
@@ -956,7 +1005,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
           content: `<strong>Directions:</strong>\n${p.independent_practice || 'Complete the assigned independent practice problems quietly.'}`
         });
         
-        const indChunk = p.structured_exemplars.slice(6, 16);
+        const indChunk = p.structured_exemplars.slice(6, 14);
         indChunk.forEach((ex, idx) => {
           problemsSlides.push({
             title: `11. Independent Practice (Problem ${idx + 1})`,
@@ -1089,7 +1138,11 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
         { title: "Classroom Expectations (Reminder)", content: expectationsContent },
         ...problemsSlides,
         
-        { title: "13. Exit Ticket (Formative Assessment #3)", content: `**Directions:**\n${p.exit_ticket || ''}` },
+        
+            { title: "13. Exit Ticket (Directions)", content: `**Directions:**\n${p.exit_ticket || ''}` },
+            ...(p.structured_exemplars && p.structured_exemplars.length >= 16 ? p.structured_exemplars.slice(14, 16).map((ex, idx) => ({ title: `13. Exit Ticket (Problem ${idx+1})`, content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+${renderQuestionContent(ex, idx)}
+</div>` })) : []),
       ];
 
       // Convert Markdown to HTML for all slides
@@ -1286,7 +1339,7 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
         <Section id="independent_practice" title="Independent Practice">
             {plan.structured_exemplars && plan.structured_exemplars.length >= 16 ? (
                 <div>
-                    {plan.structured_exemplars.slice(6, 16).map((ex, idx) => (
+                    {plan.structured_exemplars.slice(6, 14).map((ex, idx) => (
                         <div key={'ind-'+idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
                             <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
                                 Problem {idx + 7}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0)) }} />
