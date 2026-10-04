@@ -36,7 +36,7 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
   
   
   const renderQuestionContent = (ex, index = 0) => {
-    let html = renderMath(ex.question);
+    let html = renderMath(ex.question || ex.text);
     
     if (ex.type === 'multiple-choice' && ex.options) {
       // Deterministically shuffle based on question string length + index
