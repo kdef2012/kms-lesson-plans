@@ -319,6 +319,7 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
         addSlide('4. Student Shoutouts', "Excellent work from:\n\n" + sList.map(s => "� " + s).join('\n'));
 
         // 6. Direct Instruction (Split)
+        const se = p.structured_exemplars || [];
         if (p.direct_instruction) {
             const blocks = String(p.direct_instruction).split(/(?=## )/);
             blocks.forEach((block) => {
@@ -330,14 +331,21 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
                    block = block.replace(/## .*?\n/, '');
                 }
                 block = block.replace(/^---\n/, '');
-                addSlide(title, stripHtml(block));
+                
+                let content = block.trim();
+                if (content.includes('**Example 1**') && content.includes('**Example 2**')) {
+                    const ex1split = content.split('**Example 2**');
+                    let ex1text = ex1split[0].replace(/\*\*Example 1\*\*/g, 'Example 1: ' + (se.length > 0 ? renderProb(se[0]) : ''));
+                    addSlide(`${title} (Example 1)`, stripHtml(ex1text));
+                    
+                    let ex2text = ('**Example 2**' + ex1split[1]).replace(/\*\*Example 2\*\*/g, 'Example 2: ' + (se.length > 1 ? renderProb(se[1]) : ''));
+                    addSlide(`${title} (Example 2)`, stripHtml(ex2text));
+                } else {
+                    let exText = content.replace(/\*\*Example 1\*\*/g, 'Example 1: ' + (se.length > 0 ? renderProb(se[0]) : '')).replace(/\*\*Example 2\*\*/g, 'Example 2: ' + (se.length > 1 ? renderProb(se[1]) : ''));
+                    addSlide(title, stripHtml(exText));
+                }
             });
         }
-        
-        const se = p.structured_exemplars || [];
-        
-        // 7. Examples (2)
-        se.slice(0, 2).forEach((ex, i) => addSlide('Example ' + (i+1), renderProb(ex)));
         
         // 8. Group Practice (4)
         se.slice(2, 6).forEach((ex, i) => addSlide('Group Practice ' + (i+1), renderProb(ex)));
