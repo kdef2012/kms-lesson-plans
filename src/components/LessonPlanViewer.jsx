@@ -259,13 +259,16 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
             t = t.replace(/\^\{([^\}]+)\}/g, (m, p1) => p1.split('').map(c => superscripts[c] || c).join(''));
             t = t.replace(/\^(.)/g, (m, p1) => superscripts[p1] || p1);
             t = t.replace(/\$/g, '');
-            t = t.replace(/<[^>]*>?/gm, ' ');
-            return t.replace(/\s+/g, ' ').trim();
+            t = t.replace(/<[^>]*>?/gm, ''); // Remove HTML
+            t = t.replace(/[ \t]+/g, ' '); // Compress spaces
+            t = t.replace(/\n\s*\n/g, '\n\n'); // Normalize newlines
+            return t.trim();
         };
 
         const renderProb = (ex) => {
+            if (!ex) return '';
             let t = stripHtml(ex.text || ex.question || '');
-            if (ex.options) {
+            if (ex.options && Array.isArray(ex.options)) {
                 t += '\n\n' + ex.options.map((o, idx) => String.fromCharCode(65+idx) + '. ' + stripHtml(o)).join('\n');
             }
             return t;
@@ -304,12 +307,11 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
         addSlide(p.topic ? p.topic.replace(/\[.*?\]\s*/, '') : 'Welcome', "Welcome to Class! Get ready to start.", 36);
 
         // 2. Do Now
-        if (p.do_now) {
-            addSlide('1. Spiraled Do Now', stripHtml(p.do_now));
-        }
+        if (p.do_now) addSlide('1. Spiraled Do Now', stripHtml(p.do_now));
 
         // 3. Expectations
-        addSlide('2. Classroom Expectations', "� No Cellphones\n� Drop pencils when completed\n� Communicate with respect\n� Raise your hand");
+        const expText = "� No Cellphones\n� Drop pencils when completed\n� Communicate with respect\n� Raise your hand";
+        addSlide('2. Classroom Expectations', expText);
 
         // 4. Today @ A Glance
         addSlide('3. Today @ A Glance', `SWBAT (Objective):\n${stripHtml(p.objective_3m || '')}\n\nEssential question of the day:\n${stripHtml(getEq(p.objective_3m))}\n\nAgenda\n� Do Now - completed\n� Notes - Direct Instruction\n� Guided & Group Practice: We Do\n� Independent Practice\n� Exit Ticket`, 20);
@@ -335,35 +337,40 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
                 let content = block.trim();
                 if (content.includes('**Example 1**') && content.includes('**Example 2**')) {
                     const ex1split = content.split('**Example 2**');
-                    let ex1text = ex1split[0].replace(/\*\*Example 1\*\*/g, 'Example 1: ' + (se.length > 0 ? renderProb(se[0]) : ''));
+                    let ex1text = ex1split[0].replace(/\*\*Example 1\*\*/g, 'Example 1:\n' + (se.length > 0 ? renderProb(se[0]) : ''));
                     addSlide(`${title} (Example 1)`, stripHtml(ex1text));
                     
-                    let ex2text = ('**Example 2**' + ex1split[1]).replace(/\*\*Example 2\*\*/g, 'Example 2: ' + (se.length > 1 ? renderProb(se[1]) : ''));
+                    let ex2text = ('**Example 2**' + ex1split[1]).replace(/\*\*Example 2\*\*/g, 'Example 2:\n' + (se.length > 1 ? renderProb(se[1]) : ''));
                     addSlide(`${title} (Example 2)`, stripHtml(ex2text));
                 } else {
-                    let exText = content.replace(/\*\*Example 1\*\*/g, 'Example 1: ' + (se.length > 0 ? renderProb(se[0]) : '')).replace(/\*\*Example 2\*\*/g, 'Example 2: ' + (se.length > 1 ? renderProb(se[1]) : ''));
+                    let exText = content.replace(/\*\*Example 1\*\*/g, 'Example 1:\n' + (se.length > 0 ? renderProb(se[0]) : '')).replace(/\*\*Example 2\*\*/g, 'Example 2:\n' + (se.length > 1 ? renderProb(se[1]) : ''));
                     addSlide(title, stripHtml(exText));
                 }
             });
         }
         
-        // 8. Group Practice (4)
-        se.slice(2, 6).forEach((ex, i) => addSlide('Group Practice ' + (i+1), renderProb(ex)));
-        
-        // 9. Independent Practice Directions
-        addSlide('11. Independent Practice (Directions)', "Directions:\n" + stripHtml(p.independent_practice || 'Complete the assigned independent practice problems quietly.'));
+        // 7. Formative Assessment
+        const cfuStrategies = ['Turn and Talk: Discuss the core concept with your neighbor.', 'Fist to Five: Rate your understanding.', 'Cold Call: Teacher will select a student to summarize.', 'Whiteboards: Show your work to the teacher.', 'Think-Pair-Share: Think silently, then discuss.'];
+        const cfuText = p.checks_for_understanding || cfuStrategies[Math.floor(Math.random() * cfuStrategies.length)];
+        addSlide('7. Formative Assessment #1', "Check for understanding:\n" + stripHtml(cfuText));
 
-        // 10. Independent Practice (8)
+        // 8. Expectations Reminder
+        addSlide('Classroom Expectations (Reminder)', expText);
+
+        // 9. Group Practice (4)
+        se.slice(2, 6).forEach((ex, i) => addSlide('10. Group Practice (Problem ' + (i+1) + ')', renderProb(ex)));
+        
+        // 10. Expectations Reminder
+        addSlide('Classroom Expectations (Reminder)', expText);
+
+        // 11. Independent Practice Directions
+        addSlide('11. Independent Practice', "Directions:\n" + stripHtml(p.independent_practice || 'Complete the assigned independent practice problems quietly.'));
+
+        // 12. Independent Practice (8)
         se.slice(6, 14).forEach((ex, i) => addSlide('11. Independent Practice (Problem ' + (i+1) + ')', renderProb(ex)));
         
-        // 11. Exit Ticket (2)
+        // 13. Exit Ticket (2)
         se.slice(14, 16).forEach((ex, i) => addSlide('13. Exit Ticket (Problem ' + (i+1) + ')', renderProb(ex)));
-    };
-
-    const handlePrintSlideshow = () => {
-        const pres = new pptxgen();
-        buildPlanPptx(pres, plan);
-        pres.writeFile({ fileName: (plan.topic || "Lesson") + "_Slides.pptx" });
     };
 
     const handlePrintSlideshowOld = () => {
