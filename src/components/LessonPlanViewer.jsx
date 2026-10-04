@@ -233,17 +233,13 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
   };
 
   
-        const buildPlanPptx = (pres, p) => {
-                        const stripHtml = (html) => {
+            const buildPlanPptx = (pres, p) => {
+        const stripHtml = (html) => {
             if (!html) return '';
             let t = String(html);
-            
-            // Markdown Headings and Bold/Italic
             t = t.replace(/^###?\s+/gm, '');
             t = t.replace(/\*\*(.*?)\*\*/g, '$1');
             t = t.replace(/\*(.*?)\*/g, '$1');
-            
-            // Math conversions
             t = t.replace(/\\pi/g, '\u03C0');
             t = t.replace(/\\cdot/g, '\u00B7');
             t = t.replace(/\\times/g, '\u00D7');
@@ -260,17 +256,13 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
                 '5': '\u2075', '6': '\u2076', '7': '\u2077', '8': '\u2078', '9': '\u2079',
                 '-': '\u207B', 'x': '\u02E3', 'y': '\u02B8', 'n': '\u207F'
             };
-            
             t = t.replace(/\^\{([^\}]+)\}/g, (m, p1) => p1.split('').map(c => superscripts[c] || c).join(''));
             t = t.replace(/\^(.)/g, (m, p1) => superscripts[p1] || p1);
-            
-            // Strip $ math delimiters
             t = t.replace(/\$/g, '');
-            
-            // Strip HTML
             t = t.replace(/<[^>]*>?/gm, ' ');
             return t.replace(/\s+/g, ' ').trim();
         };
+
         const renderProb = (ex) => {
             let t = stripHtml(ex.text || ex.question || '');
             if (ex.options) {
@@ -279,14 +271,54 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
             return t;
         };
 
-        // Do Now
-        if (p.do_now) {
-            let slide = pres.addSlide();
-            slide.addText('Do Now', { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
-            slide.addText(stripHtml(p.do_now), { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
-        }
+        const getEq = (obj) => {
+            if (!obj) return "What is the core concept of today's lesson?";
+            let topic = obj.toLowerCase();
+            const m = topic.match(/involving (.*?) \(/);
+            if (m) return `How can we apply our understanding of ${m[1]} to solve real-world problems?`;
+            return "How can we apply today's concept to solve real-world problems?";
+        };
         
-        // Direct Instruction (Split)
+        const getShoutouts = (targetDate) => {
+            if (typeof shoutouts !== 'undefined' && shoutouts) {
+                if (shoutouts[targetDate] && shoutouts[targetDate].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3")) {
+                   return shoutouts[targetDate];
+                }
+                const pastDates = Object.keys(shoutouts).filter(d => d < targetDate).sort((a,b) => b.localeCompare(a));
+                for (let pd of pastDates) {
+                   if (shoutouts[pd].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3")) {
+                     return shoutouts[pd];
+                   }
+                }
+            }
+            return ["Student 1", "Student 2", "Student 3", "Student 4", "Student 5"];
+        };
+
+        const addSlide = (title, contentText, fontSize = 24) => {
+            let slide = pres.addSlide();
+            slide.addText(title, { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
+            slide.addText(contentText, { x: 0.5, y: 1.5, w: '90%', fontSize: fontSize, valign: 'top' });
+        };
+
+        // 1. Welcome
+        addSlide(p.topic ? p.topic.replace(/\[.*?\]\s*/, '') : 'Welcome', "Welcome to Class! Get ready to start.", 36);
+
+        // 2. Do Now
+        if (p.do_now) {
+            addSlide('1. Spiraled Do Now', stripHtml(p.do_now));
+        }
+
+        // 3. Expectations
+        addSlide('2. Classroom Expectations', "� No Cellphones\n� Drop pencils when completed\n� Communicate with respect\n� Raise your hand");
+
+        // 4. Today @ A Glance
+        addSlide('3. Today @ A Glance', `SWBAT (Objective):\n${stripHtml(p.objective_3m || '')}\n\nEssential question of the day:\n${stripHtml(getEq(p.objective_3m))}\n\nAgenda\n� Do Now - completed\n� Notes - Direct Instruction\n� Guided & Group Practice: We Do\n� Independent Practice\n� Exit Ticket`, 20);
+
+        // 5. Shoutouts
+        const sList = getShoutouts(p.date_start);
+        addSlide('4. Student Shoutouts', "Excellent work from:\n\n" + sList.map(s => "� " + s).join('\n'));
+
+        // 6. Direct Instruction (Split)
         if (p.direct_instruction) {
             const blocks = String(p.direct_instruction).split(/(?=## )/);
             blocks.forEach((block) => {
@@ -298,41 +330,26 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
                    block = block.replace(/## .*?\n/, '');
                 }
                 block = block.replace(/^---\n/, '');
-                let slide = pres.addSlide();
-                slide.addText(title, { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
-                slide.addText(stripHtml(block), { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
+                addSlide(title, stripHtml(block));
             });
         }
         
         const se = p.structured_exemplars || [];
         
-        // Examples (2)
-        se.slice(0, 2).forEach((ex, i) => {
-            let slide = pres.addSlide();
-            slide.addText('Example ' + (i+1), { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
-            slide.addText(renderProb(ex), { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
-        });
+        // 7. Examples (2)
+        se.slice(0, 2).forEach((ex, i) => addSlide('Example ' + (i+1), renderProb(ex)));
         
-        // Group Practice (4)
-        se.slice(2, 6).forEach((ex, i) => {
-            let slide = pres.addSlide();
-            slide.addText('Group Practice ' + (i+1), { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
-            slide.addText(renderProb(ex), { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
-        });
+        // 8. Group Practice (4)
+        se.slice(2, 6).forEach((ex, i) => addSlide('Group Practice ' + (i+1), renderProb(ex)));
         
-        // Independent Practice (8)
-        se.slice(6, 14).forEach((ex, i) => {
-            let slide = pres.addSlide();
-            slide.addText('Independent Practice ' + (i+1), { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
-            slide.addText(renderProb(ex), { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
-        });
+        // 9. Independent Practice Directions
+        addSlide('11. Independent Practice (Directions)', "Directions:\n" + stripHtml(p.independent_practice || 'Complete the assigned independent practice problems quietly.'));
+
+        // 10. Independent Practice (8)
+        se.slice(6, 14).forEach((ex, i) => addSlide('11. Independent Practice (Problem ' + (i+1) + ')', renderProb(ex)));
         
-        // Exit Ticket (2)
-        se.slice(14, 16).forEach((ex, i) => {
-            let slide = pres.addSlide();
-            slide.addText('Exit Ticket ' + (i+1), { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
-            slide.addText(renderProb(ex), { x: 0.5, y: 1.5, w: '90%', fontSize: 24, valign: 'top' });
-        });
+        // 11. Exit Ticket (2)
+        se.slice(14, 16).forEach((ex, i) => addSlide('13. Exit Ticket (Problem ' + (i+1) + ')', renderProb(ex)));
     };
 
     const handlePrintSlideshow = () => {
