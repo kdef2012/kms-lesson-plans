@@ -698,7 +698,7 @@ ${renderQuestionContent(ex, idx)}
       <html>
         <head>
           <title>Presentation: ${plan.topic}</title>
-          <link rel="stylesheet" href="${window.location.origin}/katex/katex.min.css">
+          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
           <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js">${"<"}/script>
           
           <style>
