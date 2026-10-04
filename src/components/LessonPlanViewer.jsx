@@ -373,6 +373,14 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
         se.slice(14, 16).forEach((ex, i) => addSlide('13. Exit Ticket (Problem ' + (i+1) + ')', renderProb(ex)));
     };
 
+    const handlePrintSlideshow = () => {
+        if (!plan) return;
+        const pres = new pptxgen();
+        buildPlanPptx(pres, plan);
+        let safeTopic = (plan.topic || 'Lesson').replace(/[^a-zA-Z0-9_-]/g, '_');
+        pres.writeFile({ fileName: safeTopic + "_Slides.pptx" });
+    };
+
     const handlePrintSlideshowOld = () => {
       const printWindow = window.open('', '_blank');
       if (!printWindow) {
