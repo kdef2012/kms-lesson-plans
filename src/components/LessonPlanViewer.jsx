@@ -16,26 +16,7 @@ import { format } from 'date-fns';
 
 
 const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, viewerPin, adminName }) => {
-    const padPlan = (p) => {
-        if (!p) return p;
-        let se = p.structured_exemplars || [];
-        if (se.length === 10) {
-            se = [
-                { text: "Teacher will provide Example 1 on the board.", question: "Teacher will provide Example 1 on the board." },
-                { text: "Teacher will provide Example 2 on the board.", question: "Teacher will provide Example 2 on the board." },
-                { text: "Teacher will provide Group Practice 1 on the board.", question: "Teacher will provide Group Practice 1 on the board." },
-                { text: "Teacher will provide Group Practice 2 on the board.", question: "Teacher will provide Group Practice 2 on the board." },
-                { text: "Teacher will provide Group Practice 3 on the board.", question: "Teacher will provide Group Practice 3 on the board." },
-                { text: "Teacher will provide Group Practice 4 on the board.", question: "Teacher will provide Group Practice 4 on the board." },
-                ...se
-            ];
-        } else if (se.length > 0 && se.length < 16) {
-            se = [...se, ...Array(16 - se.length).fill({ text: "See worksheet for problem.", question: "See worksheet for problem." })];
-        } else if (se.length === 0) {
-            se = Array(16).fill({ text: "See worksheet for problem.", question: "See worksheet for problem." });
-        }
-        return { ...p, structured_exemplars: se };
-    };
+    const padPlan = (p) => p; // Padding removed as per user request
     
     const plan = padPlan(originalPlan);
     const weekPlans = originalWeekPlans ? originalWeekPlans.map(padPlan) : null;
@@ -620,7 +601,7 @@ ${renderQuestionContent(ex, idx)}
         content: expectationsContent 
       },
       ...problemsSlides,
-      { title: "13. Exit Ticket (Directions)", content: `**Directions:**\n${plan.exit_ticket || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` }, ...exitTicketSlides
+      ...exitTicketSlides
     ];
 
     const processedSlides = baseSlides.map(slide => {
@@ -1171,7 +1152,7 @@ ${renderQuestionContent(ex, idx)}
         ...problemsSlides,
         
         
-            { title: "13. Exit Ticket (Directions)", content: `**Directions:**\n${p.exit_ticket || ''}` },
+            
             ...(p.structured_exemplars && p.structured_exemplars.length >= 16 ? p.structured_exemplars.slice(14, 16).map((ex, idx) => ({ title: `13. Exit Ticket (Problem ${idx+1})`, content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
 ${renderQuestionContent(ex, idx)}
 </div>` })) : []),
