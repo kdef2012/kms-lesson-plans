@@ -38,7 +38,7 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
   const renderQuestionContent = (ex, index = 0) => {
     let html = renderMath(ex.question || ex.text);
     
-    if (ex.type === 'multiple-choice' && ex.options) {
+    if ((ex.type === 'multiple-choice' || ex.type === 'multiple_choice' || ex.question_type === 'multiple-choice' || ex.question_type === 'multiple_choice') && ex.options) {
       // Deterministically shuffle based on question string length + index
       let opts = [...ex.options];
       let seed = (ex.question || '').length + index;
@@ -50,7 +50,7 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
     }
 
     
-    if (ex.type === 'interactive-graph' && ex.visualData && ex.visualData.originalPolygon) {
+    if ((ex.type === 'interactive-graph' || ex.question_type === 'interactive-graph') && ex.visualData && ex.visualData.originalPolygon) {
       const gridMax = 10;
       const svgSize = 160;
       const center = svgSize / 2;
@@ -69,7 +69,7 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
       html += '<div style="margin-top: 15px; display: flex; justify-content: center;"><svg width="'+svgSize+'" height="'+svgSize+'" style="border: 1px solid #ccc; background: white;">' + gridLines + axes + polygon + '</svg></div>';
     }
     
-    if (ex.type === 'matching' && ex.matchingPrompts && ex.matchingOptions) {
+    if ((ex.type === 'matching' || ex.question_type === 'matching') && ex.matchingPrompts && ex.matchingOptions) {
         const shiftedOptions = [...ex.matchingOptions];
         if (shiftedOptions.length > 1) {
             shiftedOptions.unshift(shiftedOptions.pop());
@@ -80,7 +80,7 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
         '</div>';
       }
 
-      if (ex.type === 'drag-and-drop' && ex.prompts && ex.options) {
+      if ((ex.type === 'drag-and-drop' || ex.question_type === 'drag-and-drop') && ex.prompts && ex.options) {
       html += '<div style="margin-top: 15px; font-size: 0.85em; text-align: left; width: 100%;">' +
         '<div style="border: 1px dashed #666; padding: 10px; margin-bottom: 10px; text-align: center; border-radius: 4px;"><strong>Word Bank:</strong><br/>' + ex.options.map(o => renderMath(o)).join(' &nbsp;|&nbsp; ') + '</div>' +
         '<div style="display: flex; gap: 10px; justify-content: space-between;">' + 
@@ -580,8 +580,13 @@ ${renderQuestionContent(ex, idx)}
 
     
       const exitTicketSlides = [];
-      if (plan.structured_exemplars && plan.structured_exemplars.length >= 16) {
-          const etChunk = plan.structured_exemplars.slice(14, 16);
+      if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
+          let etChunk = [];
+          if (plan.structured_exemplars.length >= 16) {
+              etChunk = plan.structured_exemplars.slice(14, 16);
+          } else if (plan.structured_exemplars.length === 10) {
+              etChunk = plan.structured_exemplars.slice(8, 10);
+          }
           etChunk.forEach((ex, idx) => {
               exitTicketSlides.push({
                   title: `13. Exit Ticket (Problem ${idx + 1})`,
@@ -1426,9 +1431,9 @@ ${renderQuestionContent(ex, idx)}
         </Section>
 
         <Section id="independent_practice" title="Independent Practice">
-            {plan.structured_exemplars && plan.structured_exemplars.length >= 16 ? (
-                <div>
-                    {plan.structured_exemplars.slice(6, 14).map((ex, idx) => (
+            {plan.structured_exemplars && (plan.structured_exemplars.length >= 16 || plan.structured_exemplars.length === 10) ? (
+                  <div>
+                      {(plan.structured_exemplars.length === 10 ? plan.structured_exemplars.slice(0, 8) : plan.structured_exemplars.slice(6, 14)).map((ex, idx) => (
                         <div key={'ind-'+idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
                             <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
                                 Problem {idx + 7}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0)) }} />
