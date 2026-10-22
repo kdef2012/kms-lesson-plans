@@ -11,15 +11,31 @@ const STANDARD_MAP = {
 import { supabase } from '../supabaseClient';
 import pptxgen from 'pptxgenjs';
 import { MessageSquare, Send, Download, Image as ImageIcon, AlertTriangle, CheckCircle2, Printer, Play } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 
 
 
-const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, viewerPin, adminName }) => {
-    const padPlan = (p) => p; // Padding removed as per user request
-    
-    const plan = padPlan(originalPlan);
-    const weekPlans = originalWeekPlans ? originalWeekPlans.map(padPlan) : null;
+const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
+  const getDayOwlImage = (dateStr) => {
+    try {
+      let dayName = '';
+      if (dateStr) {
+        const parts = String(dateStr).split('-');
+        if (parts.length === 3) {
+          const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+          dayName = d.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        }
+      }
+      if (!dayName) {
+        dayName = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+      }
+      const validDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+      if (validDays.includes(dayName)) {
+        return '/owl-' + dayName + '.png';
+      }
+    } catch(e) {}
+    return '/owl-transparent.png';
+  };
   const renderMath = (text) => {
     if (!text) return "";
     let t = text.replace(/\bpi\b/gi, '\\pi');
@@ -36,9 +52,9 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
   
   
   const renderQuestionContent = (ex, index = 0) => {
-    let html = renderMath(ex.question || ex.text);
+    let html = renderMath(ex.question);
     
-    if ((ex.type === 'multiple-choice' || ex.type === 'multiple_choice' || ex.question_type === 'multiple-choice' || ex.question_type === 'multiple_choice') && ex.options) {
+    if (ex.type === 'multiple-choice' && ex.options) {
       // Deterministically shuffle based on question string length + index
       let opts = [...ex.options];
       let seed = (ex.question || '').length + index;
@@ -50,7 +66,7 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
     }
 
     
-    if ((ex.type === 'interactive-graph' || ex.question_type === 'interactive-graph') && ex.visualData && ex.visualData.originalPolygon) {
+    if (ex.type === 'interactive-graph' && ex.visualData && ex.visualData.originalPolygon) {
       const gridMax = 10;
       const svgSize = 160;
       const center = svgSize / 2;
@@ -69,7 +85,7 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
       html += '<div style="margin-top: 15px; display: flex; justify-content: center;"><svg width="'+svgSize+'" height="'+svgSize+'" style="border: 1px solid #ccc; background: white;">' + gridLines + axes + polygon + '</svg></div>';
     }
     
-    if ((ex.type === 'matching' || ex.question_type === 'matching') && ex.matchingPrompts && ex.matchingOptions) {
+    if (ex.type === 'matching' && ex.matchingPrompts && ex.matchingOptions) {
         const shiftedOptions = [...ex.matchingOptions];
         if (shiftedOptions.length > 1) {
             shiftedOptions.unshift(shiftedOptions.pop());
@@ -80,7 +96,7 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
         '</div>';
       }
 
-      if ((ex.type === 'drag-and-drop' || ex.question_type === 'drag-and-drop') && ex.prompts && ex.options) {
+      if (ex.type === 'drag-and-drop' && ex.prompts && ex.options) {
       html += '<div style="margin-top: 15px; font-size: 0.85em; text-align: left; width: 100%;">' +
         '<div style="border: 1px dashed #666; padding: 10px; margin-bottom: 10px; text-align: center; border-radius: 4px;"><strong>Word Bank:</strong><br/>' + ex.options.map(o => renderMath(o)).join(' &nbsp;|&nbsp; ') + '</div>' +
         '<div style="display: flex; gap: 10px; justify-content: space-between;">' + 
@@ -174,7 +190,16 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
     
     let worksheetProblemsHTML = '';
     if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
-      const indChunk = plan.structured_exemplars.slice(6, 14);
+      let indChunk;
+      if (plan.structured_exemplars.length >= 21) {
+        indChunk = plan.structured_exemplars.slice(6, 21);
+      } else if (plan.structured_exemplars.length >= 15 && plan.week_label === 'Emergency Sub Plans') {
+        indChunk = plan.structured_exemplars.slice(0, 15);
+      } else if (plan.structured_exemplars.length > 6) {
+        indChunk = plan.structured_exemplars.slice(6);
+      } else {
+        indChunk = plan.structured_exemplars;
+      }
       worksheetProblemsHTML = indChunk.map((ex, i) => {
         return `
           <div style="margin-bottom: 30px;">
@@ -233,152 +258,405 @@ const LessonPlanViewer = ({ plan: originalPlan, weekPlans: originalWeekPlans, vi
   };
 
   
-            const buildPlanPptx = (pres, p) => {
-        const stripHtml = (html) => {
-            if (!html) return '';
-            let t = String(html);
-            t = t.replace(/^###?\s+/gm, '');
-            t = t.replace(/\*\*(.*?)\*\*/g, '$1');
-            t = t.replace(/\*(.*?)\*/g, '$1');
-            t = t.replace(/\\pi/g, '\u03C0');
-            t = t.replace(/\\cdot/g, '\u00B7');
-            t = t.replace(/\\times/g, '\u00D7');
-            t = t.replace(/\\div/g, '\u00F7');
-            t = t.replace(/\\leq/g, '\u2264');
-            t = t.replace(/\\geq/g, '\u2265');
-            t = t.replace(/\\neq/g, '\u2260');
-            t = t.replace(/\\approx/g, '\u2248');
-            t = t.replace(/\\sqrt\{?([^\}]+)\}?/g, '\u221A($1)');
-            t = t.replace(/\\frac\{([^\}]+)\}\{([^\}]+)\}/g, '$1/$2');
-            
-            const superscripts = {
-                '0': '\u2070', '1': '\u00B9', '2': '\u00B2', '3': '\u00B3', '4': '\u2074',
-                '5': '\u2075', '6': '\u2076', '7': '\u2077', '8': '\u2078', '9': '\u2079',
-                '-': '\u207B', 'x': '\u02E3', 'y': '\u02B8', 'n': '\u207F'
-            };
-            t = t.replace(/\^\{([^\}]+)\}/g, (m, p1) => p1.split('').map(c => superscripts[c] || c).join(''));
-            t = t.replace(/\^(.)/g, (m, p1) => superscripts[p1] || p1);
-            t = t.replace(/\$/g, '');
-            t = t.replace(/<[^>]*>?/gm, ''); // Remove HTML
-            t = t.replace(/[ \t]+/g, ' '); // Compress spaces
-            t = t.replace(/\n\s*\n/g, '\n\n'); // Normalize newlines
-            return t.trim();
-        };
+  const cleanMathText = (text) => {
+    if (!text) return '';
+    return String(text)
+      .replace(/<[^>]*>?/gm, ' ')
+      .replace(/\\sqrt\{([^}]+)\}/g, '√$1')
+      .replace(/\\le(q)?\b/g, '≤')
+      .replace(/\\ge(q)?\b/g, '≥')
+      .replace(/\\neq\b/g, '≠')
+      .replace(/\\times\b/g, '×')
+      .replace(/\\pi\b/g, 'π')
+      .replace(/\\pm\b/g, '±')
+      .replace(/\$([^$]+)\$/g, '$1')
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/##\s*/g, '')
+      .replace(/---\s*/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
 
-        const renderProb = (ex) => {
-            if (!ex) return '';
-            let t = stripHtml(ex.text || ex.question || '');
-            if (ex.options && Array.isArray(ex.options)) {
-                t += '\n\n' + ex.options.map((o, idx) => String.fromCharCode(65+idx) + '. ' + stripHtml(o)).join('\n');
-            }
-            return t;
-        };
+  const buildPlanPptx = (pres, p) => {
+    pres.layout = 'LAYOUT_16x9';
 
-        const getEq = (obj) => {
-            if (!obj) return "What is the core concept of today's lesson?";
-            let topic = obj.toLowerCase();
-            const m = topic.match(/involving (.*?) \(/);
-            if (m) return `How can we apply our understanding of ${m[1]} to solve real-world problems?`;
-            return "How can we apply today's concept to solve real-world problems?";
-        };
-        
-        const getShoutouts = (targetDate) => {
-            if (typeof shoutouts !== 'undefined' && shoutouts) {
-                if (shoutouts[targetDate] && shoutouts[targetDate].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3")) {
-                   return shoutouts[targetDate];
-                }
-                const pastDates = Object.keys(shoutouts).filter(d => d < targetDate).sort((a,b) => b.localeCompare(a));
-                for (let pd of pastDates) {
-                   if (shoutouts[pd].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3")) {
-                     return shoutouts[pd];
-                   }
-                }
-            }
-            return ["Student 1", "Student 2", "Student 3", "Student 4", "Student 5"];
-        };
+    const COLOR_PURPLE = '4B0082';
+    const COLOR_TEAL = '008080';
+    const COLOR_SLATE = '1E293B';
+    const COLOR_MUTED = '64748B';
+    const COLOR_BG = 'F8FAFC';
+    const COLOR_WHITE = 'FFFFFF';
+    const COLOR_BORDER = 'E2E8F0';
 
-        const addSlide = (title, contentText, fontSize = 24) => {
-            let slide = pres.addSlide();
-            slide.addText(title, { x: 0.5, y: 0.5, w: '90%', fontSize: 32, bold: true, color: '4B0082' });
-            slide.addText(contentText, { x: 0.5, y: 1.5, w: '90%', fontSize: fontSize, valign: 'top' });
-        };
-
-        // 1. Welcome
-        addSlide(p.topic ? p.topic.replace(/\[.*?\]\s*/, '') : 'Welcome', "Welcome to Class! Get ready to start.", 36);
-
-        // 2. Do Now
-        if (p.do_now) addSlide('1. Spiraled Do Now', stripHtml(p.do_now));
-
-        // 3. Expectations
-        const expText = "� No Cellphones\n� Drop pencils when completed\n� Communicate with respect\n� Raise your hand";
-        addSlide('2. Classroom Expectations', expText);
-
-        // 4. Today @ A Glance
-        addSlide('3. Today @ A Glance', `SWBAT (Objective):\n${stripHtml(p.objective_3m || '')}\n\nEssential question of the day:\n${stripHtml(getEq(p.objective_3m))}\n\nAgenda\n� Do Now - completed\n� Notes - Direct Instruction\n� Guided & Group Practice: We Do\n� Independent Practice\n� Exit Ticket`, 20);
-
-        // 5. Shoutouts
-        const sList = getShoutouts(p.date_start);
-        addSlide('4. Student Shoutouts', "Excellent work from:\n\n" + sList.map(s => "� " + s).join('\n'));
-
-        // 6. Direct Instruction (Split)
-        const se = p.structured_exemplars || [];
-        if (p.direct_instruction) {
-            const blocks = String(p.direct_instruction).split(/(?=## )/);
-            blocks.forEach((block) => {
-                if (!block.trim()) return;
-                let title = "Direct Instruction";
-                const titleMatch = block.match(/## (.*?)\n/);
-                if (titleMatch) {
-                   title = titleMatch[1].trim();
-                   block = block.replace(/## .*?\n/, '');
-                }
-                block = block.replace(/^---\n/, '');
-                
-                let content = block.trim();
-                if (content.includes('**Example 1**') && content.includes('**Example 2**')) {
-                    const ex1split = content.split('**Example 2**');
-                    let ex1text = ex1split[0].replace(/\*\*Example 1\*\*/g, 'Example 1:\n' + (se.length > 0 ? renderProb(se[0]) : ''));
-                    addSlide(`${title} (Example 1)`, stripHtml(ex1text));
-                    
-                    let ex2text = ('**Example 2**' + ex1split[1]).replace(/\*\*Example 2\*\*/g, 'Example 2:\n' + (se.length > 1 ? renderProb(se[1]) : ''));
-                    addSlide(`${title} (Example 2)`, stripHtml(ex2text));
-                } else {
-                    let exText = content.replace(/\*\*Example 1\*\*/g, 'Example 1:\n' + (se.length > 0 ? renderProb(se[0]) : '')).replace(/\*\*Example 2\*\*/g, 'Example 2:\n' + (se.length > 1 ? renderProb(se[1]) : ''));
-                    addSlide(title, stripHtml(exText));
-                }
-            });
-        }
-        
-        // 7. Formative Assessment
-        const cfuStrategies = ['Turn and Talk: Discuss the core concept with your neighbor.', 'Fist to Five: Rate your understanding.', 'Cold Call: Teacher will select a student to summarize.', 'Whiteboards: Show your work to the teacher.', 'Think-Pair-Share: Think silently, then discuss.'];
-        const cfuText = p.checks_for_understanding || cfuStrategies[Math.floor(Math.random() * cfuStrategies.length)];
-        addSlide('7. Formative Assessment #1', "Check for understanding:\n" + stripHtml(cfuText));
-
-        // 8. Expectations Reminder
-        addSlide('Classroom Expectations (Reminder)', expText);
-
-        // 9. Group Practice (4)
-        se.slice(2, 6).forEach((ex, i) => addSlide('10. Group Practice (Problem ' + (i+1) + ')', renderProb(ex)));
-        
-        // 10. Expectations Reminder
-        addSlide('Classroom Expectations (Reminder)', expText);
-
-        // 11. Independent Practice Directions
-        addSlide('11. Independent Practice', "Directions:\n" + stripHtml(p.independent_practice || 'Complete the assigned independent practice problems quietly.'));
-
-        // 12. Independent Practice (8)
-        se.slice(6, 14).forEach((ex, i) => addSlide('11. Independent Practice (Problem ' + (i+1) + ')', renderProb(ex)));
-        
-        // 13. Exit Ticket (2)
-        se.slice(14, 16).forEach((ex, i) => addSlide('13. Exit Ticket (Problem ' + (i+1) + ')', renderProb(ex)));
+    const getEssentialQuestion = (obj) => {
+      if (!obj) return "How can we apply today's concept to solve real-world problems?";
+      let topic = obj.toLowerCase();
+      const m = topic.match(/involving (.*?) \(/);
+      if (m) {
+        return `How can we apply our understanding of ${m[1]} to solve real-world problems?`;
+      }
+      return "How can we apply today's concept to solve real-world problems?";
     };
 
+    const addHeader = (slide, title, timer) => {
+      slide.background = { color: COLOR_BG };
+      slide.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: '100%', h: 0.85, fill: { color: COLOR_PURPLE } });
+      slide.addShape(pres.ShapeType.rect, { x: 0, y: 0.85, w: '100%', h: 0.06, fill: { color: COLOR_TEAL } });
+      
+      slide.addText(title, {
+        x: 0.5, y: 0.05, w: timer ? 7.6 : 9.0, h: 0.75,
+        fontSize: 20, bold: true, color: COLOR_WHITE, valign: 'middle'
+      });
+
+      if (timer) {
+        slide.addShape(pres.ShapeType.roundRect, {
+          x: 8.5, y: 0.18, w: 1.0, h: 0.45,
+          fill: { color: COLOR_TEAL }, line: { color: COLOR_WHITE, width: 1 }
+        });
+        slide.addText(timer, {
+          x: 8.5, y: 0.18, w: 1.0, h: 0.45,
+          fontSize: 14, bold: true, color: COLOR_WHITE, align: 'center', valign: 'middle'
+        });
+      }
+
+      slide.addShape(pres.ShapeType.roundRect, {
+        x: 0.5, y: 1.1, w: 9.0, h: 4.25,
+        fill: { color: COLOR_WHITE }, line: { color: COLOR_BORDER, width: 1.5 }
+      });
+    };
+
+    const addProblemContent = (slide, ex) => {
+      const qText = cleanMathText(ex.question || ex.text || 'Solve the problem.');
+      slide.addShape(pres.ShapeType.roundRect, {
+        x: 0.8, y: 1.3, w: 8.4, h: 1.4,
+        fill: { color: 'F8FAFC' }, line: { color: COLOR_BORDER, width: 1 }
+      });
+      slide.addText(qText, {
+        x: 1.0, y: 1.4, w: 8.0, h: 1.2,
+        fontSize: 16, bold: true, color: COLOR_SLATE, align: 'center', valign: 'middle'
+      });
+
+      if (ex.options && Array.isArray(ex.options) && ex.options.length > 0) {
+        ex.options.slice(0, 4).forEach((opt, idx) => {
+          const ox = (idx % 2 === 0) ? 0.8 : 5.1;
+          const oy = (idx < 2) ? 2.9 : 3.8;
+          const letter = String.fromCharCode(65 + idx);
+
+          slide.addShape(pres.ShapeType.roundRect, {
+            x: ox, y: oy, w: 4.1, h: 0.75,
+            fill: { color: COLOR_WHITE }, line: { color: COLOR_BORDER, width: 1.2 }
+          });
+          slide.addShape(pres.ShapeType.roundRect, {
+            x: ox + 0.1, y: oy + 0.12, w: 0.5, h: 0.5,
+            fill: { color: COLOR_PURPLE }
+          });
+          slide.addText(letter, {
+            x: ox + 0.1, y: oy + 0.12, w: 0.5, h: 0.5,
+            fontSize: 14, bold: true, color: COLOR_WHITE, align: 'center', valign: 'middle'
+          });
+          slide.addText(cleanMathText(opt), {
+            x: ox + 0.7, y: oy + 0.1, w: 3.3, h: 0.55,
+            fontSize: 13, color: COLOR_SLATE, valign: 'middle'
+          });
+        });
+      }
+    };
+
+    // 1. Welcome Slide
+    {
+      const s = pres.addSlide();
+      s.background = { color: COLOR_PURPLE };
+      s.addShape(pres.ShapeType.rect, { x: 2.0, y: 1.2, w: 6.0, h: 0.08, fill: { color: COLOR_TEAL } });
+      s.addText('WELCOME TO CLASS', {
+        x: 0.5, y: 1.5, w: 9.0, h: 0.8,
+        fontSize: 36, bold: true, color: COLOR_WHITE, align: 'center'
+      });
+      s.addText(cleanMathText(p.topic || 'Math 8'), {
+        x: 0.5, y: 2.3, w: 9.0, h: 0.8,
+        fontSize: 24, bold: true, color: '99F6E4', align: 'center'
+      });
+      s.addShape(pres.ShapeType.roundRect, {
+        x: 3.5, y: 3.4, w: 3.0, h: 0.6,
+        fill: { color: COLOR_TEAL }
+      });
+      s.addText('Get ready to start!', {
+        x: 3.5, y: 3.4, w: 3.0, h: 0.6,
+        fontSize: 16, bold: true, color: COLOR_WHITE, align: 'center', valign: 'middle'
+      });
+    }
+
+    // 2. Spiraled Do Now
+    {
+      const s = pres.addSlide();
+      addHeader(s, '1. Spiraled Do Now', '5:00');
+      s.addText('Directions: Complete the warm-up problems quietly in your notebook.', {
+        x: 0.8, y: 1.3, w: 8.4, h: 0.4,
+        fontSize: 13, italic: true, color: COLOR_MUTED
+      });
+      const doNowText = cleanMathText(p.do_now || 'Complete the Do Now on the board.');
+      s.addText(doNowText, {
+        x: 0.8, y: 1.8, w: 8.4, h: 3.3,
+        fontSize: 16, color: COLOR_SLATE, valign: 'top', lineSpacing: 26
+      });
+    }
+
+    // 3. Classroom Expectations
+    {
+      const s = pres.addSlide();
+      addHeader(s, '2. Classroom Expectations');
+      const rules = [
+        { num: '1', title: 'No Cellphones', desc: 'Devices must be kept away and on silent during instruction.' },
+        { num: '2', title: 'Drop Pencils When Done', desc: 'When timer buzzes or signaled, drop pencils and track speaker.' },
+        { num: '3', title: 'Communicate with Respect', desc: 'Use positive, academic language with peers and teachers.' },
+        { num: '4', title: 'Raise Your Hand', desc: 'Wait to be acknowledged before speaking or leaving your seat.' }
+      ];
+      rules.forEach((r, idx) => {
+        const rx = (idx % 2 === 0) ? 0.8 : 5.1;
+        const ry = (idx < 2) ? 1.4 : 2.9;
+        s.addShape(pres.ShapeType.roundRect, {
+          x: rx, y: ry, w: 4.1, h: 1.3,
+          fill: { color: 'F1F5F9' }, line: { color: COLOR_BORDER, width: 1 }
+        });
+        s.addShape(pres.ShapeType.roundRect, {
+          x: rx + 0.15, y: ry + 0.15, w: 0.4, h: 0.4,
+          fill: { color: COLOR_PURPLE }
+        });
+        s.addText(r.num, {
+          x: rx + 0.15, y: ry + 0.15, w: 0.4, h: 0.4,
+          fontSize: 12, bold: true, color: COLOR_WHITE, align: 'center', valign: 'middle'
+        });
+        s.addText(r.title, {
+          x: rx + 0.65, y: ry + 0.15, w: 3.3, h: 0.4,
+          fontSize: 15, bold: true, color: COLOR_PURPLE, valign: 'middle'
+        });
+        s.addText(r.desc, {
+          x: rx + 0.65, y: ry + 0.55, w: 3.3, h: 0.65,
+          fontSize: 12, color: COLOR_SLATE, valign: 'top'
+        });
+      });
+    }
+
+    // 4. Today @ A Glance
+    {
+      const s = pres.addSlide();
+      addHeader(s, '3. Today @ A Glance');
+      
+      s.addShape(pres.ShapeType.roundRect, {
+        x: 0.8, y: 1.3, w: 4.8, h: 3.8,
+        fill: { color: 'F8FAFC' }, line: { color: COLOR_BORDER, width: 1 }
+      });
+      s.addText('SWBAT (Objective):', {
+        x: 1.0, y: 1.4, w: 4.4, h: 0.35, fontSize: 14, bold: true, color: COLOR_PURPLE
+      });
+      s.addText(cleanMathText(p.objective_3m || 'Master the target standard.'), {
+        x: 1.0, y: 1.8, w: 4.4, h: 1.2, fontSize: 13, color: COLOR_SLATE, valign: 'top'
+      });
+      s.addText('Essential Question of the Day:', {
+        x: 1.0, y: 3.1, w: 4.4, h: 0.35, fontSize: 14, bold: true, color: COLOR_TEAL
+      });
+      s.addText(getEssentialQuestion(p.objective_3m), {
+        x: 1.0, y: 3.5, w: 4.4, h: 1.2, fontSize: 13, italic: true, color: COLOR_SLATE, valign: 'top'
+      });
+
+      s.addShape(pres.ShapeType.roundRect, {
+        x: 5.8, y: 1.3, w: 3.4, h: 3.8,
+        fill: { color: 'F8FAFC' }, line: { color: COLOR_BORDER, width: 1 }
+      });
+      s.addText('Today\'s Agenda', {
+        x: 6.0, y: 1.4, w: 3.0, h: 0.35, fontSize: 14, bold: true, color: COLOR_PURPLE
+      });
+      const agendaItems = [
+        '1. Spiraled Do Now',
+        '2. Direct Instruction / Notes',
+        '3. Guided & Group Practice (We Do)',
+        '4. Independent Practice (You Do)',
+        '5. Exit Ticket'
+      ];
+      s.addText(agendaItems.join('\n\n'), {
+        x: 6.0, y: 1.9, w: 3.0, h: 3.0, fontSize: 12, color: COLOR_SLATE, valign: 'top'
+      });
+    }
+
+    // 5. Student Shoutouts
+    {
+      const s = pres.addSlide();
+      addHeader(s, '4. Student Shoutouts');
+      s.addText('Highest TicketOut Scores Across All Classes!', {
+        x: 0.8, y: 1.3, w: 8.4, h: 0.4,
+        fontSize: 16, bold: true, color: COLOR_TEAL, align: 'center'
+      });
+
+      const getMostRecentShoutouts = (targetDate) => {
+        if (shoutouts[targetDate] && shoutouts[targetDate].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3")) {
+          return shoutouts[targetDate];
+        }
+        const pastDates = Object.keys(shoutouts)
+          .filter(d => d < targetDate && shoutouts[d].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3"))
+          .sort((a,b) => new Date(b) - new Date(a));
+        if (pastDates.length > 0) return shoutouts[pastDates[0]];
+        return ["Top Scholar", "Top Scholar", "Top Scholar"];
+      };
+
+      const dateShoutouts = getMostRecentShoutouts(p.date_start);
+      const cores = [
+        { name: 'Core 1', student: dateShoutouts[0] || 'Top Scholar' },
+        { name: 'Core 2', student: dateShoutouts[1] || 'Top Scholar' },
+        { name: 'Core 3', student: dateShoutouts[2] || 'Top Scholar' }
+      ];
+
+      cores.forEach((c, idx) => {
+        const cx = 0.9 + idx * 2.8;
+        s.addShape(pres.ShapeType.roundRect, {
+          x: cx, y: 1.9, w: 2.6, h: 2.8,
+          fill: { color: 'F8FAFC' }, line: { color: COLOR_BORDER, width: 1 }
+        });
+        s.addShape(pres.ShapeType.roundRect, {
+          x: cx, y: 1.9, w: 2.6, h: 0.7,
+          fill: { color: COLOR_PURPLE }
+        });
+        s.addText(c.name, {
+          x: cx, y: 1.9, w: 2.6, h: 0.7,
+          fontSize: 16, bold: true, color: COLOR_WHITE, align: 'center', valign: 'middle'
+        });
+        s.addText('Top Performer', {
+          x: cx, y: 2.8, w: 2.6, h: 0.4,
+          fontSize: 12, italic: true, color: COLOR_MUTED, align: 'center'
+        });
+        s.addText(c.student, {
+          x: cx, y: 3.3, w: 2.6, h: 0.8,
+          fontSize: 18, bold: true, color: COLOR_PURPLE, align: 'center', valign: 'middle'
+        });
+      });
+    }
+
+    // 6. Direct Instruction Slides
+    if (p.direct_instruction) {
+      let diText = p.direct_instruction;
+      if (p.date_start === '2026-09-21' && !diText.includes('telescope')) {
+        diText = diText.replace(/## Direct Instruction\s*---/i, "## Launch: The Telescope\n---\nImagine you are looking at a star through a telescope. The star doesn't change its actual shape, but the lenses inside the telescope *scale* the image up so your eye can see it. Today, we are going to learn how to mathematically build that telescope.\n\n## Direct Instruction\n---");
+      }
+      const blocks = diText.split(/(?=## )/);
+      blocks.forEach(block => {
+        if (!block.trim()) return;
+        let title = "Direct Instruction";
+        const tm = block.match(/## (.*?)\n/);
+        if (tm) {
+          title = tm[1].trim();
+          block = block.replace(/## .*?\n/, '');
+        }
+        block = block.replace(/^---\n/, '');
+        const cleanContent = cleanMathText(block);
+        if (!cleanContent) return;
+
+        const isEx = title.toLowerCase().includes('example');
+        const s = pres.addSlide();
+        addHeader(s, `Direct Instruction: ${title}`, isEx ? '5:00' : null);
+        s.addText(cleanContent, {
+          x: 0.8, y: 1.3, w: 8.4, h: 3.8,
+          fontSize: 15, color: COLOR_SLATE, valign: 'top', lineSpacing: 24
+        });
+      });
+    }
+
+    // 7. CFU Slide
+    {
+      const s = pres.addSlide();
+      addHeader(s, '7. Formative Assessment #1 (CFU)', '2:00');
+      const cfuStrategies = [
+        'Turn and Talk: Discuss the core concept with your neighbor.',
+        'Stop and Jot: Write down the most important thing you learned in the last 5 minutes.',
+        'Think-Pair-Share: Think about the core concept for 30 seconds, then pair up and share your thoughts.',
+        'Fist to Five: Rate your understanding from 0 (completely lost) to 5 (I could teach it) by holding up your fingers.',
+        'Thumbs Up/Down: Show a thumbs up if you feel confident about the concept, or thumbs down if you need more help.',
+        'Cold Call Prep: Take 1 minute to formulate summary in your head. A random student will be called upon.'
+      ];
+      const hashStr = (p.topic || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const defaultCfu = cfuStrategies[hashStr % cfuStrategies.length];
+      const cfu = (p.checks_for_understanding && p.checks_for_understanding[0]?.cfu) || defaultCfu;
+      s.addShape(pres.ShapeType.roundRect, {
+        x: 1.2, y: 1.8, w: 7.6, h: 2.5,
+        fill: { color: 'F0FDFA' }, line: { color: COLOR_TEAL, width: 2 }
+      });
+      s.addText('Check for Understanding:', {
+        x: 1.5, y: 2.0, w: 7.0, h: 0.4,
+        fontSize: 16, bold: true, color: COLOR_TEAL
+      });
+      s.addText(cleanMathText(cfu), {
+        x: 1.5, y: 2.5, w: 7.0, h: 1.5,
+        fontSize: 20, bold: true, color: COLOR_SLATE, valign: 'top'
+      });
+    }
+
+    // 8. Guided Practice Problems (indices 0 and 1)
+    if (p.structured_exemplars && p.structured_exemplars.length >= 2) {
+      [0, 1].forEach((exIdx) => {
+        const ex = p.structured_exemplars[exIdx];
+        const s = pres.addSlide();
+        addHeader(s, `8. Guided Practice (Problem ${exIdx + 1})`, '5:00');
+        addProblemContent(s, ex);
+      });
+    }
+
+    // 9. Group Practice Problems (indices 2 to 5)
+    if (p.structured_exemplars && p.structured_exemplars.length >= 6) {
+      [2, 3, 4, 5].forEach((exIdx, gIdx) => {
+        const ex = p.structured_exemplars[exIdx];
+        const s = pres.addSlide();
+        addHeader(s, `10. Group Practice (Problem ${gIdx + 1})`, '5:00');
+        addProblemContent(s, ex);
+      });
+    }
+
+    // 10. Independent Practice Directions
+    {
+      const s = pres.addSlide();
+      addHeader(s, '11. Independent Practice (Directions)', '15:00');
+      s.addShape(pres.ShapeType.roundRect, {
+        x: 1.0, y: 1.4, w: 8.0, h: 3.6,
+        fill: { color: 'F8FAFC' }, line: { color: COLOR_PURPLE, width: 1.5 }
+      });
+      s.addText('Independent Work Expectations:', {
+        x: 1.3, y: 1.6, w: 7.4, h: 0.4,
+        fontSize: 16, bold: true, color: COLOR_PURPLE
+      });
+      const ipText = cleanMathText(p.independent_practice || 'Complete all assigned independent practice problems quietly.');
+      s.addText(ipText, {
+        x: 1.3, y: 2.1, w: 7.4, h: 2.6,
+        fontSize: 14, color: COLOR_SLATE, valign: 'top', lineSpacing: 22
+      });
+    }
+
+    // 11. Independent Practice Problems (indices 6 to end)
+    if (p.structured_exemplars && p.structured_exemplars.length > 6) {
+      const indExemplars = p.structured_exemplars.slice(6);
+      indExemplars.forEach((ex, idx) => {
+        const s = pres.addSlide();
+        addHeader(s, `11. Independent Practice (Problem ${idx + 1})`, '3:00');
+        addProblemContent(s, ex);
+      });
+    }
+
+    // 12. Exit Ticket Slide
+    {
+      const s = pres.addSlide();
+      addHeader(s, '13. Exit Ticket (Formative Assessment)', '5:00');
+      s.addText('Directions: Complete independently without notes before the bell.', {
+        x: 0.8, y: 1.25, w: 8.4, h: 0.35,
+        fontSize: 13, italic: true, color: COLOR_MUTED
+      });
+      const etText = cleanMathText(p.exit_ticket || 'Complete the Exit Ticket.');
+      s.addText(etText, {
+        x: 0.8, y: 1.65, w: 8.4, h: 3.5,
+        fontSize: 15, color: COLOR_SLATE, valign: 'top', lineSpacing: 22
+      });
+    }
+  };
+
     const handlePrintSlideshow = () => {
-        if (!plan) return;
         const pres = new pptxgen();
         buildPlanPptx(pres, plan);
-        let safeTopic = (plan.topic || 'Lesson').replace(/[^a-zA-Z0-9_-]/g, '_');
-        pres.writeFile({ fileName: safeTopic + "_Slides.pptx" });
+        pres.writeFile({ fileName: (plan.topic || "Lesson") + "_Slides.pptx" });
     };
 
     const handlePrintSlideshowOld = () => {
@@ -481,7 +759,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
           content: `<strong>Directions:</strong>\n${plan.independent_practice || 'Complete the assigned independent practice problems quietly.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
         });
         
-        const indChunk = plan.structured_exemplars.slice(6, 14);
+        const indChunk = plan.structured_exemplars.slice(6);
         indChunk.forEach((ex, idx) => {
           problemsSlides.push({
             title: `11. Independent Practice (Problem ${idx + 1})`,
@@ -574,32 +852,11 @@ ${renderQuestionContent(ex, idx)}
           <li>Communicate with respect</li>
           <li>Raise your hand</li>
         </ul>
-        <div><img src="${window.location.origin}/owl-transparent.png" alt="Owl" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
+        <div><img src="${window.location.origin}${getDayOwlImage(plan.date_start)}" alt="Owl" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
       </div>`;
 
 
-    
-      const exitTicketSlides = [];
-      if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
-          let etChunk = [];
-          if (plan.structured_exemplars.length >= 16) {
-              etChunk = plan.structured_exemplars.slice(14, 16);
-          } else if (plan.structured_exemplars.length === 10) {
-              etChunk = plan.structured_exemplars.slice(8, 10);
-          }
-          etChunk.forEach((ex, idx) => {
-              exitTicketSlides.push({
-                  title: `13. Exit Ticket (Problem ${idx + 1})`,
-                  content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(ex, idx)}
-</div>
-
-<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
-              });
-          });
-      }
-      const baseSlides = [
-
+    const baseSlides = [
       { title: plan.topic ? plan.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
       { 
         title: "1. Spiraled Do Now", 
@@ -682,7 +939,10 @@ ${renderQuestionContent(ex, idx)}
         content: expectationsContent 
       },
       ...problemsSlides,
-      ...exitTicketSlides
+      { 
+        title: "13. Exit Ticket (Formative Assessment #3)", 
+        content: `**Directions:**\n${plan.exit_ticket || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
+      }
     ];
 
     const processedSlides = baseSlides.map(slide => {
@@ -703,7 +963,7 @@ ${renderQuestionContent(ex, idx)}
       <html>
         <head>
           <title>Presentation: ${plan.topic}</title>
-          <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+          <link rel="stylesheet" href="${window.location.origin}/katex/katex.min.css">
           <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js">${"<"}/script>
           
           <style>
@@ -1013,7 +1273,6 @@ ${renderQuestionContent(ex, idx)}
 
   
     const buildSlideshowHTML = (p) => {
-            
         
     const cfuStrategies = [
       'Turn and Talk: Discuss the core concept with your neighbor.',
@@ -1083,7 +1342,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
           content: `<strong>Directions:</strong>\n${p.independent_practice || 'Complete the assigned independent practice problems quietly.'}`
         });
         
-        const indChunk = p.structured_exemplars.slice(6, 14);
+        const indChunk = p.structured_exemplars.slice(6);
         indChunk.forEach((ex, idx) => {
           problemsSlides.push({
             title: `11. Independent Practice (Problem ${idx + 1})`,
@@ -1153,27 +1412,11 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
           <li>Communicate with respect</li>
           <li>Raise your hand</li>
         </ul>
-        <div><img src="${window.location.origin}/owl-transparent.png" alt="Owl" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
+        <div><img src="${window.location.origin}${getDayOwlImage(p.date_start)}" alt="Owl" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
       </div>`;
 
 
-      
-      const exitTicketSlides = [];
-      if (plan.structured_exemplars && plan.structured_exemplars.length >= 16) {
-          const etChunk = plan.structured_exemplars.slice(14, 16);
-          etChunk.forEach((ex, idx) => {
-              exitTicketSlides.push({
-                  title: `13. Exit Ticket (Problem ${idx + 1})`,
-                  content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(ex, idx)}
-</div>
-
-<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
-              });
-          });
-      }
       const baseSlides = [
-
         { title: p.topic ? p.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
         { title: "1. Spiraled Do Now", content: `**Directions:**\n${p.do_now || ''}` },
         { title: "2. Classroom Expectations", content: expectationsContent },
@@ -1232,11 +1475,7 @@ ${renderQuestionContent(ex, idx)}
         { title: "Classroom Expectations (Reminder)", content: expectationsContent },
         ...problemsSlides,
         
-        
-            
-            ...(p.structured_exemplars && p.structured_exemplars.length >= 16 ? p.structured_exemplars.slice(14, 16).map((ex, idx) => ({ title: `13. Exit Ticket (Problem ${idx+1})`, content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(ex, idx)}
-</div>` })) : []),
+        { title: "13. Exit Ticket (Formative Assessment #3)", content: `**Directions:**\n${p.exit_ticket || ''}` },
       ];
 
       // Convert Markdown to HTML for all slides
@@ -1267,10 +1506,15 @@ ${renderQuestionContent(ex, idx)}
 
     const handlePrintWeekSlideshows = () => {
         const pres = new pptxgen();
-        if (weekPlans) {
+        pres.layout = 'LAYOUT_16x9';
+        if (weekPlans && weekPlans.length > 0) {
             weekPlans.forEach(p => {
-                let slide = pres.addSlide();
-                slide.addText(p.topic || "Lesson", { x: 0.5, y: 2.5, w: "90%", fontSize: 48, bold: true, color: "4B0082", align: "center" });
+                let sep = pres.addSlide();
+                sep.background = { color: '4B0082' };
+                sep.addShape(pres.ShapeType.rect, { x: 2.0, y: 1.4, w: 6.0, h: 0.08, fill: { color: '008080' } });
+                const dayLabel = p.date_start ? format(parseISO(p.date_start), 'EEEE (M/d)') : 'Lesson';
+                sep.addText(dayLabel, { x: 0.5, y: 1.8, w: '90%', fontSize: 32, bold: true, color: '99F6E4', align: 'center' });
+                sep.addText(p.topic || "Daily Lesson", { x: 0.5, y: 2.6, w: '90%', fontSize: 38, bold: true, color: 'FFFFFF', align: 'center' });
                 buildPlanPptx(pres, p);
             });
         }
@@ -1337,7 +1581,7 @@ ${renderQuestionContent(ex, idx)}
           {plan.week_label === 'Emergency Sub Plans' ? (
             <p style={{ margin: 0, color: '#666' }}><strong>{plan.week_label}</strong></p>
           ) : (
-            <p style={{ margin: 0, color: '#666' }}>Date: <strong>{format(new Date(plan.date_start + 'T12:00:00'), 'MMMM d, yyyy')}</strong> | Week: <strong>{plan.week_label}</strong></p>
+            <p style={{ margin: 0, color: '#666' }}>Date: <strong>{format(new Date(plan.date_start), 'MMMM d, yyyy')}</strong> | Week: <strong>{plan.week_label}</strong></p>
           )}
         </div>
         
@@ -1431,9 +1675,9 @@ ${renderQuestionContent(ex, idx)}
         </Section>
 
         <Section id="independent_practice" title="Independent Practice">
-            {plan.structured_exemplars && (plan.structured_exemplars.length >= 16 || plan.structured_exemplars.length === 10) ? (
-                  <div>
-                      {(plan.structured_exemplars.length === 10 ? plan.structured_exemplars.slice(0, 8) : plan.structured_exemplars.slice(6, 14)).map((ex, idx) => (
+            {plan.structured_exemplars && plan.structured_exemplars.length >= 6 ? (
+                <div>
+                    {plan.structured_exemplars.slice(6).map((ex, idx) => (
                         <div key={'ind-'+idx} style={{ marginBottom: '20px', border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden' }}>
                             <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '10px 15px', fontWeight: 'bold' }}>
                                 Problem {idx + 7}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0)) }} />
