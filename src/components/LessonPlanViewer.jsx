@@ -52,17 +52,21 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
   
   
   const renderQuestionContent = (ex, index = 0) => {
-    let html = renderMath(ex.question);
+    if (!ex) return '';
+    let rawText = ex.question || ex.text || '';
+    // Strip redundant leading prefixes like "Group Practice 1: ", "Example 2: "
+    let cleanText = rawText.replace(/^(Group Practice|Example)\s*\d*[:.-]?\s*/i, '').trim();
+    let html = cleanText ? '<div style="font-weight: 600; font-size: 1.15em; margin-bottom: 15px; color: #1e293b;">' + renderMath(cleanText) + '</div>' : '';
     
     if (ex.type === 'multiple-choice' && ex.options) {
       // Deterministically shuffle based on question string length + index
       let opts = [...ex.options];
-      let seed = (ex.question || '').length + index;
+      let seed = (cleanText || '').length + index;
       for (let i = opts.length - 1; i > 0; i--) {
         const j = Math.floor(Math.abs(Math.sin(seed++) * 10000)) % (i + 1);
         [opts[i], opts[j]] = [opts[j], opts[i]];
       }
-      html += '<ol style="list-style-type: upper-alpha; margin-left: 20px; margin-top: 10px; font-size: 0.9em; text-align: left;">' + opts.map(o => '<li style="margin-bottom:4px;">' + renderMath(o) + '</li>').join('') + '</ol>';
+      html += '<ol style="list-style-type: upper-alpha; margin-left: 20px; margin-top: 10px; font-size: 0.95em; text-align: left;">' + opts.map(o => '<li style="margin-bottom:6px;">' + renderMath(o) + '</li>').join('') + '</ol>';
     }
 
     
@@ -261,7 +265,7 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
   const cleanMathText = (text) => {
     if (!text) return '';
     return String(text)
-      .replace(/<[^>]*>?/gm, ' ')
+      .replace(/<[a-zA-Z\/][^>]*>/g, ' ')
       .replace(/\\sqrt\{([^}]+)\}/g, '√$1')
       .replace(/\\le(q)?\b/g, '≤')
       .replace(/\\ge(q)?\b/g, '≥')
@@ -852,7 +856,7 @@ ${renderQuestionContent(ex, idx)}
           <li>Communicate with respect</li>
           <li>Raise your hand</li>
         </ul>
-        <div><img src="${window.location.origin}${getDayOwlImage(plan.date_start)}" alt="Owl" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
+        <div><img src="${window.location.origin}${getDayOwlImage(plan.date_start)}" alt="Owl" onerror="this.onerror=null; this.src='${window.location.origin}/owl-transparent.png';" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
       </div>`;
 
 
@@ -947,6 +951,7 @@ ${renderQuestionContent(ex, idx)}
 
     const processedSlides = baseSlides.map(slide => {
       let content = slide.content || "";
+      content = content.replace(/<\s*or\s*>/gi, '&lt; or &gt;');
       content = content.replace(/\bpi\b/gi, '$\\\\pi$');
       content = renderMath(content);
       if (window.marked) {
@@ -1412,7 +1417,7 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
           <li>Communicate with respect</li>
           <li>Raise your hand</li>
         </ul>
-        <div><img src="${window.location.origin}${getDayOwlImage(p.date_start)}" alt="Owl" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
+        <div><img src="${window.location.origin}${getDayOwlImage(p.date_start)}" alt="Owl" onerror="this.onerror=null; this.src='${window.location.origin}/owl-transparent.png';" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
       </div>`;
 
 
