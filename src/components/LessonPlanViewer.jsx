@@ -602,24 +602,24 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       });
     }
 
+    // 3b. Lesson Purpose ("Our Why?")
+    const purposeText = getLessonPurpose(p);
+    if (purposeText) {
+      const sPurp = pres.addSlide();
+      addHeader(sPurp, 'Lesson Purpose ("Our Why?")');
+      sPurp.addShape(pres.ShapeType.roundRect, {
+        x: 0.8, y: 1.3, w: 8.4, h: 3.8,
+        fill: { color: 'F8FAFC' }, line: { color: COLOR_PURPLE, width: 2 }
+      });
+      sPurp.addText(cleanMathText(purposeText), {
+        x: 1.1, y: 1.5, w: 7.8, h: 3.4,
+        fontSize: 14, color: COLOR_SLATE, valign: 'top', lineSpacing: 22
+      });
+    }
+
     // 5. Student Shoutouts
     {
       const s = pres.addSlide();
-      // Lesson Purpose Slide
-      const purposeText = getLessonPurpose(p);
-      if (purposeText) {
-        const s = pres.addSlide();
-        addHeader(s, 'Lesson Purpose: Our Why');
-        s.addShape(pres.ShapeType.roundRect, {
-          x: 0.8, y: 1.3, w: 8.4, h: 3.8,
-          fill: { color: 'F8FAFC' }, line: { color: COLOR_PURPLE, width: 2 }
-        });
-        s.addText(cleanMathText(purposeText), {
-          x: 1.1, y: 1.5, w: 7.8, h: 3.4,
-          fontSize: 14, color: COLOR_SLATE, valign: 'top', lineSpacing: 22
-        });
-      }
-
       addHeader(s, '4. Student Shoutouts');
       s.addText('Highest TicketOut Scores Across All Classes!', {
         x: 0.8, y: 1.3, w: 8.4, h: 0.4,
@@ -1093,19 +1093,15 @@ ${renderQuestionContent(ex, idx)}
         title: "3. Today @ A Glance", 
         content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` 
       },
-      
-      
-        
-
-      
-
-        
-
-
-        
-
-        { 
-          title: "4. Student Shoutouts", 
+      ...(getLessonPurpose(plan) ? [{
+        title: `Lesson Purpose ("Our Why?")`,
+        content: `<div style="background: white; border-radius: 8px; padding: 25px; border-left: 6px solid var(--kms-purple); box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 22px; line-height: 1.6;">
+### Our Why
+${getLessonPurpose(plan)}
+</div>`
+      }] : []),
+      { 
+        title: "4. Student Shoutouts", 
           content: (() => {
              
              const dateShoutouts = getShoutoutsForDate(shoutouts, plan.date_start);
@@ -1697,10 +1693,10 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
         title: "3. Today @ A Glance", 
         content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` 
       },
-      ...(getLessonPurpose(plan) ? [{
-        title: "Lesson Purpose: Our Why",
+      ...(getLessonPurpose(p || plan) ? [{
+        title: `Lesson Purpose ("Our Why?")`,
         content: `<div style="background: white; border-radius: 8px; padding: 25px; border-left: 6px solid var(--kms-purple); box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 20px; line-height: 1.6;">
-${renderMath(getLessonPurpose(plan))}
+${renderMath(getLessonPurpose(p || plan))}
 </div>`
       }] : []),
       { 
