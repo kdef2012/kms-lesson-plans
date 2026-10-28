@@ -1904,9 +1904,20 @@ ${renderMath(getLessonPurpose(plan))}
 
       <Section id="objective_3m" title="3M Objective" content={plan.objective_3m} />
       <Section id="standard" title="Standard" content={STANDARD_MAP[plan.standard] || plan.standard} />
-      {getLessonPurpose(plan) && (
-        <Section id="lesson_purpose" title='Lesson Purpose ("Our Why?")' content={getLessonPurpose(plan)} />
-      )}
+      <Section id="lesson_purpose" title='Lesson Purpose ("Our Why?")'>
+        {getLessonPurpose(plan) ? (
+          <div 
+            style={{ lineHeight: '1.7', fontSize: '15px' }}
+            dangerouslySetInnerHTML={{
+              __html: window.marked 
+                ? window.marked.parse(renderMath(getLessonPurpose(plan)))
+                : renderMath(getLessonPurpose(plan)).replace(/\n/g, '<br/>')
+            }}
+          />
+        ) : (
+          <em style={{ color: '#999' }}>Not provided</em>
+        )}
+      </Section>
       <Section id="do_now" title="Do Now (Spiral Topics)" content={plan.do_now} />
       <Section id="direct_instruction" title="Direct Instruction (Launch)" content={getCleanDirectInstruction(plan)} />
       
