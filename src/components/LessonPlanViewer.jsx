@@ -111,10 +111,17 @@ const getShoutoutsForDate = (shoutoutsMap, targetDate) => {
 
 const getLessonPurpose = (p) => {
   if (!p) return null;
+  if (p.lesson_purpose && p.lesson_purpose.trim()) {
+    return p.lesson_purpose.trim();
+  }
   const di = p.direct_instruction || '';
-  const match = di.match(/##+s*(?:Lesson\s+)?Purpose[\s\S]*?(?=##\s+[A-Z]|$)/i);
+  const match = di.match(/##+\s*(?:Lesson\s+)?(?:Purpose|Our\s+Why)[\s\S]*?(?=(##\s+[A-Z]|$))/i);
   if (match) {
     return match[0].replace(/^##+.*?\n/i, '').replace(/^---+\s*\n/i, '').trim();
+  }
+  const whyMatch = di.match(/\*\s*\*\*Why is this lesson being taught[\s\S]*?(?=(##\s+[A-Z]|$))/i);
+  if (whyMatch) {
+    return whyMatch[0].trim();
   }
   return null;
 };
