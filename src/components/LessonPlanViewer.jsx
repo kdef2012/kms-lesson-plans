@@ -8,6 +8,107 @@ const STANDARD_MAP = {
   '8.NS.1': 'NC.8.NS.1 Understand that every number has a decimal expansion.'
 };
 
+const REAL_ROSTERS = {
+  "core1": [
+    "Leah I Sixtos-Colon",
+    "Luis A Hernandez",
+    "Tyson Drake",
+    "Mara-Lynn Aycock",
+    "Ja'myah Wardlow",
+    "David J Matos Salas",
+    "Laniyah S Farley",
+    "Grace S Bundor",
+    "Destiny Fletcher",
+    "Irvin Toscano-Rivera",
+    "Aveah L Robinson",
+    "Bayam Tomas",
+    "Aryana A Dearmon",
+    "Brooklynne D Flow",
+    "Jada'Kiss A Robinson",
+    "Joe Martinez Nonthe",
+    "Alaysia McDonald",
+    "Keyanna D Moore",
+    "Leonardo N Saucedo Bernal",
+    "Stephanie M Schmidt",
+    "Deshayla Hernandez-Garcia",
+    "Najwa Sediqi",
+    "Javier Isidro-Duarte",
+    "Ci'ree Harvey",
+    "Aydalyz Gutierrez-Garcia",
+    "Cesar S Luna Martinez",
+    "Celeste M Staup",
+    "Alicia G Horton",
+    "Itzia Noyola-Marquez"
+  ],
+  "core2": [
+    "Miguel M De Los Santos",
+    "Addai Y Williams",
+    "Damian Aguilar Marroquin",
+    "Naomi M Arellano Quintanilla",
+    "Blake J Scales",
+    "Gajuan K Crawford",
+    "Ana K Noyola Cisneros",
+    "Peyton Brazeal",
+    "Jayceon T Silva",
+    "Jose A Diaz",
+    "Miracle Fletcher",
+    "Jefferson S Melgar Jr.",
+    "Brittany Quintero",
+    "Braylen Linebarger",
+    "Stephanie Zamorano-Gonzalez",
+    "Allisson Garcia-Carrillo",
+    "Katherine N Banger",
+    "Kharyan D Davis",
+    "Miguel A Maldonado Santos",
+    "Natali J Garcia-Julian",
+    "Joyce D Silva-Villarreal",
+    "Jermauria A Miller-Oglesby",
+    "Alberto Hernandez-Salinas",
+    "Treyvon Pate",
+    "Aiden M Brewster",
+    "Roxaly Bernal-Penaloza"
+  ],
+  "core3": [
+    "Alice P Montalvan-Vasquez",
+    "Martin J Toscano Salinas",
+    "Kalieze T Eaton",
+    "Ricardo J Velasco-Martinez",
+    "Kadeem E Thom",
+    "Nathanal R Flowers",
+    "Kaylee Andres Pedro",
+    "Bradley A Fontaine",
+    "Jayden T Clark",
+    "Janelly Barragan-Candela",
+    "Franco I Sanchez",
+    "Elias B Bernal Avila",
+    "Jaylend A Silva-Arellanez",
+    "Kiara B Aguilar-Morales",
+    "Zinedine Casiano-Montes",
+    "Esther Cuevas-Lopez",
+    "Angel M Maganda Casiano",
+    "Zyan M Robinson",
+    "Jose A Lozano Saucedo",
+    "Mario A Vasquez-Segovia",
+    "Angel D Olmedo-Hernandez",
+    "Jener A Lopez Yanes",
+    "Malena A Banks",
+    "Reggie L Moore III",
+    "Natalie A Moore"
+  ]
+};
+
+const getShoutoutsForDate = (shoutoutsMap, targetDate) => {
+  if (shoutoutsMap && shoutoutsMap[targetDate] && shoutoutsMap[targetDate].some(n => n && n !== "TBD" && !n.startsWith("Student") && n !== "Top Scholar")) {
+    return shoutoutsMap[targetDate];
+  }
+  const hash = (targetDate || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return [
+    REAL_ROSTERS.core1[hash % REAL_ROSTERS.core1.length],
+    REAL_ROSTERS.core2[(hash * 3 + 7) % REAL_ROSTERS.core2.length],
+    REAL_ROSTERS.core3[(hash * 7 + 13) % REAL_ROSTERS.core3.length]
+  ];
+};
+
 import { supabase } from '../supabaseClient';
 import pptxgen from 'pptxgenjs';
 import { MessageSquare, Send, Download, Image as ImageIcon, AlertTriangle, CheckCircle2, Printer, Play } from 'lucide-react';
@@ -493,18 +594,7 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
         fontSize: 16, bold: true, color: COLOR_TEAL, align: 'center'
       });
 
-      const getMostRecentShoutouts = (targetDate) => {
-        if (shoutouts[targetDate] && shoutouts[targetDate].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3")) {
-          return shoutouts[targetDate];
-        }
-        const pastDates = Object.keys(shoutouts)
-          .filter(d => d < targetDate && shoutouts[d].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3"))
-          .sort((a,b) => new Date(b) - new Date(a));
-        if (pastDates.length > 0) return shoutouts[pastDates[0]];
-        return ["Top Scholar", "Top Scholar", "Top Scholar"];
-      };
-
-      const dateShoutouts = getMostRecentShoutouts(p.date_start);
+      const dateShoutouts = getShoutoutsForDate(shoutouts, p.date_start);
       const cores = [
         { name: 'Core 1', student: dateShoutouts[0] || 'Top Scholar' },
         { name: 'Core 2', student: dateShoutouts[1] || 'Top Scholar' },
@@ -652,7 +742,7 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       [2, 3, 4, 5].forEach((exIdx, gIdx) => {
         const ex = p.structured_exemplars[exIdx];
         const s = pres.addSlide();
-        addHeader(s, `10. Group Practice (Problem ${gIdx + 1})`, '5:00');
+        addHeader(s, `10. Group Practice (Problem ${gIdx + 3})`, '5:00');
         addProblemContent(s, ex);
       });
     }
@@ -679,7 +769,7 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
     // 10. Independent Practice Directions
     {
       const s = pres.addSlide();
-      addHeader(s, '11. Independent Practice (Directions)', '15:00');
+      addHeader(s, '12. Independent Practice (Directions)', '15:00');
       s.addShape(pres.ShapeType.roundRect, {
         x: 1.0, y: 1.4, w: 8.0, h: 3.6,
         fill: { color: 'F8FAFC' }, line: { color: COLOR_PURPLE, width: 1.5 }
@@ -697,10 +787,10 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
 
     // 11. Independent Practice Problems (indices 6 to end)
     if (p.structured_exemplars && p.structured_exemplars.length > 6) {
-      const indExemplars = p.structured_exemplars.slice(6);
+      const indExemplars = p.structured_exemplars.slice(6, 14);
       indExemplars.forEach((ex, idx) => {
         const s = pres.addSlide();
-        addHeader(s, `11. Independent Practice (Problem ${idx + 1})`, '3:00');
+        addHeader(s, `12. Independent Practice (Problem ${idx + 7})`, '3:00');
         addProblemContent(s, ex);
       });
     }
@@ -724,8 +814,15 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       });
     }
 
-    // 12. Exit Ticket Slide
-    {
+    // 12. Exit Ticket Slides
+    if (p.structured_exemplars && p.structured_exemplars.length >= 16) {
+      [14, 15].forEach((exIdx, i) => {
+        const ex = p.structured_exemplars[exIdx];
+        const s = pres.addSlide();
+        addHeader(s, `14. Exit Ticket (Problem ${i + 15})`, '3:00');
+        addProblemContent(s, ex);
+      });
+    } else {
       const s = pres.addSlide();
       addHeader(s, '14. Exit Ticket', '5:00');
       s.addText('Directions: Complete independently without notes before the bell.', {
@@ -827,7 +924,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
         const groupChunk = plan.structured_exemplars.slice(2, 6);
         groupChunk.forEach((ex, idx) => {
           groupSlides.push({
-            title: `10. Group Practice (Problem ${idx + 1})`,
+            title: `10. Group Practice (Problem ${idx + 3})`,
             content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
 ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
 </div>
@@ -842,14 +939,14 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
       if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
         // Always show the directions first with a 15 min timer
         problemsSlides.push({ 
-          title: "11. Independent Practice (Directions)", 
+          title: "12. Independent Practice (Directions)", 
           content: `<strong>Directions:</strong>\n${plan.independent_practice || 'Complete the assigned independent practice problems quietly.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
         });
         
-        const indChunk = plan.structured_exemplars.slice(6);
+        const indChunk = plan.structured_exemplars.slice(6, 14);
         indChunk.forEach((ex, idx) => {
           problemsSlides.push({
-            title: `11. Independent Practice (Problem ${idx + 1})`,
+            title: `12. Independent Practice (Problem ${idx + 7})`,
             content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
 ${renderQuestionContent(ex, idx)}
 </div>
@@ -979,22 +1076,7 @@ ${renderQuestionContent(ex, idx)}
           title: "4. Student Shoutouts", 
           content: (() => {
              
-             const getMostRecentShoutouts = (targetDate) => {
-               // First check exact date and see if it has at least one real name
-               if (shoutouts[targetDate] && shoutouts[targetDate].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3")) {
-                 return shoutouts[targetDate];
-               }
-               // Otherwise, find the most recent date before targetDate that has real names
-               const pastDates = Object.keys(shoutouts)
-                 .filter(d => d < targetDate && shoutouts[d].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3"))
-                 .sort((a,b) => new Date(b) - new Date(a));
-               
-               if (pastDates.length > 0) return shoutouts[pastDates[0]];
-               
-               // Fallback if absolutely no past dates have data
-               return ["TBD", "TBD", "TBD"];
-             };
-             const dateShoutouts = getMostRecentShoutouts(plan.date_start);
+             const dateShoutouts = getShoutoutsForDate(shoutouts, plan.date_start);
              const s1 = dateShoutouts[0] || "Student 1";
              const s2 = dateShoutouts[1] || "Student 2";
              const s3 = dateShoutouts[2] || "Student 3";
@@ -1046,10 +1128,29 @@ ${renderQuestionContent(ex, idx)}
         title: `13. Formative Assessment #4 (${plan.checks_for_understanding[3].method || 'Batch Call'})`,
         content: `**Check for understanding (${plan.checks_for_understanding[3].method || 'Batch Call'}):**\n${plan.checks_for_understanding[3].cfu}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>`
       }] : []),
-      { 
-        title: "14. Exit Ticket", 
-        content: `**Directions:**\n${plan.exit_ticket || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
-      }
+      ...(plan.structured_exemplars && plan.structured_exemplars.length >= 16 ? [
+        {
+          title: "14. Exit Ticket (Problem 15)",
+          content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+${renderQuestionContent(plan.structured_exemplars[14], 14)}
+</div>
+
+<div class="timer" onclick="startTimer(this, 3)">3:00</div>`
+        },
+        {
+          title: "14. Exit Ticket (Problem 16)",
+          content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+${renderQuestionContent(plan.structured_exemplars[15], 15)}
+</div>
+
+<div class="timer" onclick="startTimer(this, 3)">3:00</div>`
+        }
+      ] : [
+        { 
+          title: "14. Exit Ticket", 
+          content: `**Directions:**\n${plan.exit_ticket || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
+        }
+      ])
     ];
 
     const processedSlides = baseSlides.map(slide => {
@@ -1459,7 +1560,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
         const groupChunk = p.structured_exemplars.slice(2, 6);
         groupChunk.forEach((ex, idx) => {
           groupSlides.push({
-            title: `10. Group Practice (Problem ${idx + 1})`,
+            title: `10. Group Practice (Problem ${idx + 3})`,
             content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
 ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
 </div>`
@@ -1470,14 +1571,14 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
       // Independent Practice (every problem on its own slide for printing)
       if (p.structured_exemplars && p.structured_exemplars.length > 0) {
         problemsSlides.push({ 
-          title: "11. Independent Practice (Directions)", 
+          title: "12. Independent Practice (Directions)", 
           content: `<strong>Directions:</strong>\n${p.independent_practice || 'Complete the assigned independent practice problems quietly.'}`
         });
         
-        const indChunk = p.structured_exemplars.slice(6);
+        const indChunk = p.structured_exemplars.slice(6, 14);
         indChunk.forEach((ex, idx) => {
           problemsSlides.push({
-            title: `11. Independent Practice (Problem ${idx + 1})`,
+            title: `12. Independent Practice (Problem ${idx + 7})`,
             content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
 ${renderQuestionContent(ex, idx)}
 </div>`
@@ -1568,22 +1669,7 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
           title: "4. Student Shoutouts", 
           content: (() => {
              
-             const getMostRecentShoutouts = (targetDate) => {
-               // First check exact date and see if it has at least one real name
-               if (shoutouts[targetDate] && shoutouts[targetDate].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3")) {
-                 return shoutouts[targetDate];
-               }
-               // Otherwise, find the most recent date before targetDate that has real names
-               const pastDates = Object.keys(shoutouts)
-                 .filter(d => d < targetDate && shoutouts[d].some(n => n !== "TBD" && n !== "Student 1" && n !== "Student 2" && n !== "Student 3"))
-                 .sort((a,b) => new Date(b) - new Date(a));
-               
-               if (pastDates.length > 0) return shoutouts[pastDates[0]];
-               
-               // Fallback if absolutely no past dates have data
-               return ["TBD", "TBD", "TBD"];
-             };
-             const dateShoutouts = getMostRecentShoutouts(p.date_start);
+             const dateShoutouts = getShoutoutsForDate(shoutouts, p.date_start);
              const s1 = dateShoutouts[0] || "Student 1";
              const s2 = dateShoutouts[1] || "Student 2";
              const s3 = dateShoutouts[2] || "Student 3";
@@ -1629,7 +1715,18 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
           title: `13. Formative Assessment #4 (${p.checks_for_understanding[3].method || 'Batch Call'})`,
           content: `**Check for understanding (${p.checks_for_understanding[3].method || 'Batch Call'}):**\n${p.checks_for_understanding[3].cfu}`
         }] : []),
-        { title: "14. Exit Ticket", content: `**Directions:**\n${p.exit_ticket || ''}` },
+        ...(p.structured_exemplars && p.structured_exemplars.length >= 16 ? [
+          {
+            title: "14. Exit Ticket (Problem 15)",
+            content: `<div class="problem-box"><div class="problem-header">Problem 15</div><div class="problem-body">${renderQuestionContent(p.structured_exemplars[14], 14)}</div></div>`
+          },
+          {
+            title: "14. Exit Ticket (Problem 16)",
+            content: `<div class="problem-box"><div class="problem-header">Problem 16</div><div class="problem-body">${renderQuestionContent(p.structured_exemplars[15], 15)}</div></div>`
+          }
+        ] : [
+          { title: "14. Exit Ticket", content: `**Directions:**\n${p.exit_ticket || ''}` }
+        ]),
       ];
 
       // Convert Markdown to HTML for all slides
