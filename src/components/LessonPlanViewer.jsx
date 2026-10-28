@@ -109,6 +109,16 @@ const getShoutoutsForDate = (shoutoutsMap, targetDate) => {
   ];
 };
 
+const getLessonPurpose = (p) => {
+  if (!p) return null;
+  const di = p.direct_instruction || '';
+  const match = di.match(/##+s*(?:Lesson\s+)?Purpose[\s\S]*?(?=##\s+[A-Z]|$)/i);
+  if (match) {
+    return match[0].replace(/^##+.*?\n/i, '').replace(/^---+\s*\n/i, '').trim();
+  }
+  return null;
+};
+
 import { supabase } from '../supabaseClient';
 import pptxgen from 'pptxgenjs';
 import { MessageSquare, Send, Download, Image as ImageIcon, AlertTriangle, CheckCircle2, Printer, Play } from 'lucide-react';
@@ -588,6 +598,21 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
     // 5. Student Shoutouts
     {
       const s = pres.addSlide();
+      // Lesson Purpose Slide
+      const purposeText = getLessonPurpose(p);
+      if (purposeText) {
+        const s = pres.addSlide();
+        addHeader(s, 'Lesson Purpose: Our Why');
+        s.addShape(pres.ShapeType.roundRect, {
+          x: 0.8, y: 1.3, w: 8.4, h: 3.8,
+          fill: { color: 'F8FAFC' }, line: { color: COLOR_PURPLE, width: 2 }
+        });
+        s.addText(cleanMathText(purposeText), {
+          x: 1.1, y: 1.5, w: 7.8, h: 3.4,
+          fontSize: 14, color: COLOR_SLATE, valign: 'top', lineSpacing: 22
+        });
+      }
+
       addHeader(s, '4. Student Shoutouts');
       s.addText('Highest TicketOut Scores Across All Classes!', {
         x: 0.8, y: 1.3, w: 8.4, h: 0.4,
@@ -631,7 +656,7 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       let diText = p.direct_instruction;
       // Strip out any Differentiation and Lesson Purpose from student-facing slides
       diText = diText.split(/##+\s*(?:Tiered\s+)?Differentiation/i)[0];
-      diText = diText.split(/##+\s*(?:Lesson Purpose|Our Why)/i)[0];
+      diText = diText.replace(/##+\s*(?:Lesson\s+)?Purpose[\s\S]*?(?=##\s+[A-Z]|$)/i, '').trim();
 
       if (p.date_start === '2026-09-21' && !diText.includes('telescope')) {
         diText = diText.replace(/## Direct Instruction\s*---/i, "## Launch: The Telescope\n---\nImagine you are looking at a star through a telescope. The star doesn't change its actual shape, but the lenses inside the telescope *scale* the image up so your eye can see it. Today, we are going to learn how to mathematically build that telescope.\n\n## Direct Instruction\n---");
@@ -968,7 +993,7 @@ ${renderQuestionContent(ex, idx)}
         let diText = plan.direct_instruction;
         // Strip out any Differentiation and Lesson Purpose from student-facing slides
         diText = diText.split(/##+\s*(?:Tiered\s+)?Differentiation/i)[0];
-        diText = diText.split(/##+\s*(?:Lesson Purpose|Our Why)/i)[0];
+        diText = diText.replace(/##+\s*(?:Lesson\s+)?Purpose[\s\S]*?(?=##\s+[A-Z]|$)/i, '').trim();
 
         // Inject telescope launch for 9/21
         if (plan.date_start === '2026-09-21' && !diText.includes('telescope')) {
@@ -1438,6 +1463,7 @@ ${renderQuestionContent(plan.structured_exemplars[15], 15)}
     if (!p) return '';
     let di = p.direct_instruction || '';
     di = di.split(/##+\s*(?:Confidential\s+)?(?:Tiered\s+)?Differentiation/i)[0].trim();
+    di = di.replace(/##+\s*(?:Lesson\s+)?Purpose[\s\S]*?(?=##\s+[A-Z]|$)/i, '').trim();
     return di;
   };
 
@@ -1598,7 +1624,7 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
         let diText = p.direct_instruction;
         // Strip out any Differentiation and Lesson Purpose from student-facing slides
         diText = diText.split(/##+\s*(?:Tiered\s+)?Differentiation/i)[0];
-        diText = diText.split(/##+\s*(?:Lesson Purpose|Our Why)/i)[0];
+        diText = diText.replace(/##+\s*(?:Lesson\s+)?Purpose[\s\S]*?(?=##\s+[A-Z]|$)/i, '').trim();
 
         // Inject telescope launch for 9/21
         if (p.date_start === '2026-09-21' && !diText.includes('telescope')) {
@@ -1660,13 +1686,18 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
         { title: p.topic ? p.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
         { title: "1. Spiraled Do Now", content: `**Directions:**\n${p.do_now || ''}` },
         { title: "2. Classroom Expectations", content: expectationsContent },
-        { title: "3. Today @ A Glance", content: `**SWBAT (Objective):**\n${p.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(p.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` },
-
-
-        
-
         { 
-          title: "4. Student Shoutouts", 
+        title: "3. Today @ A Glance", 
+        content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` 
+      },
+      ...(getLessonPurpose(plan) ? [{
+        title: "Lesson Purpose: Our Why",
+        content: `<div style="background: white; border-radius: 8px; padding: 25px; border-left: 6px solid var(--kms-purple); box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 20px; line-height: 1.6;">
+${renderMath(getLessonPurpose(plan))}
+</div>`
+      }] : []),
+      { 
+        title: "4. Student Shoutouts", 
           content: (() => {
              
              const dateShoutouts = getShoutoutsForDate(shoutouts, p.date_start);
@@ -1873,6 +1904,9 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
 
       <Section id="objective_3m" title="3M Objective" content={plan.objective_3m} />
       <Section id="standard" title="Standard" content={STANDARD_MAP[plan.standard] || plan.standard} />
+      {getLessonPurpose(plan) && (
+        <Section id="lesson_purpose" title='Lesson Purpose ("Our Why?")' content={getLessonPurpose(plan)} />
+      )}
       <Section id="do_now" title="Do Now (Spiral Topics)" content={plan.do_now} />
       <Section id="direct_instruction" title="Direct Instruction (Launch)" content={getCleanDirectInstruction(plan)} />
       
