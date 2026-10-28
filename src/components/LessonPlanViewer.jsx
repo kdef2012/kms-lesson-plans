@@ -127,6 +127,7 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
     
     // Parse direct instruction and replace bold text with blanks
     let notesContent = plan.direct_instruction || 'No notes provided.';
+    notesContent = notesContent.split(/##+\s*(?:Tiered\s+)?Differentiation/i)[0].trim();
     notesContent = renderMath(notesContent);
     // Convert markdown to HTML but replace **bold** with fill in the blank lines
     
@@ -398,7 +399,8 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
         x: 0.8, y: 1.3, w: 8.4, h: 0.4,
         fontSize: 13, italic: true, color: COLOR_MUTED
       });
-      const doNowText = cleanMathText(p.do_now || 'Complete the Do Now on the board.');
+      const cleanDoNowLines = (p.do_now || 'Complete the Do Now on the board.').split('\n').filter(l => !l.trim().match(/^\*?Answer:/i)).join('\n');
+      const doNowText = cleanMathText(cleanDoNowLines);
       s.addText(doNowText, {
         x: 0.8, y: 1.8, w: 8.4, h: 3.3,
         fontSize: 16, color: COLOR_SLATE, valign: 'top', lineSpacing: 26
@@ -537,29 +539,53 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
     // 6. Direct Instruction Slides
     if (p.direct_instruction) {
       let diText = p.direct_instruction;
+      // Strip out any Differentiation and Lesson Purpose from student-facing slides
+      diText = diText.split(/##+\s*(?:Tiered\s+)?Differentiation/i)[0];
+      diText = diText.split(/##+\s*(?:Lesson Purpose|Our Why)/i)[0];
+
       if (p.date_start === '2026-09-21' && !diText.includes('telescope')) {
         diText = diText.replace(/## Direct Instruction\s*---/i, "## Launch: The Telescope\n---\nImagine you are looking at a star through a telescope. The star doesn't change its actual shape, but the lenses inside the telescope *scale* the image up so your eye can see it. Today, we are going to learn how to mathematically build that telescope.\n\n## Direct Instruction\n---");
       }
-      const blocks = diText.split(/(?=## )/);
+      const blocks = diText.split(/(?=##+ )/);
       blocks.forEach(block => {
         if (!block.trim()) return;
         let title = "Direct Instruction";
-        const tm = block.match(/## (.*?)\n/);
+        const tm = block.match(/##+ (.*?)\n/);
         if (tm) {
           title = tm[1].trim();
-          block = block.replace(/## .*?\n/, '');
+          block = block.replace(/##+ .*?\n/, '');
+        }
+        if (title.toLowerCase().includes('differentiation') || block.toLowerCase().includes('differentiation') || title.toLowerCase().includes('lesson purpose') || block.toLowerCase().includes('our why')) {
+          return;
         }
         block = block.replace(/^---\n/, '');
         const cleanContent = cleanMathText(block);
         if (!cleanContent) return;
 
-        const isEx = title.toLowerCase().includes('example');
-        const s = pres.addSlide();
-        addHeader(s, `Direct Instruction: ${title}`, isEx ? '5:00' : null);
-        s.addText(cleanContent, {
-          x: 0.8, y: 1.3, w: 8.4, h: 3.8,
-          fontSize: 15, color: COLOR_SLATE, valign: 'top', lineSpacing: 24
-        });
+        if (cleanContent.match(/\*\*Example\s*1/i) && cleanContent.match(/\*\*Example\s*2/i)) {
+          const exSplit = cleanContent.split(/(?=\*\*Example\s*2)/i);
+          const s1 = pres.addSlide();
+          addHeader(s1, `Direct Instruction: ${title} (Example 1)`, '5:00');
+          s1.addText(exSplit[0].trim(), {
+            x: 0.8, y: 1.3, w: 8.4, h: 3.8,
+            fontSize: 15, color: COLOR_SLATE, valign: 'top', lineSpacing: 24
+          });
+
+          const s2 = pres.addSlide();
+          addHeader(s2, `Direct Instruction: ${title} (Example 2)`, '5:00');
+          s2.addText(exSplit[1].trim(), {
+            x: 0.8, y: 1.3, w: 8.4, h: 3.8,
+            fontSize: 15, color: COLOR_SLATE, valign: 'top', lineSpacing: 24
+          });
+        } else {
+          const isEx = title.toLowerCase().includes('example');
+          const s = pres.addSlide();
+          addHeader(s, `Direct Instruction: ${title}`, isEx ? '5:00' : null);
+          s.addText(cleanContent, {
+            x: 0.8, y: 1.3, w: 8.4, h: 3.8,
+            fontSize: 15, color: COLOR_SLATE, valign: 'top', lineSpacing: 24
+          });
+        }
       });
     }
 
@@ -602,6 +628,25 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       });
     }
 
+    // 9. CFU #2 (Cold Call)
+    if (p.checks_for_understanding && p.checks_for_understanding[1]) {
+      const cfu2 = p.checks_for_understanding[1];
+      const s = pres.addSlide();
+      addHeader(s, `9. Formative Assessment #2 (${cfu2.method || 'Cold Call'})`, '2:00');
+      s.addShape(pres.ShapeType.roundRect, {
+        x: 1.2, y: 1.8, w: 7.6, h: 2.5,
+        fill: { color: 'F0FDFA' }, line: { color: COLOR_TEAL, width: 2 }
+      });
+      s.addText(`Check for Understanding (${cfu2.method || 'Cold Call'}):`, {
+        x: 1.5, y: 2.0, w: 7.0, h: 0.4,
+        fontSize: 16, bold: true, color: COLOR_TEAL
+      });
+      s.addText(cleanMathText(cfu2.cfu), {
+        x: 1.5, y: 2.5, w: 7.0, h: 1.5,
+        fontSize: 20, bold: true, color: COLOR_SLATE, valign: 'top'
+      });
+    }
+
     // 9. Group Practice Problems (indices 2 to 5)
     if (p.structured_exemplars && p.structured_exemplars.length >= 6) {
       [2, 3, 4, 5].forEach((exIdx, gIdx) => {
@@ -609,6 +654,25 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
         const s = pres.addSlide();
         addHeader(s, `10. Group Practice (Problem ${gIdx + 1})`, '5:00');
         addProblemContent(s, ex);
+      });
+    }
+
+    // 10. CFU #3 (Warm Call)
+    if (p.checks_for_understanding && p.checks_for_understanding[2]) {
+      const cfu3 = p.checks_for_understanding[2];
+      const s = pres.addSlide();
+      addHeader(s, `11. Formative Assessment #3 (${cfu3.method || 'Warm Call'})`, '2:00');
+      s.addShape(pres.ShapeType.roundRect, {
+        x: 1.2, y: 1.8, w: 7.6, h: 2.5,
+        fill: { color: 'F0FDFA' }, line: { color: COLOR_TEAL, width: 2 }
+      });
+      s.addText(`Check for Understanding (${cfu3.method || 'Warm Call'}):`, {
+        x: 1.5, y: 2.0, w: 7.0, h: 0.4,
+        fontSize: 16, bold: true, color: COLOR_TEAL
+      });
+      s.addText(cleanMathText(cfu3.cfu), {
+        x: 1.5, y: 2.5, w: 7.0, h: 1.5,
+        fontSize: 20, bold: true, color: COLOR_SLATE, valign: 'top'
       });
     }
 
@@ -641,10 +705,29 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       });
     }
 
+    // CFU #4 (Batch Call)
+    if (p.checks_for_understanding && p.checks_for_understanding[3]) {
+      const cfu4 = p.checks_for_understanding[3];
+      const s = pres.addSlide();
+      addHeader(s, `13. Formative Assessment #4 (${cfu4.method || 'Batch Call'})`, '2:00');
+      s.addShape(pres.ShapeType.roundRect, {
+        x: 1.2, y: 1.8, w: 7.6, h: 2.5,
+        fill: { color: 'F0FDFA' }, line: { color: COLOR_TEAL, width: 2 }
+      });
+      s.addText(`Check for Understanding (${cfu4.method || 'Batch Call'}):`, {
+        x: 1.5, y: 2.0, w: 7.0, h: 0.4,
+        fontSize: 16, bold: true, color: COLOR_TEAL
+      });
+      s.addText(cleanMathText(cfu4.cfu), {
+        x: 1.5, y: 2.5, w: 7.0, h: 1.5,
+        fontSize: 20, bold: true, color: COLOR_SLATE, valign: 'top'
+      });
+    }
+
     // 12. Exit Ticket Slide
     {
       const s = pres.addSlide();
-      addHeader(s, '13. Exit Ticket (Formative Assessment)', '5:00');
+      addHeader(s, '14. Exit Ticket', '5:00');
       s.addText('Directions: Complete independently without notes before the bell.', {
         x: 0.8, y: 1.25, w: 8.4, h: 0.35,
         fontSize: 13, italic: true, color: COLOR_MUTED
@@ -786,22 +869,29 @@ ${renderQuestionContent(ex, idx)}
       const diSlides = [];
       if (plan.direct_instruction) {
         let diText = plan.direct_instruction;
+        // Strip out any Differentiation and Lesson Purpose from student-facing slides
+        diText = diText.split(/##+\s*(?:Tiered\s+)?Differentiation/i)[0];
+        diText = diText.split(/##+\s*(?:Lesson Purpose|Our Why)/i)[0];
+
         // Inject telescope launch for 9/21
         if (plan.date_start === '2026-09-21' && !diText.includes('telescope')) {
            diText = diText.replace(/## Direct Instruction\s*---/i, "## Launch: The Telescope\n---\nImagine you are looking at a star through a telescope. The star doesn't change its actual shape, but the lenses inside the telescope *scale* the image up so your eye can see it. Today, we are going to learn how to mathematically build that telescope.\n\n## Direct Instruction\n---");
         }
         
         // Split by markdown headings
-        const blocks = diText.split(/(?=## )/);
+        const blocks = diText.split(/(?=##+ )/);
         
         blocks.forEach((block, idx) => {
           if (!block.trim()) return;
           
           let title = "Direct Instruction";
-          const titleMatch = block.match(/## (.*?)\n/);
+          const titleMatch = block.match(/##+ (.*?)\n/);
           if (titleMatch) {
              title = titleMatch[1].trim();
-             block = block.replace(/## .*?\n/, '');
+             block = block.replace(/##+ .*?\n/, '');
+          }
+          if (title.toLowerCase().includes('differentiation') || block.toLowerCase().includes('differentiation') || title.toLowerCase().includes('lesson purpose') || block.toLowerCase().includes('our why')) {
+             return;
           }
           block = block.replace(/^---\n/, ''); // remove stray dashes
 
@@ -864,7 +954,7 @@ ${renderQuestionContent(ex, idx)}
       { title: plan.topic ? plan.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
       { 
         title: "1. Spiraled Do Now", 
-        content: `**Directions:**\n${plan.do_now || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
+        content: `**Directions:**\n${(plan.do_now || '').split('\n').filter(l => !l.trim().match(/^\*?Answer:/i)).join('\n')}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
       },
       { 
         title: "2. Classroom Expectations", 
@@ -930,21 +1020,34 @@ ${renderQuestionContent(ex, idx)}
         },
 ...diSlides,
       { 
-        title: "7. Formative Assessment #1", 
-        content: `**Check for understanding:**\n${cfuText}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>` 
+        title: `7. Formative Assessment #1 (${(plan.checks_for_understanding && plan.checks_for_understanding[0]?.method) || 'Turn & Talk'})`, 
+        content: `**Check for understanding (${(plan.checks_for_understanding && plan.checks_for_understanding[0]?.method) || 'Turn & Talk'}):**\n${(plan.checks_for_understanding && plan.checks_for_understanding[0]?.cfu) || cfuText}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>` 
       },
+      ...guidedSlides,
+      ...(plan.checks_for_understanding && plan.checks_for_understanding[1] ? [{
+        title: `9. Formative Assessment #2 (${plan.checks_for_understanding[1].method || 'Cold Call'})`,
+        content: `**Check for understanding (${plan.checks_for_understanding[1].method || 'Cold Call'}):**\n${plan.checks_for_understanding[1].cfu}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>`
+      }] : []),
       { 
         title: "Classroom Expectations (Reminder)", 
         content: expectationsContent 
       },
       ...groupSlides,
+      ...(plan.checks_for_understanding && plan.checks_for_understanding[2] ? [{
+        title: `11. Formative Assessment #3 (${plan.checks_for_understanding[2].method || 'Warm Call'})`,
+        content: `**Check for understanding (${plan.checks_for_understanding[2].method || 'Warm Call'}):**\n${plan.checks_for_understanding[2].cfu}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>`
+      }] : []),
       { 
         title: "Classroom Expectations (Reminder)", 
         content: expectationsContent 
       },
       ...problemsSlides,
+      ...(plan.checks_for_understanding && plan.checks_for_understanding[3] ? [{
+        title: `13. Formative Assessment #4 (${plan.checks_for_understanding[3].method || 'Batch Call'})`,
+        content: `**Check for understanding (${plan.checks_for_understanding[3].method || 'Batch Call'}):**\n${plan.checks_for_understanding[3].cfu}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>`
+      }] : []),
       { 
-        title: "13. Exit Ticket (Formative Assessment #3)", 
+        title: "14. Exit Ticket", 
         content: `**Directions:**\n${plan.exit_ticket || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
       }
     ];
@@ -1213,6 +1316,30 @@ ${renderQuestionContent(ex, idx)}
     setLoading(false);
   };
 
+  const getDifferentiationContent = (p) => {
+    if (!p) return null;
+    if (p.confidential_tiered_differentiation) return p.confidential_tiered_differentiation;
+    if (p.tiered_differentiation) return p.tiered_differentiation;
+    if (p.differentiation) return p.differentiation;
+    if (p.direct_instruction) {
+      const match = p.direct_instruction.match(/##+\s*(?:Confidential\s+)?(?:Tiered\s+)?Differentiation[\s\S]*/i);
+      if (match) {
+        return match[0]
+          .replace(/^##+\s*(?:Confidential\s+)?(?:Tiered\s+)?Differentiation\s*/i, '')
+          .replace(/^---\s*\n?/m, '')
+          .trim();
+      }
+    }
+    return null;
+  };
+
+  const getCleanDirectInstruction = (p) => {
+    if (!p) return '';
+    let di = p.direct_instruction || '';
+    di = di.split(/##+\s*(?:Confidential\s+)?(?:Tiered\s+)?Differentiation/i)[0].trim();
+    return di;
+  };
+
   const Section = ({ title, content, id, children }) => {
     const sectionComments = comments[id] || [];
     
@@ -1368,22 +1495,29 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
       const diSlides = [];
       if (p.direct_instruction) {
         let diText = p.direct_instruction;
+        // Strip out any Differentiation and Lesson Purpose from student-facing slides
+        diText = diText.split(/##+\s*(?:Tiered\s+)?Differentiation/i)[0];
+        diText = diText.split(/##+\s*(?:Lesson Purpose|Our Why)/i)[0];
+
         // Inject telescope launch for 9/21
         if (p.date_start === '2026-09-21' && !diText.includes('telescope')) {
            diText = diText.replace(/## Direct Instruction\s*---/i, "## Launch: The Telescope\n---\nImagine you are looking at a star through a telescope. The star doesn't change its actual shape, but the lenses inside the telescope *scale* the image up so your eye can see it. Today, we are going to learn how to mathematically build that telescope.\n\n## Direct Instruction\n---");
         }
         
         // Split by markdown headings
-        const blocks = diText.split(/(?=## )/);
+        const blocks = diText.split(/(?=##+ )/);
         
         blocks.forEach((block, idx) => {
           if (!block.trim()) return;
           
           let title = "Direct Instruction";
-          const titleMatch = block.match(/## (.*?)\n/);
+          const titleMatch = block.match(/##+ (.*?)\n/);
           if (titleMatch) {
              title = titleMatch[1].trim();
-             block = block.replace(/## .*?\n/, '');
+             block = block.replace(/##+ .*?\n/, '');
+          }
+          if (title.toLowerCase().includes('differentiation') || block.toLowerCase().includes('differentiation') || title.toLowerCase().includes('lesson purpose') || block.toLowerCase().includes('our why')) {
+             return;
           }
           block = block.replace(/^---\n/, ''); // remove stray dashes
 
@@ -1474,13 +1608,28 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
           })()
         },
 ...diSlides,
-        { title: "7. Formative Assessment #1", content: `**Check for understanding:**\n${cfuText}` },
+        { 
+          title: `7. Formative Assessment #1 (${(p.checks_for_understanding && p.checks_for_understanding[0]?.method) || 'Turn & Talk'})`, 
+          content: `**Check for understanding (${(p.checks_for_understanding && p.checks_for_understanding[0]?.method) || 'Turn & Talk'}):**\n${(p.checks_for_understanding && p.checks_for_understanding[0]?.cfu) || cfuText}` 
+        },
+        ...guidedSlides,
+        ...(p.checks_for_understanding && p.checks_for_understanding[1] ? [{
+          title: `9. Formative Assessment #2 (${p.checks_for_understanding[1].method || 'Cold Call'})`,
+          content: `**Check for understanding (${p.checks_for_understanding[1].method || 'Cold Call'}):**\n${p.checks_for_understanding[1].cfu}`
+        }] : []),
         { title: "Classroom Expectations (Reminder)", content: expectationsContent },
         ...groupSlides,
+        ...(p.checks_for_understanding && p.checks_for_understanding[2] ? [{
+          title: `11. Formative Assessment #3 (${p.checks_for_understanding[2].method || 'Warm Call'})`,
+          content: `**Check for understanding (${p.checks_for_understanding[2].method || 'Warm Call'}):**\n${p.checks_for_understanding[2].cfu}`
+        }] : []),
         { title: "Classroom Expectations (Reminder)", content: expectationsContent },
         ...problemsSlides,
-        
-        { title: "13. Exit Ticket (Formative Assessment #3)", content: `**Directions:**\n${p.exit_ticket || ''}` },
+        ...(p.checks_for_understanding && p.checks_for_understanding[3] ? [{
+          title: `13. Formative Assessment #4 (${p.checks_for_understanding[3].method || 'Batch Call'})`,
+          content: `**Check for understanding (${p.checks_for_understanding[3].method || 'Batch Call'}):**\n${p.checks_for_understanding[3].cfu}`
+        }] : []),
+        { title: "14. Exit Ticket", content: `**Directions:**\n${p.exit_ticket || ''}` },
       ];
 
       // Convert Markdown to HTML for all slides
@@ -1628,7 +1777,7 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
       <Section id="objective_3m" title="3M Objective" content={plan.objective_3m} />
       <Section id="standard" title="Standard" content={STANDARD_MAP[plan.standard] || plan.standard} />
       <Section id="do_now" title="Do Now (Spiral Topics)" content={plan.do_now} />
-      <Section id="direct_instruction" title="Direct Instruction (Launch)" content={plan.direct_instruction} />
+      <Section id="direct_instruction" title="Direct Instruction (Launch)" content={getCleanDirectInstruction(plan)} />
       
         {/* Advanced Exemplar Section */}
         {plan.exemplar_image_url && (
@@ -1713,6 +1862,22 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
 
       
       <Section id="criteria_for_success" title="Criteria for Success" content={plan.criteria_for_success} />
+      <Section id="tiered_differentiation" title="Confidential Tiered Differentiation" content={getDifferentiationContent(plan)}>
+        <div style={{ marginBottom: '10px' }}>
+          <span style={{ 
+            display: 'inline-block',
+            backgroundColor: '#ef4444', 
+            color: 'white', 
+            padding: '4px 10px', 
+            borderRadius: '4px', 
+            fontSize: '11px', 
+            fontWeight: 'bold',
+            letterSpacing: '0.5px'
+          }}>
+            CONFIDENTIAL — FERPA &amp; IEP / 504 PROTECTED (TEACHER &amp; ADMIN ONLY)
+          </span>
+        </div>
+      </Section>
       <Section id="exit_ticket" title="Exit Ticket" content={plan.exit_ticket} />
 
       {/* Legacy check to avoid errors if not defined in older data */}
