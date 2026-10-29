@@ -1209,16 +1209,16 @@ ${renderQuestionContent(plan.structured_exemplars[15], 15)}
             .katex { max-width: 100%; white-space: normal; word-wrap: break-word; }
             .slide-container {
               display: flex; flex-direction: column; justify-content: center; align-items: center;
-              height: 100vh; padding: 40px 80px 100px 80px; box-sizing: border-box; overflow-y: auto;
+              height: 100vh; padding: 20px 40px 75px 40px; box-sizing: border-box; overflow-y: auto;
             }
-            h1 { font-size: clamp(24px, 3.5vw, 48px); color: #300052; margin-bottom: 25px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 2px;}
-            .content-wrapper { width: 100%; max-width: 1400px; background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-            .content { font-size: clamp(14px, 1.5vw, 24px); line-height: 1.5; }
-            .content p { margin-bottom: 15px; }
-            .content ul, .content ol { margin-top: 5px; margin-bottom: 15px; padding-left: 40px; }
-            .content li { margin-bottom: 10px; }
+            h1 { font-size: clamp(20px, 2.8vw, 34px); color: #300052; margin-top: 0; margin-bottom: 12px; text-align: center; text-transform: uppercase; font-weight: bold; letter-spacing: 1.5px;}
+            .content-wrapper { width: 100%; max-width: 1280px; max-height: calc(100vh - 100px); background: rgba(255, 255, 255, 0.96); padding: 20px 32px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); box-sizing: border-box; overflow-y: auto; }
+            .content { font-size: clamp(14px, 1.25vw, 20px); line-height: 1.4; }
+            .content p { margin-bottom: 8px; }
+            .content ul, .content ol { margin-top: 4px; margin-bottom: 8px; padding-left: 30px; }
+            .content li { margin-bottom: 6px; }
             .content strong { color: #334155; }
-            .content svg { max-width: 100%; height: auto; max-height: 48vh; display: block; margin: 15px auto; }
+            .content svg { max-width: 100%; height: auto; max-height: 30vh; display: block; margin: 8px auto; }
             
             /* Practice Problems Grid */
             .problems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; margin-bottom: 20px;}
