@@ -126,6 +126,42 @@ const getLessonPurpose = (p) => {
   return null;
 };
 
+const getFramingArc = (p, allPlans) => {
+  if (!p) return null;
+  let yesterday = "reviewed prerequisite mathematical foundations and problem-solving skills";
+  if (p.date_start === '2026-10-29') {
+    yesterday = "solved multi-step linear equations with rational coefficients and determined when equations have one, no, or infinitely many solutions (8.EE.7)";
+  } else if (allPlans && allPlans.length > 0) {
+    const sorted = [...allPlans].sort((a,b) => (a.date_start || '').localeCompare(b.date_start || ''));
+    const idx = sorted.findIndex(item => item.date_start === p.date_start);
+    if (idx > 0) {
+      const prev = sorted[idx - 1];
+      yesterday = (prev.topic || '').replace(/\[.*?\]\s*/, '') + (prev.standard ? ` (${prev.standard})` : '');
+    }
+  }
+
+  let today = (p.objective_3m || '')
+    .replace(/^SWBAT\s+/i, '')
+    .replace(/\s+with\s+\d+%.*$/i, '')
+    .replace(/\s+with\s+at least.*$/i, '')
+    .trim();
+  if (!today) today = (p.topic || '').replace(/\[.*?\]\s*/, '');
+
+  let soThat = "we can apply algebraic and geometric models to solve real-world problems in engineering, architecture, and technology!";
+  const purpose = getLessonPurpose(p);
+  if (purpose) {
+    const whyMatch = purpose.match(/Why is this lesson being taught to the students\?\s*\n\*?\s*([\s\S]*?)(?=\n\*|\n##|$)/i);
+    if (whyMatch && whyMatch[1].trim()) {
+      soThat = whyMatch[1].trim();
+      if (soThat.length > 220) {
+        soThat = soThat.substring(0, 217).trim() + '...';
+      }
+    }
+  }
+
+  return { yesterday, today, soThat };
+};
+
 import { supabase } from '../supabaseClient';
 import pptxgen from 'pptxgenjs';
 import { MessageSquare, Send, Download, Image as ImageIcon, AlertTriangle, CheckCircle2, Printer, Play } from 'lucide-react';
@@ -609,29 +645,41 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       const s = pres.addSlide();
       addHeader(s, '3. Today @ A Glance');
       
+      const framing = getFramingArc(p, weekPlans);
+
       s.addShape(pres.ShapeType.roundRect, {
-        x: 0.8, y: 1.3, w: 4.8, h: 3.8,
+        x: 0.8, y: 1.1, w: 5.0, h: 4.2,
         fill: { color: 'F8FAFC' }, line: { color: COLOR_BORDER, width: 1 }
       });
-      s.addText('SWBAT (Objective):', {
-        x: 1.0, y: 1.4, w: 4.4, h: 0.35, fontSize: 14, bold: true, color: COLOR_PURPLE
-      });
-      s.addText(cleanMathText(p.objective_3m || 'Master the target standard.'), {
-        x: 1.0, y: 1.8, w: 4.4, h: 1.2, fontSize: 13, color: COLOR_SLATE, valign: 'top'
-      });
+
+      if (framing) {
+        s.addText('🎯 Learning Progression Framing:', {
+          x: 1.0, y: 1.2, w: 4.6, h: 0.3, fontSize: 13, bold: true, color: COLOR_TEAL
+        });
+        s.addText(`Yesterday: ${cleanMathText(framing.yesterday)}`, {
+          x: 1.0, y: 1.5, w: 4.6, h: 0.55, fontSize: 10.5, color: COLOR_SLATE, valign: 'top'
+        });
+        s.addText(`Today: ${cleanMathText(framing.today)}`, {
+          x: 1.0, y: 2.1, w: 4.6, h: 0.55, fontSize: 10.5, color: COLOR_SLATE, valign: 'top'
+        });
+        s.addText(`So that: ${cleanMathText(framing.soThat)}`, {
+          x: 1.0, y: 2.7, w: 4.6, h: 0.7, fontSize: 10.5, italic: true, color: COLOR_PURPLE, valign: 'top'
+        });
+      }
+
       s.addText('Essential Question of the Day:', {
-        x: 1.0, y: 3.1, w: 4.4, h: 0.35, fontSize: 14, bold: true, color: COLOR_TEAL
+        x: 1.0, y: 3.5, w: 4.6, h: 0.3, fontSize: 13, bold: true, color: COLOR_TEAL
       });
       s.addText(getEssentialQuestion(p.objective_3m), {
-        x: 1.0, y: 3.5, w: 4.4, h: 1.2, fontSize: 13, italic: true, color: COLOR_SLATE, valign: 'top'
+        x: 1.0, y: 3.8, w: 4.6, h: 1.2, fontSize: 11, italic: true, color: COLOR_SLATE, valign: 'top'
       });
 
       s.addShape(pres.ShapeType.roundRect, {
-        x: 5.8, y: 1.3, w: 3.4, h: 3.8,
+        x: 6.0, y: 1.1, w: 3.2, h: 4.2,
         fill: { color: 'F8FAFC' }, line: { color: COLOR_BORDER, width: 1 }
       });
       s.addText('Today\'s Agenda', {
-        x: 6.0, y: 1.4, w: 3.0, h: 0.35, fontSize: 14, bold: true, color: COLOR_PURPLE
+        x: 6.2, y: 1.2, w: 2.8, h: 0.3, fontSize: 14, bold: true, color: COLOR_PURPLE
       });
       const agendaItems = [
         '1. Spiraled Do Now',
@@ -641,7 +689,7 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
         '5. Exit Ticket'
       ];
       s.addText(agendaItems.join('\n\n'), {
-        x: 6.0, y: 1.9, w: 3.0, h: 3.0, fontSize: 12, color: COLOR_SLATE, valign: 'top'
+        x: 6.2, y: 1.7, w: 2.8, h: 3.2, fontSize: 12, color: COLOR_SLATE, valign: 'top'
       });
     }
 
@@ -1000,7 +1048,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
         groupChunk.forEach((ex, idx) => {
           groupSlides.push({
             title: `10. Group Practice (Problem ${idx + 3})`,
-            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+            content: `<div class="transition-banner" style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 8px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 14px; color: #1e40af; text-align: left;"><strong>🔁 Transition:</strong> <em>We just explored worked examples together... Now we will collaborate on Group Practice problems... so we can test our reasoning and discuss strategies with our peers.</em></div><div style="font-size: 24px; text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
 ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
 </div>
 
@@ -1014,7 +1062,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
       if (plan.date_start === '2026-10-29') {
         problemsSlides.push({ 
           title: "12. Independent Practice (Directions)", 
-          content: `<strong>Directions:</strong>\nOpen TicketOut on your Chromebook/device to complete today's interactive practice problems on Alternate Interior Angles & Transversals.\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
+          content: `<div class="transition-banner" style="background: #ecfdf5; border-left: 4px solid #059669; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 15px; color: #065f46; text-align: left;"><strong>🔁 Transition:</strong> <em>We just collaborated and checked our reasoning as a team... Now we will work independently on TicketOut... so we can build confidence and prove individual mastery.</em></div><strong>Directions:</strong>\nOpen TicketOut on your Chromebook/device to complete today's interactive practice problems on Alternate Interior Angles & Transversals.\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
         });
       } else if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
         // Always show the directions first with a 15 min timer
@@ -1139,7 +1187,18 @@ ${renderQuestionContent(ex, idx)}
       },
       { 
         title: "3. Today @ A Glance", 
-        content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` 
+        content: (() => {
+          const framing = getFramingArc(plan, weekPlans);
+          const framingHTML = framing ? `
+<div style="background: white; border-radius: 10px; padding: 16px 20px; border-left: 6px solid var(--kms-teal); box-shadow: 0 4px 8px rgba(0,0,0,0.06); margin-bottom: 20px; text-align: left;">
+  <div style="font-size: 14px; font-weight: 800; color: var(--kms-teal-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">🎯 Learning Progression Framing</div>
+  <p style="font-size: 17px; margin: 6px 0; line-height: 1.5; color: #1e293b;"><strong>⏪ Yesterday we...</strong> ${framing.yesterday}</p>
+  <p style="font-size: 17px; margin: 6px 0; line-height: 1.5; color: #1e293b;"><strong>🎯 Today we will...</strong> ${framing.today}</p>
+  <p style="font-size: 17px; margin: 6px 0; line-height: 1.5; color: #1e293b;"><strong>💡 So that...</strong> ${framing.soThat}</p>
+</div>
+` : '';
+          return `${framingHTML}**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket`;
+        })()
       },
       ...(getLessonPurpose(plan) ? [{
         title: `Lesson Purpose ("Our Why?")`,
@@ -1207,7 +1266,7 @@ ${getLessonPurpose(plan)}
       ...(plan.date_start === '2026-10-29' ? [
         {
           title: "14. Exit Ticket (Directions)",
-          content: `<div style="font-size: 24px; text-align: center; margin-top: 30px; padding: 25px; background: white; border-radius: 12px; border: 2px solid #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+          content: `<div class="transition-banner" style="background: #fef3c7; border-left: 4px solid #d97706; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 15px; color: #92400e; text-align: left;"><strong>🔁 Transition:</strong> <em>We just solved 8 independent practice problems on our own... Now we will complete our Exit Ticket on TicketOut... so we can show our understanding and track our progress.</em></div><div style="font-size: 24px; text-align: center; margin-top: 15px; padding: 25px; background: white; border-radius: 12px; border: 2px solid #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
             <h3 style="color: #1e293b; margin-top: 0; font-size: 26px;">Independent Exit Ticket</h3>
             <p style="color: #475569; font-size: 18px; margin-bottom: 20px;">Open <strong>TicketOut</strong> on your Chromebook/device to complete today's interactive Exit Ticket on <strong>Alternate Interior Angles & Transversals</strong>.</p>
             <div style="display: inline-block; background: #eff6ff; color: #1d4ed8; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 16px;">
@@ -1650,7 +1709,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
         groupChunk.forEach((ex, idx) => {
           groupSlides.push({
             title: `10. Group Practice (Problem ${idx + 3})`,
-            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+            content: `<div class="transition-banner" style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 8px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 14px; color: #1e40af; text-align: left;"><strong>🔁 Transition:</strong> <em>We just explored worked examples together... Now we will collaborate on Group Practice problems... so we can test our reasoning and discuss strategies with our peers.</em></div><div style="font-size: 24px; text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
 ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
 </div>`
           });
@@ -1661,7 +1720,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
       if (p.date_start === '2026-10-29') {
         problemsSlides.push({ 
           title: "12. Independent Practice (Directions)", 
-          content: `<strong>Directions:</strong>\nOpen TicketOut on your Chromebook/device to complete today's independent practice problems on Alternate Interior Angles & Transversals.`
+          content: `<div class="transition-banner" style="background: #ecfdf5; border-left: 4px solid #059669; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 15px; color: #065f46; text-align: left;"><strong>🔁 Transition:</strong> <em>We just collaborated and checked our reasoning as a team... Now we will work independently on TicketOut... so we can build confidence and prove individual mastery.</em></div><strong>Directions:</strong>\nOpen TicketOut on your Chromebook/device to complete today's independent practice problems on Alternate Interior Angles & Transversals.`
         });
       } else if (p.structured_exemplars && p.structured_exemplars.length > 0) {
         problemsSlides.push({ 
@@ -1756,7 +1815,18 @@ ${p.independent_practice || 'Complete the assigned independent practice problems
         { title: "2. Classroom Expectations", content: expectationsContent },
         { 
         title: "3. Today @ A Glance", 
-        content: `**SWBAT (Objective):**\n${plan.objective_3m || ''}\n\n**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket` 
+        content: (() => {
+          const framing = getFramingArc(p || plan, weekPlans);
+          const framingHTML = framing ? `
+<div style="background: white; border-radius: 10px; padding: 16px 20px; border-left: 6px solid var(--kms-teal); box-shadow: 0 4px 8px rgba(0,0,0,0.06); margin-bottom: 20px; text-align: left;">
+  <div style="font-size: 14px; font-weight: 800; color: var(--kms-teal-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">🎯 Learning Progression Framing</div>
+  <p style="font-size: 17px; margin: 6px 0; line-height: 1.5; color: #1e293b;"><strong>⏪ Yesterday we...</strong> ${framing.yesterday}</p>
+  <p style="font-size: 17px; margin: 6px 0; line-height: 1.5; color: #1e293b;"><strong>🎯 Today we will...</strong> ${framing.today}</p>
+  <p style="font-size: 17px; margin: 6px 0; line-height: 1.5; color: #1e293b;"><strong>💡 So that...</strong> ${framing.soThat}</p>
+</div>
+` : '';
+          return `${framingHTML}**Essential question of the day:**\n${getEssentialQuestion((p || plan).objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket`;
+        })()
       },
       ...(getLessonPurpose(p || plan) ? [{
         title: `Lesson Purpose ("Our Why?")`,
@@ -1817,7 +1887,7 @@ ${renderMath(getLessonPurpose(p || plan))}
         ...(p.date_start === '2026-10-29' ? [
           {
             title: "14. Exit Ticket (Directions)",
-            content: `<div style="font-size: 24px; text-align: center; margin-top: 30px; padding: 25px; background: white; border-radius: 12px; border: 2px solid #cbd5e1;">
+            content: `<div class="transition-banner" style="background: #fef3c7; border-left: 4px solid #d97706; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 15px; color: #92400e; text-align: left;"><strong>🔁 Transition:</strong> <em>We just solved 8 independent practice problems on our own... Now we will complete our Exit Ticket on TicketOut... so we can show our understanding and track our progress.</em></div><div style="font-size: 24px; text-align: center; margin-top: 15px; padding: 25px; background: white; border-radius: 12px; border: 2px solid #cbd5e1;">
               <h3 style="color: #1e293b; margin-top: 0; font-size: 26px;">Independent Exit Ticket</h3>
               <p style="color: #475569; font-size: 18px;">Open <strong>TicketOut</strong> on your Chromebook/device to complete today's interactive Exit Ticket on <strong>Alternate Interior Angles & Transversals</strong>.</p>
             </div>`
@@ -1993,6 +2063,39 @@ ${renderMath(getLessonPurpose(p || plan))}
         ) : (
           <em style={{ color: '#999' }}>Not provided</em>
         )}
+      </Section>
+      <Section id="lesson_framing" title='Lesson Framing & Transitions (Admin Format)'>
+        {(() => {
+          const framing = getFramingArc(plan, weekPlans);
+          if (!framing) return <em style={{ color: '#999' }}>Not provided</em>;
+          return (
+            <div style={{ lineHeight: '1.7', fontSize: '15px' }}>
+              <div style={{ backgroundColor: '#f8fafc', padding: '16px 20px', borderRadius: '8px', borderLeft: '4px solid var(--kms-teal)', marginBottom: '16px' }}>
+                <h4 style={{ margin: '0 0 10px 0', color: 'var(--kms-teal-dark)', fontSize: '16px' }}>🎯 Beginning of Lesson Framing</h4>
+                <p style={{ margin: '4px 0' }}><strong>Yesterday we...</strong> {framing.yesterday}</p>
+                <p style={{ margin: '4px 0' }}><strong>Today we will...</strong> {framing.today}</p>
+                <p style={{ margin: '4px 0' }}><strong>So that...</strong> {framing.soThat}</p>
+              </div>
+              <div style={{ backgroundColor: '#fff', padding: '16px 20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                <h4 style={{ margin: '0 0 10px 0', color: '#1e293b', fontSize: '16px' }}>🔁 Activity Transition Bridges ("We just... Now we will... so...")</h4>
+                <ul style={{ paddingLeft: '20px', margin: 0 }}>
+                  <li style={{ marginBottom: '8px' }}>
+                    <strong>Do Now ➔ Direct Instruction:</strong> <em>We just activated our prior math knowledge on the Do Now... Now we will dive into Direct Instruction and take our core notes... so we understand the new concepts, vocabulary, and visual models.</em>
+                  </li>
+                  <li style={{ marginBottom: '8px' }}>
+                    <strong>Direct Instruction ➔ Group Practice:</strong> <em>We just analyzed worked examples together as a whole class... Now we will collaborate on Group Practice problems at our tables... so we can test our reasoning, support our teammates, and catch any misconceptions early.</em>
+                  </li>
+                  <li style={{ marginBottom: '8px' }}>
+                    <strong>Group Practice ➔ Independent Practice:</strong> <em>We just solved and discussed problems collaboratively in our groups... Now we will open TicketOut and work through our Independent Practice problems quietly... so we can build individual confidence and prove our personal mastery.</em>
+                  </li>
+                  <li>
+                    <strong>Independent Practice ➔ Exit Ticket:</strong> <em>We just completed our independent practice problems... Now we will take our 2-question Exit Ticket on TicketOut... so we can showcase our learning and check our progress for today.</em>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          );
+        })()}
       </Section>
       <Section id="do_now" title="Do Now (Spiral Topics)" content={plan.do_now} />
       <Section id="direct_instruction" title="Direct Instruction (Launch)" content={getCleanDirectInstruction(plan)} />
