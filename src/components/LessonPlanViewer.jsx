@@ -857,7 +857,13 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
         const cleanContent = cleanMathText(block);
         if (!cleanContent) return;
 
-        if (cleanContent.match(/\*\*Example\s*1/i) && cleanContent.match(/\*\*Example\s*2/i)) {
+        let diBlockContent = cleanContent;
+        if (p.structured_exemplars && p.structured_exemplars.length >= 2) {
+          diBlockContent = diBlockContent.replace(/\*\*Example\s*1[\s\S]*/i, '').trim();
+        }
+        if (!diBlockContent) return;
+
+        if (diBlockContent.match(/\*\*Example\s*1/i) && diBlockContent.match(/\*\*Example\s*2/i)) {
           const exSplit = cleanContent.split(/(?=\*\*Example\s*2)/i);
           const s1 = pres.addSlide();
           addHeader(s1, `Direct Instruction: ${title} (Example 1)`, '5:00');
@@ -1185,8 +1191,8 @@ ${renderQuestionContent(ex, idx)}
            diText = diText.replace(/## Direct Instruction\s*---/i, "## Launch: The Telescope\n---\nImagine you are looking at a star through a telescope. The star doesn't change its actual shape, but the lenses inside the telescope *scale* the image up so your eye can see it. Today, we are going to learn how to mathematically build that telescope.\n\n## Direct Instruction\n---");
         }
         
-        // Split by markdown headings
-        const blocks = diText.split(/(?=##+ )/);
+        // Split by markdown level-2 headings (## ) so subsections (### ) stay on the slide
+        const blocks = diText.split(/(?=\n##\s+[A-Za-z0-9])/);
         
         blocks.forEach((block, idx) => {
           if (!block.trim()) return;
@@ -1203,8 +1209,18 @@ ${renderQuestionContent(ex, idx)}
           block = block.replace(/^---\n/, ''); // remove stray dashes
 
           let content = block.trim();
-          
-          if (content.includes('**Example 1**') && content.includes('**Example 2**')) {
+
+          if (plan.structured_exemplars && plan.structured_exemplars.length >= 2) {
+             // Guided Practice slides will present Problem 1 and Problem 2 ("We Do").
+             // Strip out any redundant Example 1/2 blocks from Direct Instruction ("I Do") to eliminate extra focus problems and slide duplication.
+             content = content.replace(/\*\*Example\s*1\*\*[\s\S]*/i, '').trim();
+             if (content && content.replace(/[#\-\s]/g, '').length > 0) {
+                diSlides.push({
+                   title: title,
+                   content: content
+                });
+             }
+          } else if (content.includes('**Example 1**') && content.includes('**Example 2**')) {
              const ex1split = content.split('**Example 2**');
              diSlides.push({
               title: `${title} (Example 1)`,
