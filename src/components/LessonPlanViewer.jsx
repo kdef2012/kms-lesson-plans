@@ -206,6 +206,49 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       
       html += '<div style="margin-top: 15px; display: flex; justify-content: center;"><svg width="'+svgSize+'" height="'+svgSize+'" style="border: 1px solid #ccc; background: white;">' + gridLines + axes + polygon + '</svg></div>';
     }
+
+    if (ex.visualData && ex.visualData.type === 'transversal') {
+      const v = ex.visualData;
+      const highlighted = v.highlightedAngles || [];
+      const labels = v.angleLabels || {};
+      
+      html += '<div style="margin: 10px auto; display: flex; justify-content: center; max-width: 440px;">' +
+        '<svg viewBox="0 0 500 200" width="100%" height="auto" style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; max-height: 22vh;">' +
+          '<defs>' +
+            '<marker id="arrow-blue-lms" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">' +
+              '<path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#2563eb"/>' +
+            '</marker>' +
+            '<marker id="arrow-trans-lms" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">' +
+              '<path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#0f172a"/>' +
+            '</marker>' +
+          '</defs>' +
+          '<line x1="40" y1="60" x2="460" y2="60" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue-lms)" marker-start="url(#arrow-blue-lms)"/>' +
+          '<text x="470" y="65" fill="#2563eb" font-size="14" font-weight="bold">ℓ</text>' +
+          '<line x1="40" y1="140" x2="460" y2="140" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue-lms)" marker-start="url(#arrow-blue-lms)"/>' +
+          '<text x="470" y="145" fill="#2563eb" font-size="14" font-weight="bold">m</text>' +
+          '<line x1="140" y1="180" x2="360" y2="20" stroke="#0f172a" stroke-width="3.5" marker-end="url(#arrow-trans-lms)" marker-start="url(#arrow-trans-lms)"/>' +
+          '<text x="365" y="25" fill="#0f172a" font-size="14" font-weight="bold">t</text>' +
+          '<circle cx="305" cy="60" r="4" fill="#0f172a"/>' +
+          '<circle cx="195" cy="140" r="4" fill="#0f172a"/>' +
+          '<rect x="325" y="32" width="28" height="20" rx="3" fill="' + (highlighted.includes(1) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(1) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="339" y="46" fill="' + (highlighted.includes(1) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[1] || '1') + '</text>' +
+          '<rect x="261" y="32" width="28" height="20" rx="3" fill="' + (highlighted.includes(2) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(2) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="275" y="46" fill="' + (highlighted.includes(2) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[2] || '2') + '</text>' +
+          '<rect x="250" y="65" width="' + ((labels[3] || '3').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(3) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(3) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (250 + ((labels[3] || '3').length > 2 ? 23 : 14)) + '" y="79" fill="' + (highlighted.includes(3) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[3] || '3') + '</text>' +
+          '<rect x="315" y="65" width="' + ((labels[4] || '4').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(4) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(4) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (315 + ((labels[4] || '4').length > 2 ? 23 : 14)) + '" y="79" fill="' + (highlighted.includes(4) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[4] || '4') + '</text>' +
+          '<rect x="205" y="112" width="' + ((labels[5] || '5').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(5) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(5) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (205 + ((labels[5] || '5').length > 2 ? 23 : 14)) + '" y="126" fill="' + (highlighted.includes(5) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[5] || '5') + '</text>' +
+          '<rect x="145" y="112" width="' + ((labels[6] || '6').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(6) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(6) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (145 + ((labels[6] || '6').length > 2 ? 23 : 14)) + '" y="126" fill="' + (highlighted.includes(6) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[6] || '6') + '</text>' +
+          '<rect x="145" y="145" width="28" height="20" rx="3" fill="' + (highlighted.includes(7) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(7) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="159" y="159" fill="' + (highlighted.includes(7) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[7] || '7') + '</text>' +
+          '<rect x="205" y="145" width="28" height="20" rx="3" fill="' + (highlighted.includes(8) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(8) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="219" y="159" fill="' + (highlighted.includes(8) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[8] || '8') + '</text>' +
+        '</svg>' +
+      '</div>';
+    }
     
     if (ex.type === 'matching' && ex.matchingPrompts && ex.matchingOptions) {
         const shiftedOptions = [...ex.matchingOptions];
