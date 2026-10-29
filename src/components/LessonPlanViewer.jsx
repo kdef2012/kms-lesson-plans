@@ -1218,6 +1218,7 @@ ${renderQuestionContent(plan.structured_exemplars[15], 15)}
             .content ul, .content ol { margin-top: 5px; margin-bottom: 15px; padding-left: 40px; }
             .content li { margin-bottom: 10px; }
             .content strong { color: #334155; }
+            .content svg { max-width: 100%; height: auto; max-height: 48vh; display: block; margin: 15px auto; }
             
             /* Practice Problems Grid */
             .problems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; margin-bottom: 20px;}
