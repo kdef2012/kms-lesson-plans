@@ -284,6 +284,88 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
           '<text x="219" y="159" fill="' + (highlighted.includes(8) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[8] || '8') + '</text>' +
         '</svg>' +
       '</div>';
+    if (ex.visualData && ex.visualData.type === 'triangle-angles') {
+      const v = ex.visualData;
+      const highlighted = v.highlightedAngles || [];
+      const labels = v.angleLabels || {};
+      const hasExt = v.hasExteriorAngle !== false;
+
+      html += '<div style="margin: 10px auto; display: flex; justify-content: center; max-width: 440px;">' +
+        '<svg viewBox="0 0 460 190" width="100%" height="auto" style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; max-height: 22vh;">' +
+          '<defs>' +
+            '<marker id="arrow-blue-tri" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">' +
+              '<path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#2563eb"/>' +
+            '</marker>' +
+          '</defs>' +
+          '<polygon points="210,35 90,150 310,150" fill="rgba(59, 130, 246, 0.05)" stroke="none"/>' +
+          (hasExt ? '<line x1="310" y1="150" x2="420" y2="150" stroke="#64748b" stroke-width="2.5" stroke-dasharray="4 4" marker-end="url(#arrow-blue-tri)"/>' : '') +
+          '<line x1="90" y1="150" x2="310" y2="150" stroke="#0f172a" stroke-width="3"/>' +
+          '<line x1="90" y1="150" x2="210" y2="35" stroke="#0f172a" stroke-width="3"/>' +
+          '<line x1="210" y1="35" x2="310" y2="150" stroke="#0f172a" stroke-width="3"/>' +
+          '<circle cx="210" cy="35" r="3.5" fill="#0f172a"/>' +
+          '<text x="210" y="25" fill="#0f172a" font-size="12" font-weight="bold" text-anchor="middle">A</text>' +
+          '<circle cx="90" cy="150" r="3.5" fill="#0f172a"/>' +
+          '<text x="75" y="165" fill="#0f172a" font-size="12" font-weight="bold" text-anchor="middle">B</text>' +
+          '<circle cx="310" cy="150" r="3.5" fill="#0f172a"/>' +
+          '<text x="310" y="170" fill="#0f172a" font-size="12" font-weight="bold" text-anchor="middle">C</text>' +
+          (hasExt ? '<text x="430" y="154" fill="#64748b" font-size="11" font-weight="bold">D</text>' : '') +
+          '<rect x="195" y="65" width="' + ((labels[1] || '1').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(1) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(1) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (195 + ((labels[1] || '1').length > 2 ? 23 : 14)) + '" y="79" fill="' + (highlighted.includes(1) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[1] || '1') + '</text>' +
+          '<rect x="120" y="130" width="' + ((labels[2] || '2').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(2) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(2) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (120 + ((labels[2] || '2').length > 2 ? 23 : 14)) + '" y="144" fill="' + (highlighted.includes(2) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[2] || '2') + '</text>' +
+          '<rect x="260" y="130" width="' + ((labels[3] || '3').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(3) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(3) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (260 + ((labels[3] || '3').length > 2 ? 23 : 14)) + '" y="144" fill="' + (highlighted.includes(3) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[3] || '3') + '</text>' +
+          (hasExt ? (
+            '<rect x="335" y="120" width="' + ((labels[4] || '4').length > 2 ? 48 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(4) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(4) ? '#d97706' : '#cbd5e1') + '"/>' +
+            '<text x="' + (335 + ((labels[4] || '4').length > 2 ? 24 : 14)) + '" y="134" fill="' + (highlighted.includes(4) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[4] || '4') + '</text>'
+          ) : '') +
+        '</svg>' +
+      '</div>';
+    }
+
+    if (ex.visualData && ex.visualData.type === 'similar-triangles') {
+      const v = ex.visualData;
+      const highlighted = v.highlightedAngles || [];
+      const labels = v.angleLabels || {};
+      const tri1 = v.triangle1 || {};
+      const tri2 = v.triangle2 || {};
+      const t1Label = tri1.label || '△ABC';
+      const t2Label = tri2.label || '△DEF';
+
+      html += '<div style="margin: 10px auto; display: flex; justify-content: center; max-width: 480px;">' +
+        '<svg viewBox="0 0 480 190" width="100%" height="auto" style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; max-height: 22vh;">' +
+          '<polygon points="110,45 50,155 170,155" fill="rgba(59, 130, 246, 0.05)" stroke="none"/>' +
+          '<polygon points="340,30 250,165 430,165" fill="rgba(16, 185, 129, 0.05)" stroke="none"/>' +
+          '<line x1="110" y1="45" x2="50" y2="155" stroke="#0f172a" stroke-width="2.5"/>' +
+          '<line x1="50" y1="155" x2="170" y2="155" stroke="#0f172a" stroke-width="2.5"/>' +
+          '<line x1="170" y1="155" x2="110" y2="45" stroke="#0f172a" stroke-width="2.5"/>' +
+          '<line x1="340" y1="30" x2="250" y2="165" stroke="#0f172a" stroke-width="3"/>' +
+          '<line x1="250" y1="165" x2="430" y2="165" stroke="#0f172a" stroke-width="3"/>' +
+          '<line x1="430" y1="165" x2="340" y2="30" stroke="#0f172a" stroke-width="3"/>' +
+          '<text x="110" y="22" fill="#2563eb" font-size="12" font-weight="bold" text-anchor="middle">' + t1Label + '</text>' +
+          '<text x="340" y="18" fill="#059669" font-size="12" font-weight="bold" text-anchor="middle">' + t2Label + '</text>' +
+          '<text x="110" y="38" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">A</text>' +
+          '<text x="42" y="165" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">B</text>' +
+          '<text x="178" y="165" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">C</text>' +
+          '<text x="340" y="26" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">D</text>' +
+          '<text x="240" y="175" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">E</text>' +
+          '<text x="440" y="175" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">F</text>' +
+          '<rect x="96" y="65" width="' + ((labels[1] || '1').length > 2 ? 42 : 26) + '" height="18" rx="3" fill="' + (highlighted.includes(1) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(1) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (96 + ((labels[1] || '1').length > 2 ? 21 : 13)) + '" y="78" fill="' + (highlighted.includes(1) ? '#b45309' : '#334155') + '" font-size="10" font-weight="bold" text-anchor="middle">' + (labels[1] || '1') + '</text>' +
+          '<rect x="70" y="136" width="' + ((labels[2] || '2').length > 2 ? 42 : 26) + '" height="18" rx="3" fill="' + (highlighted.includes(2) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(2) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (70 + ((labels[2] || '2').length > 2 ? 21 : 13)) + '" y="149" fill="' + (highlighted.includes(2) ? '#b45309' : '#334155') + '" font-size="10" font-weight="bold" text-anchor="middle">' + (labels[2] || '2') + '</text>' +
+          '<rect x="130" y="136" width="' + ((labels[3] || '3').length > 2 ? 42 : 26) + '" height="18" rx="3" fill="' + (highlighted.includes(3) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(3) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (130 + ((labels[3] || '3').length > 2 ? 21 : 13)) + '" y="149" fill="' + (highlighted.includes(3) ? '#b45309' : '#334155') + '" font-size="10" font-weight="bold" text-anchor="middle">' + (labels[3] || '3') + '</text>' +
+          '<rect x="325" y="60" width="' + ((labels[4] || '4').length > 2 ? 44 : 28) + '" height="18" rx="3" fill="' + (highlighted.includes(4) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(4) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (325 + ((labels[4] || '4').length > 2 ? 22 : 14)) + '" y="73" fill="' + (highlighted.includes(4) ? '#b45309' : '#334155') + '" font-size="10" font-weight="bold" text-anchor="middle">' + (labels[4] || '4') + '</text>' +
+          '<rect x="280" y="145" width="' + ((labels[5] || '5').length > 2 ? 44 : 28) + '" height="18" rx="3" fill="' + (highlighted.includes(5) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(5) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (280 + ((labels[5] || '5').length > 2 ? 22 : 14)) + '" y="158" fill="' + (highlighted.includes(5) ? '#b45309' : '#334155') + '" font-size="10" font-weight="bold" text-anchor="middle">' + (labels[5] || '5') + '</text>' +
+          '<rect x="375" y="145" width="' + ((labels[6] || '6').length > 2 ? 44 : 28) + '" height="18" rx="3" fill="' + (highlighted.includes(6) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(6) ? '#d97706' : '#cbd5e1') + '"/>' +
+          '<text x="' + (375 + ((labels[6] || '6').length > 2 ? 22 : 14)) + '" y="158" fill="' + (highlighted.includes(6) ? '#b45309' : '#334155') + '" font-size="10" font-weight="bold" text-anchor="middle">' + (labels[6] || '6') + '</text>' +
+        '</svg>' +
+      '</div>';
+    }
+
     }
     
     if (ex.type === 'matching' && ex.matchingPrompts && ex.matchingOptions) {

@@ -1,0 +1,2654 @@
+{
+  "2026-09-22": [
+    {
+      "id": "22-0",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 1,
+            "y": 1
+          },
+          {
+            "x": 3,
+            "y": 1
+          },
+          {
+            "x": 3,
+            "y": 4
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 6,
+          "y": 2
+        },
+        {
+          "x": 6,
+          "y": 8
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "22-1",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 3 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 3 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -2,
+            "y": 1
+          },
+          {
+            "x": 1,
+            "y": 1
+          },
+          {
+            "x": 1,
+            "y": 3
+          },
+          {
+            "x": -2,
+            "y": 3
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -6,
+          "y": 3
+        },
+        {
+          "x": 3,
+          "y": 3
+        },
+        {
+          "x": 3,
+          "y": 9
+        },
+        {
+          "x": -6,
+          "y": 9
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 3."
+    },
+    {
+      "id": "22-2",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 4 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 4 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 0,
+            "y": 2
+          },
+          {
+            "x": 2,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": -2
+          },
+          {
+            "x": -2,
+            "y": 0
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 0,
+          "y": 8
+        },
+        {
+          "x": 8,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": -8
+        },
+        {
+          "x": -8,
+          "y": 0
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 4."
+    },
+    {
+      "id": "22-3",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -3,
+            "y": -3
+          },
+          {
+            "x": -1,
+            "y": -3
+          },
+          {
+            "x": -1,
+            "y": -1
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -6,
+          "y": -6
+        },
+        {
+          "x": -2,
+          "y": -6
+        },
+        {
+          "x": -2,
+          "y": -2
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "22-4",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 3 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 3 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 1,
+            "y": 2
+          },
+          {
+            "x": 4,
+            "y": 2
+          },
+          {
+            "x": 2,
+            "y": 4
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 3,
+          "y": 6
+        },
+        {
+          "x": 12,
+          "y": 6
+        },
+        {
+          "x": 6,
+          "y": 12
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 3."
+    },
+    {
+      "id": "22-5",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 4 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 4 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -4,
+            "y": 2
+          },
+          {
+            "x": -2,
+            "y": 2
+          },
+          {
+            "x": -2,
+            "y": 5
+          },
+          {
+            "x": -4,
+            "y": 5
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -16,
+          "y": 8
+        },
+        {
+          "x": -8,
+          "y": 8
+        },
+        {
+          "x": -8,
+          "y": 20
+        },
+        {
+          "x": -16,
+          "y": 20
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 4."
+    },
+    {
+      "id": "22-6",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 2,
+            "y": -1
+          },
+          {
+            "x": 5,
+            "y": -1
+          },
+          {
+            "x": 4,
+            "y": -3
+          },
+          {
+            "x": 1,
+            "y": -3
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 4,
+          "y": -2
+        },
+        {
+          "x": 10,
+          "y": -2
+        },
+        {
+          "x": 8,
+          "y": -6
+        },
+        {
+          "x": 2,
+          "y": -6
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "22-7",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 3 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 3 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -2,
+            "y": -1
+          },
+          {
+            "x": 2,
+            "y": -1
+          },
+          {
+            "x": 1,
+            "y": -3
+          },
+          {
+            "x": -1,
+            "y": -3
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -6,
+          "y": -3
+        },
+        {
+          "x": 6,
+          "y": -3
+        },
+        {
+          "x": 3,
+          "y": -9
+        },
+        {
+          "x": -3,
+          "y": -9
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 3."
+    },
+    {
+      "id": "22-8",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 4 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 4 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 1,
+            "y": 1
+          },
+          {
+            "x": 3,
+            "y": 1
+          },
+          {
+            "x": 3,
+            "y": 4
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 4,
+          "y": 4
+        },
+        {
+          "x": 12,
+          "y": 4
+        },
+        {
+          "x": 12,
+          "y": 16
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 4."
+    },
+    {
+      "id": "22-9",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -2,
+            "y": 1
+          },
+          {
+            "x": 1,
+            "y": 1
+          },
+          {
+            "x": 1,
+            "y": 3
+          },
+          {
+            "x": -2,
+            "y": 3
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -4,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 6
+        },
+        {
+          "x": -4,
+          "y": 6
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "22-10",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 3 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 3 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 0,
+            "y": 2
+          },
+          {
+            "x": 2,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": -2
+          },
+          {
+            "x": -2,
+            "y": 0
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 0,
+          "y": 6
+        },
+        {
+          "x": 6,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": -6
+        },
+        {
+          "x": -6,
+          "y": 0
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 3."
+    },
+    {
+      "id": "22-11",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 4 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 4 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -3,
+            "y": -3
+          },
+          {
+            "x": -1,
+            "y": -3
+          },
+          {
+            "x": -1,
+            "y": -1
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -12,
+          "y": -12
+        },
+        {
+          "x": -4,
+          "y": -12
+        },
+        {
+          "x": -4,
+          "y": -4
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 4."
+    },
+    {
+      "id": "22-12",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 1,
+            "y": 2
+          },
+          {
+            "x": 4,
+            "y": 2
+          },
+          {
+            "x": 2,
+            "y": 4
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 2,
+          "y": 4
+        },
+        {
+          "x": 8,
+          "y": 4
+        },
+        {
+          "x": 4,
+          "y": 8
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "22-13",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 3 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 3 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -4,
+            "y": 2
+          },
+          {
+            "x": -2,
+            "y": 2
+          },
+          {
+            "x": -2,
+            "y": 5
+          },
+          {
+            "x": -4,
+            "y": 5
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -12,
+          "y": 6
+        },
+        {
+          "x": -6,
+          "y": 6
+        },
+        {
+          "x": -6,
+          "y": 15
+        },
+        {
+          "x": -12,
+          "y": 15
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 3."
+    },
+    {
+      "id": "22-14",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 4 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 4 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 2,
+            "y": -1
+          },
+          {
+            "x": 5,
+            "y": -1
+          },
+          {
+            "x": 4,
+            "y": -3
+          },
+          {
+            "x": 1,
+            "y": -3
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 8,
+          "y": -4
+        },
+        {
+          "x": 20,
+          "y": -4
+        },
+        {
+          "x": 16,
+          "y": -12
+        },
+        {
+          "x": 4,
+          "y": -12
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 4."
+    },
+    {
+      "id": "22-15",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -2,
+            "y": -1
+          },
+          {
+            "x": 2,
+            "y": -1
+          },
+          {
+            "x": 1,
+            "y": -3
+          },
+          {
+            "x": -1,
+            "y": -3
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -4,
+          "y": -2
+        },
+        {
+          "x": 4,
+          "y": -2
+        },
+        {
+          "x": 2,
+          "y": -6
+        },
+        {
+          "x": -2,
+          "y": -6
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    }
+  ],
+  "2026-09-23": [
+    {
+      "id": "23-0",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 4,
+            "y": 4
+          },
+          {
+            "x": 12,
+            "y": 4
+          },
+          {
+            "x": 12,
+            "y": 16
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 6,
+          "y": 2
+        },
+        {
+          "x": 6,
+          "y": 8
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "23-1",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -8,
+            "y": 4
+          },
+          {
+            "x": 4,
+            "y": 4
+          },
+          {
+            "x": 4,
+            "y": 12
+          },
+          {
+            "x": -8,
+            "y": 12
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -2,
+          "y": 1
+        },
+        {
+          "x": 1,
+          "y": 1
+        },
+        {
+          "x": 1,
+          "y": 3
+        },
+        {
+          "x": -2,
+          "y": 3
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.25."
+    },
+    {
+      "id": "23-2",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 0,
+            "y": 8
+          },
+          {
+            "x": 8,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": -8
+          },
+          {
+            "x": -8,
+            "y": 0
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 0,
+          "y": 4
+        },
+        {
+          "x": 4,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": -4
+        },
+        {
+          "x": -4,
+          "y": 0
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "23-3",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -12,
+            "y": -12
+          },
+          {
+            "x": -4,
+            "y": -12
+          },
+          {
+            "x": -4,
+            "y": -4
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -3,
+          "y": -3
+        },
+        {
+          "x": -1,
+          "y": -3
+        },
+        {
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.25."
+    },
+    {
+      "id": "23-4",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 4,
+            "y": 8
+          },
+          {
+            "x": 16,
+            "y": 8
+          },
+          {
+            "x": 8,
+            "y": 16
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 2,
+          "y": 4
+        },
+        {
+          "x": 8,
+          "y": 4
+        },
+        {
+          "x": 4,
+          "y": 8
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "23-5",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -16,
+            "y": 8
+          },
+          {
+            "x": -8,
+            "y": 8
+          },
+          {
+            "x": -8,
+            "y": 20
+          },
+          {
+            "x": -16,
+            "y": 20
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -4,
+          "y": 2
+        },
+        {
+          "x": -2,
+          "y": 2
+        },
+        {
+          "x": -2,
+          "y": 5
+        },
+        {
+          "x": -4,
+          "y": 5
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.25."
+    },
+    {
+      "id": "23-6",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 8,
+            "y": -4
+          },
+          {
+            "x": 20,
+            "y": -4
+          },
+          {
+            "x": 16,
+            "y": -12
+          },
+          {
+            "x": 4,
+            "y": -12
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 4,
+          "y": -2
+        },
+        {
+          "x": 10,
+          "y": -2
+        },
+        {
+          "x": 8,
+          "y": -6
+        },
+        {
+          "x": 2,
+          "y": -6
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "23-7",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -8,
+            "y": -4
+          },
+          {
+            "x": 8,
+            "y": -4
+          },
+          {
+            "x": 4,
+            "y": -12
+          },
+          {
+            "x": -4,
+            "y": -12
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -2,
+          "y": -1
+        },
+        {
+          "x": 2,
+          "y": -1
+        },
+        {
+          "x": 1,
+          "y": -3
+        },
+        {
+          "x": -1,
+          "y": -3
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.25."
+    },
+    {
+      "id": "23-8",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 4,
+            "y": 4
+          },
+          {
+            "x": 12,
+            "y": 4
+          },
+          {
+            "x": 12,
+            "y": 16
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 6,
+          "y": 2
+        },
+        {
+          "x": 6,
+          "y": 8
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "23-9",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -8,
+            "y": 4
+          },
+          {
+            "x": 4,
+            "y": 4
+          },
+          {
+            "x": 4,
+            "y": 12
+          },
+          {
+            "x": -8,
+            "y": 12
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -2,
+          "y": 1
+        },
+        {
+          "x": 1,
+          "y": 1
+        },
+        {
+          "x": 1,
+          "y": 3
+        },
+        {
+          "x": -2,
+          "y": 3
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.25."
+    },
+    {
+      "id": "23-10",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 0,
+            "y": 8
+          },
+          {
+            "x": 8,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": -8
+          },
+          {
+            "x": -8,
+            "y": 0
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 0,
+          "y": 4
+        },
+        {
+          "x": 4,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": -4
+        },
+        {
+          "x": -4,
+          "y": 0
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "23-11",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -12,
+            "y": -12
+          },
+          {
+            "x": -4,
+            "y": -12
+          },
+          {
+            "x": -4,
+            "y": -4
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -3,
+          "y": -3
+        },
+        {
+          "x": -1,
+          "y": -3
+        },
+        {
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.25."
+    },
+    {
+      "id": "23-12",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 4,
+            "y": 8
+          },
+          {
+            "x": 16,
+            "y": 8
+          },
+          {
+            "x": 8,
+            "y": 16
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 2,
+          "y": 4
+        },
+        {
+          "x": 8,
+          "y": 4
+        },
+        {
+          "x": 4,
+          "y": 8
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "23-13",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -16,
+            "y": 8
+          },
+          {
+            "x": -8,
+            "y": 8
+          },
+          {
+            "x": -8,
+            "y": 20
+          },
+          {
+            "x": -16,
+            "y": 20
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -4,
+          "y": 2
+        },
+        {
+          "x": -2,
+          "y": 2
+        },
+        {
+          "x": -2,
+          "y": 5
+        },
+        {
+          "x": -4,
+          "y": 5
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.25."
+    },
+    {
+      "id": "23-14",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 8,
+            "y": -4
+          },
+          {
+            "x": 20,
+            "y": -4
+          },
+          {
+            "x": 16,
+            "y": -12
+          },
+          {
+            "x": 4,
+            "y": -12
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 4,
+          "y": -2
+        },
+        {
+          "x": 10,
+          "y": -2
+        },
+        {
+          "x": 8,
+          "y": -6
+        },
+        {
+          "x": 2,
+          "y": -6
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "23-15",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.25 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -8,
+            "y": -4
+          },
+          {
+            "x": 8,
+            "y": -4
+          },
+          {
+            "x": 4,
+            "y": -12
+          },
+          {
+            "x": -4,
+            "y": -12
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -2,
+          "y": -1
+        },
+        {
+          "x": 2,
+          "y": -1
+        },
+        {
+          "x": 1,
+          "y": -3
+        },
+        {
+          "x": -1,
+          "y": -3
+        }
+      ],
+      "misconception": "Multiplied by the inverse.",
+      "correct_answer": "Multiply all coordinates by 0.25."
+    }
+  ],
+  "2026-09-24": [
+    {
+      "id": "24-0",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 2,
+            "y": 2
+          },
+          {
+            "x": 6,
+            "y": 2
+          },
+          {
+            "x": 6,
+            "y": 8
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 4,
+          "y": 4
+        },
+        {
+          "x": 12,
+          "y": 4
+        },
+        {
+          "x": 12,
+          "y": 16
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "24-1",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -4,
+            "y": 2
+          },
+          {
+            "x": 2,
+            "y": 2
+          },
+          {
+            "x": 2,
+            "y": 6
+          },
+          {
+            "x": -4,
+            "y": 6
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -2,
+          "y": 1
+        },
+        {
+          "x": 1,
+          "y": 1
+        },
+        {
+          "x": 1,
+          "y": 3
+        },
+        {
+          "x": -2,
+          "y": 3
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "24-2",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 0,
+            "y": 4
+          },
+          {
+            "x": 4,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": -4
+          },
+          {
+            "x": -4,
+            "y": 0
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 0,
+          "y": 8
+        },
+        {
+          "x": 8,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": -8
+        },
+        {
+          "x": -8,
+          "y": 0
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "24-3",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -6,
+            "y": -6
+          },
+          {
+            "x": -2,
+            "y": -6
+          },
+          {
+            "x": -2,
+            "y": -2
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -3,
+          "y": -3
+        },
+        {
+          "x": -1,
+          "y": -3
+        },
+        {
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "24-4",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 2,
+            "y": 4
+          },
+          {
+            "x": 8,
+            "y": 4
+          },
+          {
+            "x": 4,
+            "y": 8
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 4,
+          "y": 8
+        },
+        {
+          "x": 16,
+          "y": 8
+        },
+        {
+          "x": 8,
+          "y": 16
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "24-5",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -8,
+            "y": 4
+          },
+          {
+            "x": -4,
+            "y": 4
+          },
+          {
+            "x": -4,
+            "y": 10
+          },
+          {
+            "x": -8,
+            "y": 10
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -4,
+          "y": 2
+        },
+        {
+          "x": -2,
+          "y": 2
+        },
+        {
+          "x": -2,
+          "y": 5
+        },
+        {
+          "x": -4,
+          "y": 5
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "24-6",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 4,
+            "y": -2
+          },
+          {
+            "x": 10,
+            "y": -2
+          },
+          {
+            "x": 8,
+            "y": -6
+          },
+          {
+            "x": 2,
+            "y": -6
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 8,
+          "y": -4
+        },
+        {
+          "x": 20,
+          "y": -4
+        },
+        {
+          "x": 16,
+          "y": -12
+        },
+        {
+          "x": 4,
+          "y": -12
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "24-7",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -4,
+            "y": -2
+          },
+          {
+            "x": 4,
+            "y": -2
+          },
+          {
+            "x": 2,
+            "y": -6
+          },
+          {
+            "x": -2,
+            "y": -6
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -2,
+          "y": -1
+        },
+        {
+          "x": 2,
+          "y": -1
+        },
+        {
+          "x": 1,
+          "y": -3
+        },
+        {
+          "x": -1,
+          "y": -3
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "24-8",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 2,
+            "y": 2
+          },
+          {
+            "x": 6,
+            "y": 2
+          },
+          {
+            "x": 6,
+            "y": 8
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 4,
+          "y": 4
+        },
+        {
+          "x": 12,
+          "y": 4
+        },
+        {
+          "x": 12,
+          "y": 16
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "24-9",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -4,
+            "y": 2
+          },
+          {
+            "x": 2,
+            "y": 2
+          },
+          {
+            "x": 2,
+            "y": 6
+          },
+          {
+            "x": -4,
+            "y": 6
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -2,
+          "y": 1
+        },
+        {
+          "x": 1,
+          "y": 1
+        },
+        {
+          "x": 1,
+          "y": 3
+        },
+        {
+          "x": -2,
+          "y": 3
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "24-10",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 0,
+            "y": 4
+          },
+          {
+            "x": 4,
+            "y": 0
+          },
+          {
+            "x": 0,
+            "y": -4
+          },
+          {
+            "x": -4,
+            "y": 0
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 0,
+          "y": 8
+        },
+        {
+          "x": 8,
+          "y": 0
+        },
+        {
+          "x": 0,
+          "y": -8
+        },
+        {
+          "x": -8,
+          "y": 0
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "24-11",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -6,
+            "y": -6
+          },
+          {
+            "x": -2,
+            "y": -6
+          },
+          {
+            "x": -2,
+            "y": -2
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -3,
+          "y": -3
+        },
+        {
+          "x": -1,
+          "y": -3
+        },
+        {
+          "x": -1,
+          "y": -1
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "24-12",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 2,
+            "y": 4
+          },
+          {
+            "x": 8,
+            "y": 4
+          },
+          {
+            "x": 4,
+            "y": 8
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 4,
+          "y": 8
+        },
+        {
+          "x": 16,
+          "y": 8
+        },
+        {
+          "x": 8,
+          "y": 16
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "24-13",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -8,
+            "y": 4
+          },
+          {
+            "x": -4,
+            "y": 4
+          },
+          {
+            "x": -4,
+            "y": 10
+          },
+          {
+            "x": -8,
+            "y": 10
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -4,
+          "y": 2
+        },
+        {
+          "x": -2,
+          "y": 2
+        },
+        {
+          "x": -2,
+          "y": 5
+        },
+        {
+          "x": -4,
+          "y": 5
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    },
+    {
+      "id": "24-14",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 4,
+            "y": -2
+          },
+          {
+            "x": 10,
+            "y": -2
+          },
+          {
+            "x": 8,
+            "y": -6
+          },
+          {
+            "x": 2,
+            "y": -6
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 8,
+          "y": -4
+        },
+        {
+          "x": 20,
+          "y": -4
+        },
+        {
+          "x": 16,
+          "y": -12
+        },
+        {
+          "x": 4,
+          "y": -12
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 2."
+    },
+    {
+      "id": "24-15",
+      "dok": 2,
+      "text": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the polygon by a scale factor of 0.5 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": -4,
+            "y": -2
+          },
+          {
+            "x": 4,
+            "y": -2
+          },
+          {
+            "x": 2,
+            "y": -6
+          },
+          {
+            "x": -2,
+            "y": -6
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": -2,
+          "y": -1
+        },
+        {
+          "x": 2,
+          "y": -1
+        },
+        {
+          "x": 1,
+          "y": -3
+        },
+        {
+          "x": -1,
+          "y": -3
+        }
+      ],
+      "misconception": "Added the scale factor instead of multiplying.",
+      "correct_answer": "Multiply all coordinates by 0.5."
+    }
+  ],
+  "2026-09-25": [
+    {
+      "id": "25-0",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":1,\"y\":1},{\"x\":3,\"y\":1},{\"x\":3,\"y\":4}]. Polygon B has vertices at [{\"x\":2,\"y\":2},{\"x\":6,\"y\":2},{\"x\":6,\"y\":8}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "Yes",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-1",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":-2,\"y\":1},{\"x\":1,\"y\":1},{\"x\":1,\"y\":3},{\"x\":-2,\"y\":3}]. Polygon B has vertices at [{\"x\":-5,\"y\":3},{\"x\":4,\"y\":3},{\"x\":4,\"y\":9},{\"x\":-5,\"y\":9}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "No",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-2",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":0,\"y\":2},{\"x\":2,\"y\":0},{\"x\":0,\"y\":-2},{\"x\":-2,\"y\":0}]. Polygon B has vertices at [{\"x\":0,\"y\":8},{\"x\":8,\"y\":0},{\"x\":0,\"y\":-8},{\"x\":-8,\"y\":0}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "Yes",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-3",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":-3,\"y\":-3},{\"x\":-1,\"y\":-3},{\"x\":-1,\"y\":-1}]. Polygon B has vertices at [{\"x\":-5,\"y\":-6},{\"x\":-1,\"y\":-6},{\"x\":-1,\"y\":-2}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "No",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-4",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":1,\"y\":2},{\"x\":4,\"y\":2},{\"x\":2,\"y\":4}]. Polygon B has vertices at [{\"x\":3,\"y\":6},{\"x\":12,\"y\":6},{\"x\":6,\"y\":12}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "Yes",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-5",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":-4,\"y\":2},{\"x\":-2,\"y\":2},{\"x\":-2,\"y\":5},{\"x\":-4,\"y\":5}]. Polygon B has vertices at [{\"x\":-15,\"y\":8},{\"x\":-7,\"y\":8},{\"x\":-7,\"y\":20},{\"x\":-15,\"y\":20}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "No",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-6",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":2,\"y\":-1},{\"x\":5,\"y\":-1},{\"x\":4,\"y\":-3},{\"x\":1,\"y\":-3}]. Polygon B has vertices at [{\"x\":4,\"y\":-2},{\"x\":10,\"y\":-2},{\"x\":8,\"y\":-6},{\"x\":2,\"y\":-6}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "Yes",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-7",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":-2,\"y\":-1},{\"x\":2,\"y\":-1},{\"x\":1,\"y\":-3},{\"x\":-1,\"y\":-3}]. Polygon B has vertices at [{\"x\":-5,\"y\":-3},{\"x\":7,\"y\":-3},{\"x\":4,\"y\":-9},{\"x\":-2,\"y\":-9}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "No",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-8",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":1,\"y\":1},{\"x\":3,\"y\":1},{\"x\":3,\"y\":4}]. Polygon B has vertices at [{\"x\":4,\"y\":4},{\"x\":12,\"y\":4},{\"x\":12,\"y\":16}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "Yes",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-9",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":-2,\"y\":1},{\"x\":1,\"y\":1},{\"x\":1,\"y\":3},{\"x\":-2,\"y\":3}]. Polygon B has vertices at [{\"x\":-3,\"y\":2},{\"x\":3,\"y\":2},{\"x\":3,\"y\":6},{\"x\":-3,\"y\":6}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "No",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-10",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":0,\"y\":2},{\"x\":2,\"y\":0},{\"x\":0,\"y\":-2},{\"x\":-2,\"y\":0}]. Polygon B has vertices at [{\"x\":0,\"y\":6},{\"x\":6,\"y\":0},{\"x\":0,\"y\":-6},{\"x\":-6,\"y\":0}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "Yes",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-11",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":-3,\"y\":-3},{\"x\":-1,\"y\":-3},{\"x\":-1,\"y\":-1}]. Polygon B has vertices at [{\"x\":-11,\"y\":-12},{\"x\":-3,\"y\":-12},{\"x\":-3,\"y\":-4}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "No",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-12",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":1,\"y\":2},{\"x\":4,\"y\":2},{\"x\":2,\"y\":4}]. Polygon B has vertices at [{\"x\":2,\"y\":4},{\"x\":8,\"y\":4},{\"x\":4,\"y\":8}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "Yes",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-13",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":-4,\"y\":2},{\"x\":-2,\"y\":2},{\"x\":-2,\"y\":5},{\"x\":-4,\"y\":5}]. Polygon B has vertices at [{\"x\":-11,\"y\":6},{\"x\":-5,\"y\":6},{\"x\":-5,\"y\":15},{\"x\":-11,\"y\":15}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "No",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-14",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":2,\"y\":-1},{\"x\":5,\"y\":-1},{\"x\":4,\"y\":-3},{\"x\":1,\"y\":-3}]. Polygon B has vertices at [{\"x\":8,\"y\":-4},{\"x\":20,\"y\":-4},{\"x\":16,\"y\":-12},{\"x\":4,\"y\":-12}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "Yes",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    },
+    {
+      "id": "25-15",
+      "dok": 2,
+      "text": "Polygon A has vertices at [{\"x\":-2,\"y\":-1},{\"x\":2,\"y\":-1},{\"x\":1,\"y\":-3},{\"x\":-1,\"y\":-3}]. Polygon B has vertices at [{\"x\":-3,\"y\":-2},{\"x\":5,\"y\":-2},{\"x\":3,\"y\":-6},{\"x\":-1,\"y\":-6}]. Are they similar?",
+      "type": "multiple_choice",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "correctAnswer": "No",
+      "misconception": "Looked at difference instead of ratio.",
+      "correct_answer": "Check if the ratio of corresponding sides is constant."
+    }
+  ],
+  "2026-09-28": [
+    {
+      "id": "28-0",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 2 and another side of length 3. The corresponding side to the first one on Polygon 2 has length 4. What is the length of the side corresponding to 3 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "6"
+    },
+    {
+      "id": "28-1",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 3 and another side of length 4. The corresponding side to the first one on Polygon 2 has length 9. What is the length of the side corresponding to 4 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "12"
+    },
+    {
+      "id": "28-2",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 4 and another side of length 5. The corresponding side to the first one on Polygon 2 has length 16. What is the length of the side corresponding to 5 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "20"
+    },
+    {
+      "id": "28-3",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 5 and another side of length 6. The corresponding side to the first one on Polygon 2 has length 10. What is the length of the side corresponding to 6 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "12"
+    },
+    {
+      "id": "28-4",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 2 and another side of length 7. The corresponding side to the first one on Polygon 2 has length 6. What is the length of the side corresponding to 7 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "21"
+    },
+    {
+      "id": "28-5",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 3 and another side of length 3. The corresponding side to the first one on Polygon 2 has length 12. What is the length of the side corresponding to 3 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "12"
+    },
+    {
+      "id": "28-6",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 4 and another side of length 4. The corresponding side to the first one on Polygon 2 has length 8. What is the length of the side corresponding to 4 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "8"
+    },
+    {
+      "id": "28-7",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 5 and another side of length 5. The corresponding side to the first one on Polygon 2 has length 15. What is the length of the side corresponding to 5 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "15"
+    },
+    {
+      "id": "28-8",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 2 and another side of length 6. The corresponding side to the first one on Polygon 2 has length 8. What is the length of the side corresponding to 6 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "24"
+    },
+    {
+      "id": "28-9",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 3 and another side of length 7. The corresponding side to the first one on Polygon 2 has length 6. What is the length of the side corresponding to 7 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "14"
+    },
+    {
+      "id": "28-10",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 4 and another side of length 3. The corresponding side to the first one on Polygon 2 has length 12. What is the length of the side corresponding to 3 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "9"
+    },
+    {
+      "id": "28-11",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 5 and another side of length 4. The corresponding side to the first one on Polygon 2 has length 20. What is the length of the side corresponding to 4 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "16"
+    },
+    {
+      "id": "28-12",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 2 and another side of length 5. The corresponding side to the first one on Polygon 2 has length 4. What is the length of the side corresponding to 5 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "10"
+    },
+    {
+      "id": "28-13",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 3 and another side of length 6. The corresponding side to the first one on Polygon 2 has length 9. What is the length of the side corresponding to 6 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "18"
+    },
+    {
+      "id": "28-14",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 4 and another side of length 7. The corresponding side to the first one on Polygon 2 has length 16. What is the length of the side corresponding to 7 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "28"
+    },
+    {
+      "id": "28-15",
+      "dok": 2,
+      "text": "Two polygons are similar. Polygon 1 has a side of length 5 and another side of length 3. The corresponding side to the first one on Polygon 2 has length 10. What is the length of the side corresponding to 3 on Polygon 2?",
+      "type": "open_ended",
+      "sample_answer": "6"
+    }
+  ],
+  "2026-09-29": [
+    {
+      "id": "29-0",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 2 times larger and shifted right by 1 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 2 centered at the origin, then translate right 1 units."
+    },
+    {
+      "id": "29-1",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 3 times larger and shifted right by 2 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 3 centered at the origin, then translate right 2 units."
+    },
+    {
+      "id": "29-2",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 4 times larger and shifted right by 3 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 4 centered at the origin, then translate right 3 units."
+    },
+    {
+      "id": "29-3",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 2 times larger and shifted right by 4 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 2 centered at the origin, then translate right 4 units."
+    },
+    {
+      "id": "29-4",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 3 times larger and shifted right by 1 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 3 centered at the origin, then translate right 1 units."
+    },
+    {
+      "id": "29-5",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 4 times larger and shifted right by 2 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 4 centered at the origin, then translate right 2 units."
+    },
+    {
+      "id": "29-6",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 2 times larger and shifted right by 3 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 2 centered at the origin, then translate right 3 units."
+    },
+    {
+      "id": "29-7",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 3 times larger and shifted right by 4 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 3 centered at the origin, then translate right 4 units."
+    },
+    {
+      "id": "29-8",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 4 times larger and shifted right by 1 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 4 centered at the origin, then translate right 1 units."
+    },
+    {
+      "id": "29-9",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 2 times larger and shifted right by 2 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 2 centered at the origin, then translate right 2 units."
+    },
+    {
+      "id": "29-10",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 3 times larger and shifted right by 3 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 3 centered at the origin, then translate right 3 units."
+    },
+    {
+      "id": "29-11",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 4 times larger and shifted right by 4 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 4 centered at the origin, then translate right 4 units."
+    },
+    {
+      "id": "29-12",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 2 times larger and shifted right by 1 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 2 centered at the origin, then translate right 1 units."
+    },
+    {
+      "id": "29-13",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 3 times larger and shifted right by 2 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 3 centered at the origin, then translate right 2 units."
+    },
+    {
+      "id": "29-14",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 4 times larger and shifted right by 3 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 4 centered at the origin, then translate right 3 units."
+    },
+    {
+      "id": "29-15",
+      "dok": 2,
+      "text": "A square is centered at the origin. Describe the sequence of transformations that maps it to a square that is 2 times larger and shifted right by 4 units.",
+      "type": "open_ended",
+      "sample_answer": "Dilate by a scale factor of 2 centered at the origin, then translate right 4 units."
+    }
+  ]
+}

@@ -1,0 +1,566 @@
+{
+  "id": "70b77ee5-f1d3-4c53-9423-2cf508c1cfb4",
+  "date_start": "2026-09-21",
+  "week_label": "9/21-9/25",
+  "topic": "[Open-Up U2 L1] Projecting and Scaling (8.G.4)",
+  "objective_3m": "SWBAT deeply analyze and solve complex problems involving Projecting and Scaling (8.G.4) with 90% accuracy.",
+  "standard": "8.G.4",
+  "do_now": "If you have a photograph that is 4 inches by 6 inches, and you want to double its size, what will the new dimensions be?",
+  "direct_instruction": "## Vocabulary\n---\n**Dilation:** A transformation that changes the size of a figure, but not its shape.\n**Scale Factor ($k$):** The multiplier used to enlarge or reduce the figure.\n**Enlargement:** A dilation where $k > 1$.\n**Reduction:** A dilation where $0 < k < 1$.\n**Non-Rigid Motion:** A transformation that changes size (does not preserve congruency).\n\n## Direct Instruction\n---\nToday we learn our first non-rigid motion: Dilations. Dilations stretch or shrink a figure from a center point. \n\nLet's look at **Example 1**. We are dilating a triangle by a scale factor of 2. I will model multiplying every single x and y coordinate by 2. Because $k > 1$, this is an enlargement.\n\nIn **Example 2**, we are dilating a square by a scale factor of $1/2$. I will model multiplying by $1/2$ (or dividing by 2). Because the scale factor is between 0 and 1, this results in a reduction. We will compare the side lengths and area of the pre-image and image.",
+  "group_practice": null,
+  "independent_practice": "Students will complete the rigorous EOG-ready problems digitally on TicketOut.",
+  "criteria_for_success": null,
+  "exit_ticket": "A point (-2, 5) is dilated by a scale factor of 3. What are the new coordinates?",
+  "checks_for_understanding": null,
+  "pdf_url": null,
+  "created_at": "2026-09-02T11:09:34.173546+00:00",
+  "updated_at": "2026-09-02T11:09:34.173546+00:00",
+  "exemplar_image_url": null,
+  "structured_exemplars": [
+    {
+      "id": "b572054e-936d-4512-bd40-9438ed60cc28",
+      "dok": 2,
+      "text": "Dilate the rectangle by a scale factor of 3 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the rectangle by a scale factor of 3 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 1,
+            "y": 1
+          },
+          {
+            "x": 2,
+            "y": 1
+          },
+          {
+            "x": 2,
+            "y": 3
+          },
+          {
+            "x": 1,
+            "y": 3
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 3,
+          "y": 3
+        },
+        {
+          "x": 6,
+          "y": 3
+        },
+        {
+          "x": 6,
+          "y": 9
+        },
+        {
+          "x": 3,
+          "y": 9
+        }
+      ],
+      "misconception": "Add 3.",
+      "correct_answer": "Multiply all by 3."
+    },
+    {
+      "id": "b4c08b52-1c0b-4da9-bbcb-7ff4c533fd23",
+      "dok": 2,
+      "text": "Dilate the triangle by a scale factor of 1/3 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the triangle by a scale factor of 1/3 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 3,
+            "y": 6
+          },
+          {
+            "x": 9,
+            "y": 6
+          },
+          {
+            "x": 6,
+            "y": 9
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 1,
+          "y": 2
+        },
+        {
+          "x": 3,
+          "y": 2
+        },
+        {
+          "x": 2,
+          "y": 3
+        }
+      ],
+      "misconception": "Subtract 3.",
+      "correct_answer": "Multiply all by 1/3."
+    },
+    {
+      "id": "7bbf4cf6-5b12-4cbe-a0e1-7cd4cd9a4271",
+      "dok": 2,
+      "text": "A point (-3, 9) is dilated by a scale factor of 1/3. What is the new coordinate?",
+      "type": "multiple-choice",
+      "options": [
+        "(-1, 3)",
+        "(-9, 27)",
+        "(0, 12)",
+        "(-3, 3)"
+      ],
+      "question": "A point (-3, 9) is dilated by a scale factor of 1/3. What is the new coordinate?",
+      "correctAnswer": "(-1, 3)",
+      "misconception": "Adding 1/3",
+      "correct_answer": "(-1, 3)"
+    },
+    {
+      "id": "a8be3646-2cfe-43bb-b454-951537a490a6",
+      "dok": 2,
+      "text": "Which of the following scale factors produces a reduction?",
+      "type": "multiple-choice",
+      "options": [
+        "k = 0.8",
+        "k = 1.5",
+        "k = 3",
+        "k = 1"
+      ],
+      "question": "Which of the following scale factors produces a reduction?",
+      "correctAnswer": "k = 0.8",
+      "misconception": "Thinking negative numbers only.",
+      "correct_answer": "k = 0.8"
+    },
+    {
+      "id": "27a5bae4-9011-4ea0-8dd0-43a8240d8d3e",
+      "dok": 2,
+      "text": "Match the point and scale factor to the resulting point.",
+      "type": "matching",
+      "question": "Match the point and scale factor to the resulting point.",
+      "matchingPairs": [
+        {
+          "id": "5cc20b5c-a8ed-4fae-a661-14837812a2f9",
+          "option": "(-8, 16)",
+          "prompt": "(-2, 4) k=4"
+        },
+        {
+          "id": "c9c52e59-bd3a-4e07-a1d5-44dc9d960c32",
+          "option": "(10, -2)",
+          "prompt": "(5, -1) k=2"
+        },
+        {
+          "id": "75a2ed70-c6dc-4b2f-830b-52ffc4040bfa",
+          "option": "(6, 4)",
+          "prompt": "(12, 8) k=0.5"
+        }
+      ],
+      "misconception": "Add k.",
+      "correct_answer": "Multiply coords by k.",
+      "matchingOptions": [
+        {
+          "id": "o1",
+          "text": "(-8, 16)"
+        },
+        {
+          "id": "o2",
+          "text": "(10, -2)"
+        },
+        {
+          "id": "o3",
+          "text": "(6, 4)"
+        },
+        {
+          "id": "o4",
+          "text": "(0,0)"
+        }
+      ],
+      "matchingPrompts": [
+        {
+          "id": "1",
+          "text": "(-2, 4) k=4"
+        },
+        {
+          "id": "2",
+          "text": "(5, -1) k=2"
+        },
+        {
+          "id": "3",
+          "text": "(12, 8) k=0.5"
+        }
+      ]
+    },
+    {
+      "id": "83c558f3-2c00-4195-a561-812d6857c12d",
+      "dok": 2,
+      "text": "Sort the scale factors into Enlargement vs Reduction.",
+      "type": "drag-and-drop",
+      "options": [
+        "k = 4",
+        "k = 1.2",
+        "k = 0.1",
+        "k = 3/4"
+      ],
+      "prompts": [
+        {
+          "id": "1",
+          "text": "Enlargement"
+        },
+        {
+          "id": "2",
+          "text": "Reduction"
+        }
+      ],
+      "question": "Sort the scale factors into Enlargement vs Reduction.",
+      "misconception": "k < 0",
+      "correct_answer": "k > 1 vs 0 < k < 1",
+      "dragAndDropAnswers": {
+        "1": [
+          "k = 4",
+          "k = 1.2"
+        ],
+        "2": [
+          "k = 0.1",
+          "k = 3/4"
+        ]
+      }
+    },
+    {
+      "id": "6df76e40-f1f1-4c60-8481-c6c1f4b223fd",
+      "dok": 2,
+      "text": "Dilate the triangle by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the triangle by a scale factor of 2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 1,
+            "y": 2
+          },
+          {
+            "x": 3,
+            "y": 2
+          },
+          {
+            "x": 1,
+            "y": 4
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 2,
+          "y": 4
+        },
+        {
+          "x": 6,
+          "y": 4
+        },
+        {
+          "x": 2,
+          "y": 8
+        }
+      ],
+      "misconception": "Adding the scale factor.",
+      "correct_answer": "Solve using mathematical rules."
+    },
+    {
+      "id": "cb2d1176-57f0-44b5-aaab-2ecf7f78833c",
+      "dok": 2,
+      "text": "Dilate the square by a scale factor of 1/2 centered at the origin. Plot the new vertices.",
+      "type": "interactive-graph",
+      "question": "Dilate the square by a scale factor of 1/2 centered at the origin. Plot the new vertices.",
+      "visualData": {
+        "type": "geometry-transformation",
+        "gridSize": 10,
+        "originalPolygon": [
+          {
+            "x": 2,
+            "y": 2
+          },
+          {
+            "x": 4,
+            "y": 2
+          },
+          {
+            "x": 4,
+            "y": 4
+          },
+          {
+            "x": 2,
+            "y": 4
+          }
+        ]
+      },
+      "correctPoints": [
+        {
+          "x": 1,
+          "y": 1
+        },
+        {
+          "x": 2,
+          "y": 1
+        },
+        {
+          "x": 2,
+          "y": 2
+        },
+        {
+          "x": 1,
+          "y": 2
+        }
+      ],
+      "misconception": "Dividing by 1/2 instead of multiplying.",
+      "correct_answer": "Solve using mathematical rules."
+    },
+    {
+      "id": "f145e172-5a3e-45fc-afc6-bdae109ba355",
+      "dok": 2,
+      "text": "A point (4, -6) is dilated by a scale factor of 1.5. What is the new coordinate?",
+      "type": "multiple-choice",
+      "options": [
+        "(6, -9)",
+        "(5.5, -4.5)",
+        "(8, -12)",
+        "(2, -3)"
+      ],
+      "exemplar": "4 * 1.5 = 6. -6 * 1.5 = -9.",
+      "question": "A point (4, -6) is dilated by a scale factor of 1.5. What is the new coordinate?",
+      "correctAnswer": "(6, -9)",
+      "misconception": "Adding 1.5.",
+      "correct_answer": "4 * 1.5 = 6. -6 * 1.5 = -9."
+    },
+    {
+      "id": "30019a50-9e65-4e4f-8a9e-4f04da1a3ed1",
+      "dok": 3,
+      "text": "If a figure is dilated by a scale factor of 3, what happens to its area?",
+      "type": "multiple-choice",
+      "options": [
+        "It is multiplied by 9",
+        "It is multiplied by 3",
+        "It stays the same",
+        "It is multiplied by 6"
+      ],
+      "exemplar": "Area scales by the square of the scale factor (3^2 = 9).",
+      "question": "If a figure is dilated by a scale factor of 3, what happens to its area?",
+      "correctAnswer": "It is multiplied by 9",
+      "misconception": "Multiplying by 3.",
+      "correct_answer": "Area scales by the square of the scale factor (3^2 = 9)."
+    },
+    {
+      "id": "b2b30b75-18d8-4be6-a830-585201cd7198",
+      "dok": 2,
+      "text": "Match the scale factor to its effect on the figure.",
+      "type": "matching",
+      "question": "Match the scale factor to its effect on the figure.",
+      "matchingPairs": [
+        {
+          "id": "b45b36eb-5f3d-4372-bd60-6745572e7b52",
+          "option": "Enlargement",
+          "prompt": "Scale Factor = 2"
+        },
+        {
+          "id": "e222b114-32ac-496f-b03f-22841371b104",
+          "option": "Reduction",
+          "prompt": "Scale Factor = 0.5"
+        },
+        {
+          "id": "daf1e5f5-0abe-4d3e-8884-374262648eb9",
+          "option": "Stays the same",
+          "prompt": "Scale Factor = 1"
+        }
+      ],
+      "misconception": "Check work carefully.",
+      "correct_answer": "Solve using mathematical rules.",
+      "matchingOptions": [
+        {
+          "id": "o1",
+          "text": "Enlargement"
+        },
+        {
+          "id": "o2",
+          "text": "Reduction"
+        },
+        {
+          "id": "o3",
+          "text": "Stays the same"
+        },
+        {
+          "id": "o4",
+          "text": "Turns upside down"
+        }
+      ],
+      "matchingPrompts": [
+        {
+          "id": "p1",
+          "text": "Scale Factor = 2"
+        },
+        {
+          "id": "p2",
+          "text": "Scale Factor = 0.5"
+        },
+        {
+          "id": "p3",
+          "text": "Scale Factor = 1"
+        }
+      ]
+    },
+    {
+      "id": "b1807421-053f-4751-8473-78ba31d74553",
+      "dok": 2,
+      "text": "Match the original point and scale factor to the new point.",
+      "type": "matching",
+      "question": "Match the original point and scale factor to the new point.",
+      "matchingPairs": [
+        {
+          "id": "abe084ea-0bfe-4f36-8bfc-124dd9af5c93",
+          "option": "(6, 12)",
+          "prompt": "(2, 4), k=3"
+        },
+        {
+          "id": "17c7025f-c862-454c-a02a-a1834b31c454",
+          "option": "(2, -1)",
+          "prompt": "(8, -4), k=0.25"
+        },
+        {
+          "id": "addbc146-b958-4389-a93b-de03049e2d3d",
+          "option": "(-2, 10)",
+          "prompt": "(-1, 5), k=2"
+        }
+      ],
+      "misconception": "Check work carefully.",
+      "correct_answer": "Solve using mathematical rules.",
+      "matchingOptions": [
+        {
+          "id": "o1",
+          "text": "(6, 12)"
+        },
+        {
+          "id": "o2",
+          "text": "(2, -1)"
+        },
+        {
+          "id": "o3",
+          "text": "(-2, 10)"
+        },
+        {
+          "id": "o4",
+          "text": "(5, 7)"
+        }
+      ],
+      "matchingPrompts": [
+        {
+          "id": "p1",
+          "text": "(2, 4), k=3"
+        },
+        {
+          "id": "p2",
+          "text": "(8, -4), k=0.25"
+        },
+        {
+          "id": "p3",
+          "text": "(-1, 5), k=2"
+        }
+      ]
+    },
+    {
+      "id": "dc4df757-2ae3-45bf-b5e8-cc0bf31d2498",
+      "dok": 3,
+      "text": "Sort the scale factors based on whether they produce an enlargement or reduction.",
+      "type": "drag-and-drop",
+      "options": [
+        "k = 5",
+        "k = 1/4",
+        "k = 0.99",
+        "k = 1.01"
+      ],
+      "prompts": [
+        {
+          "id": "Q1",
+          "text": "Enlargement"
+        },
+        {
+          "id": "Q2",
+          "text": "Reduction"
+        }
+      ],
+      "question": "Sort the scale factors based on whether they produce an enlargement or reduction.",
+      "misconception": "Check work carefully.",
+      "correct_answer": "Solve using mathematical rules.",
+      "dragAndDropAnswers": {
+        "Q1": [
+          "k = 5",
+          "k = 1.01"
+        ],
+        "Q2": [
+          "k = 1/4",
+          "k = 0.99"
+        ]
+      }
+    },
+    {
+      "id": "d5ddd12f-1ceb-48c5-a201-ced976b1d201",
+      "dok": 2,
+      "text": "Sort the properties by whether they are preserved under dilation.",
+      "type": "drag-and-drop",
+      "options": [
+        "Angle measures",
+        "Shape",
+        "Side lengths",
+        "Area"
+      ],
+      "prompts": [
+        {
+          "id": "Rot",
+          "text": "Preserved"
+        },
+        {
+          "id": "Ref",
+          "text": "Not Preserved"
+        }
+      ],
+      "question": "Sort the properties by whether they are preserved under dilation.",
+      "misconception": "Check work carefully.",
+      "correct_answer": "Solve using mathematical rules.",
+      "dragAndDropAnswers": {
+        "Ref": [
+          "Side lengths",
+          "Area"
+        ],
+        "Rot": [
+          "Angle measures",
+          "Shape"
+        ]
+      }
+    },
+    {
+      "id": "8a536c1b-ac3e-4770-a764-ff6fffdb7862",
+      "dok": 3,
+      "text": "A point P(4, 8) is dilated by a scale factor of 0.25. What is the final y-coordinate?",
+      "type": "numerical-entry",
+      "question": "A point P(4, 8) is dilated by a scale factor of 0.25. What is the final y-coordinate?",
+      "correctAnswer": "2",
+      "misconception": "Check work carefully.",
+      "correct_answer": "2"
+    },
+    {
+      "id": "a0eeefff-bc4c-45ad-9fd3-100d672350fd",
+      "dok": 3,
+      "text": "Triangle ABC has an area of 10. It is dilated by a scale factor of 4. What is the new area?",
+      "type": "numerical-entry",
+      "question": "Triangle ABC has an area of 10. It is dilated by a scale factor of 4. What is the new area?",
+      "correctAnswer": "160",
+      "misconception": "Check work carefully.",
+      "correct_answer": "160"
+    }
+  ]
+}

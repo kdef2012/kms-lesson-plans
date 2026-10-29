@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+</head>
+<body>
+  <div id="slide-content"></div>
+  <script>
+    const slidesJSON = {"content":"$\\\\sqrt{20}$"};
+    const parsedContent = marked.parse(slidesJSON.content);
+    document.getElementById('slide-content').innerHTML = parsedContent;
+    console.log('DOM Content:', document.getElementById('slide-content').innerHTML);
+    
+    // Simulate what LessonPlanViewer does:
+    let retries = 0;
+    function tryRenderMath() {
+      if (window.renderMathInElement) {
+        window.renderMathInElement(document.getElementById('slide-content'), {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ]
+        });
+      } else if (retries < 10) {
+        retries++;
+        setTimeout(tryRenderMath, 200);
+      }
+    }
+    tryRenderMath();
+  </script>
+</body>
+</html>
