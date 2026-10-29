@@ -397,6 +397,7 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
   useEffect(() => { fetch('/shoutouts.json').then(r => r.json()).then(d => setShoutouts(d)).catch(e => console.error('No shoutouts found', e)); }, []);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isGeneratingPptx, setIsGeneratingPptx] = useState(false);
 
         const handlePrintGuidedNotes = () => {
     const printWindow = window.open('', '_blank');
@@ -543,10 +544,19 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
   };
 
   
-    const handlePrintSlideshow = () => {
+    const handlePrintSlideshow = async () => {
+      if (isGeneratingPptx) return;
+      setIsGeneratingPptx(true);
+      try {
         const pres = new pptxgen();
         buildPlanPptx(pres, plan, weekPlans);
-        pres.writeFile({ fileName: (cleanMathText(plan.topic) || "Lesson") + "_Slides.pptx" });
+        await pres.writeFile({ fileName: (cleanMathText(plan?.topic) || "Lesson") + "_Slides.pptx" });
+      } catch (err) {
+        console.error("Failed to generate PPTX:", err);
+        alert("Could not generate PowerPoint: " + (err?.message || err));
+      } finally {
+        setIsGeneratingPptx(false);
+      }
     };
 
     const handlePrintSlideshowOld = () => {
@@ -1525,23 +1535,32 @@ ${renderMath(getLessonPurpose(p || plan))}
     };
 
 
-    const handlePrintWeekSlideshows = () => {
+    const handlePrintWeekSlideshows = async () => {
+      if (isGeneratingPptx) return;
+      setIsGeneratingPptx(true);
+      try {
         const pres = new pptxgen();
         pres.layout = 'LAYOUT_16x9';
         if (weekPlans && weekPlans.length > 0) {
-            weekPlans.forEach(p => {
-                let sep = pres.addSlide();
-                sep.background = { color: '4B0082' };
-                sep.addShape(pres.ShapeType.rect, { x: 2.0, y: 1.4, w: 6.0, h: 0.08, fill: { color: '008080' } });
-                const dayLabel = p.date_start ? format(parseISO(p.date_start), 'EEEE (M/d)') : 'Lesson';
-                sep.addText(dayLabel, { x: 0.5, y: 1.8, w: '90%', fontSize: 32, bold: true, color: '99F6E4', align: 'center' });
-                const cleanTopic = cleanMathText(p.topic || "Daily Lesson");
-                const tFont = cleanTopic.length > 50 ? 24 : (cleanTopic.length > 30 ? 28 : 34);
-                sep.addText(cleanTopic, { x: 0.5, y: 2.6, w: '90%', fontSize: tFont, bold: true, color: 'FFFFFF', align: 'center' });
-                buildPlanPptx(pres, p, weekPlans);
-            });
+          weekPlans.forEach(p => {
+            let sep = pres.addSlide();
+            sep.background = { color: '4B0082' };
+            sep.addShape(pres.ShapeType.rect, { x: 2.0, y: 1.4, w: 6.0, h: 0.08, fill: { color: '008080' } });
+            const dayLabel = p.date_start ? format(parseISO(p.date_start), 'EEEE (M/d)') : 'Lesson';
+            sep.addText(dayLabel, { x: 0.5, y: 1.8, w: '90%', fontSize: 32, bold: true, color: '99F6E4', align: 'center' });
+            const cleanTopic = cleanMathText(p.topic || "Daily Lesson");
+            const tFont = cleanTopic.length > 50 ? 24 : (cleanTopic.length > 30 ? 28 : 34);
+            sep.addText(cleanTopic, { x: 0.5, y: 2.6, w: '90%', fontSize: tFont, bold: true, color: 'FFFFFF', align: 'center' });
+            buildPlanPptx(pres, p, weekPlans);
+          });
         }
-        pres.writeFile({ fileName: "Week_Slides.pptx" });
+        await pres.writeFile({ fileName: "Week_Slides.pptx" });
+      } catch (err) {
+        console.error("Failed to generate Week PPTX:", err);
+        alert("Could not generate Week PowerPoint: " + (err?.message || err));
+      } finally {
+        setIsGeneratingPptx(false);
+      }
     };
 
     const handlePrintWeekSlideshowsOld = () => {
@@ -1613,8 +1632,13 @@ ${renderMath(getLessonPurpose(p || plan))}
             <button onClick={handlePresent} className="btn" style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--kms-purple)', color: 'white' }}>
               <Play size={18} /> Present
             </button>
-            <button onClick={handlePrintSlideshow} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Download size={18} /> PPT Slideshow
+            <button 
+              onClick={handlePrintSlideshow} 
+              disabled={isGeneratingPptx}
+              className="btn-secondary" 
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: isGeneratingPptx ? 0.7 : 1, cursor: isGeneratingPptx ? 'wait' : 'pointer' }}
+            >
+              <Download size={18} /> {isGeneratingPptx ? 'Generating PPT...' : 'PPT Slideshow'}
             </button>
             
             <button onClick={handlePrintGuidedNotes} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1632,8 +1656,13 @@ ${renderMath(getLessonPurpose(p || plan))}
           {weekPlans && weekPlans.length > 0 && (
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #eee' }}>
               <span style={{ display: 'flex', alignItems: 'center', fontWeight: 'bold', color: 'var(--kms-purple)', marginRight: '10px' }}>Entire Week:</span>
-              <button onClick={handlePrintWeekSlideshows} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Download size={18} /> PPT Week Slideshows
+              <button 
+                onClick={handlePrintWeekSlideshows} 
+                disabled={isGeneratingPptx}
+                className="btn-secondary" 
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: isGeneratingPptx ? 0.7 : 1, cursor: isGeneratingPptx ? 'wait' : 'pointer' }}
+              >
+                <Download size={18} /> {isGeneratingPptx ? 'Generating PPT...' : 'PPT Week Slideshows'}
               </button>
             </div>
           )}

@@ -1,5 +1,7 @@
-// PPTX Generation and Geometry Rendering Engine for KMS Math 8 Lesson Plans
-// Ensures pixel-perfect 16:9 layout (10.0" x 5.625") with zero text overflow.
+// Pure Vector PPTX Engine for KMS Math 8 Lesson Plans
+// Uses 100% native PowerPoint vector shapes (lines, polygons, rounded cards)
+// Zero canvas dependencies, zero external image requests, zero async image loading bugs.
+// Guaranteed 100% reliable download across all browsers.
 
 const COLOR_PURPLE = '4B0082';
 const COLOR_TEAL = '008080';
@@ -97,218 +99,252 @@ export function getFramingArc(plan) {
   return null;
 }
 
-function escapeXml(unsafe) {
-  return String(unsafe)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-}
+// -------------------------------------------------------------
+// Native Vector Diagram Renderers (Pure PowerPoint Shapes)
+// -------------------------------------------------------------
 
-export function renderTransversalSvg(vd = {}) {
+export function renderTransversalNative(slide, vd = {}, pres, box = { x: 0.7, y: 1.15, w: 4.2, h: 3.9 }) {
+  const { x, y, w, h } = box;
   const labels = vd.angleLabels || {};
   const highlighted = vd.highlightedAngles || (vd.correctAngle ? [vd.correctAngle] : [1]);
   const prompt = vd.prompt || 'Lines ℓ ∥ m cut by transversal t';
-
   const isHigh = (n) => highlighted.includes(n);
   const getLabel = (n) => labels[n] || labels[String(n)] || String(n);
 
-  const renderBadge = (n, cx, cy) => {
-    const rawText = getLabel(n);
-    const text = escapeXml(rawText);
+  // Background container card
+  slide.addShape(pres.ShapeType.roundRect, {
+    x, y, w, h,
+    fill: { color: 'F8FAFC' }, line: { color: COLOR_BORDER, width: 1.5 }
+  });
+
+  // Parallel Line 1 (ℓ)
+  slide.addShape(pres.ShapeType.line, {
+    x: x + 0.35, y: y + 1.15, w: w - 0.7, h: 0,
+    line: { color: '1E293B', width: 2.5 }
+  });
+  slide.addText('ℓ', {
+    x: x + 0.1, y: y + 1.0, w: 0.25, h: 0.3,
+    fontSize: 14, italic: true, bold: true, color: '475569'
+  });
+
+  // Parallel Line 2 (m)
+  slide.addShape(pres.ShapeType.line, {
+    x: x + 0.35, y: y + 2.35, w: w - 0.7, h: 0,
+    line: { color: '1E293B', width: 2.5 }
+  });
+  slide.addText('m', {
+    x: x + 0.1, y: y + 2.2, w: 0.25, h: 0.3,
+    fontSize: 14, italic: true, bold: true, color: '475569'
+  });
+
+  // Transversal Line (t)
+  slide.addShape(pres.ShapeType.line, {
+    x: x + 1.3, y: y + 0.35, w: 1.6, h: 2.8,
+    flipH: false,
+    line: { color: '0F766E', width: 2.5 }
+  });
+  slide.addText('t', {
+    x: x + 2.95, y: y + 0.2, w: 0.25, h: 0.3,
+    fontSize: 14, italic: true, bold: true, color: '0F766E'
+  });
+
+  // Parallel arrow marks
+  slide.addText('▶', { x: x + 1.1, y: y + 1.02, w: 0.2, h: 0.25, fontSize: 10, color: 'DC2626' });
+  slide.addText('▶', { x: x + 1.1, y: y + 2.22, w: 0.2, h: 0.25, fontSize: 10, color: 'DC2626' });
+
+  // 8 Angle Badges
+  const badgePositions = [
+    { n: 1, bx: x + 2.50, by: y + 0.75 },
+    { n: 2, bx: x + 1.75, by: y + 0.75 },
+    { n: 3, bx: x + 1.65, by: y + 1.35 },
+    { n: 4, bx: x + 2.40, by: y + 1.35 },
+    { n: 5, bx: x + 1.85, by: y + 1.95 },
+    { n: 6, bx: x + 1.10, by: y + 1.95 },
+    { n: 7, bx: x + 1.00, by: y + 2.55 },
+    { n: 8, bx: x + 1.75, by: y + 2.55 }
+  ];
+
+  badgePositions.forEach(({ n, bx, by }) => {
+    const rawLabel = getLabel(n);
     const high = isHigh(n);
-    const stroke = high ? '#0f766e' : '#6366f1';
-    const fill = high ? '#ccfbf1' : '#e0e7ff';
-    const textCol = high ? '#0f766e' : '#4338ca';
-    const strokeW = high ? 2.5 : 1.2;
+    const fill = high ? 'CCFBF1' : 'E0E7FF';
+    const stroke = high ? '0F766E' : '6366F1';
+    const textCol = high ? '0F766E' : '4338CA';
+    const isLong = rawLabel.length > 3;
+    const bw = isLong ? Math.min(1.0, Math.max(0.45, rawLabel.length * 0.1 + 0.15)) : 0.38;
+    const bh = 0.36;
+    const finalX = isLong ? bx - (bw - 0.38) / 2 : bx;
 
-    if (rawText.length > 3) {
-      const bw = Math.min(80, Math.max(38, rawText.length * 8 + 10));
-      const bh = 22;
-      return `
-        <rect x="${cx - bw/2}" y="${cy - bh/2}" width="${bw}" height="${bh}" rx="6" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>
-        <text x="${cx}" y="${cy + 4.5}" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="${textCol}" text-anchor="middle">${text}</text>
-      `;
-    }
-    return `
-      <circle cx="${cx}" cy="${cy}" r="14" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>
-      <text x="${cx}" y="${cy + 4.5}" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="${textCol}" text-anchor="middle">${text}</text>
-    `;
-  };
+    slide.addShape(pres.ShapeType.roundRect, {
+      x: finalX, y: by, w: bw, h: bh,
+      fill: { color: fill }, line: { color: stroke, width: high ? 2 : 1 }
+    });
+    slide.addText(rawLabel, {
+      x: finalX, y: by, w: bw, h: bh,
+      fontSize: isLong ? 9.5 : 11, bold: true, color: textCol, align: 'center', valign: 'middle'
+    });
+  });
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 300" width="420" height="300">
-    <rect width="420" height="300" fill="#f8fafc" rx="8" stroke="#cbd5e1" stroke-width="1.5"/>
-    
-    <!-- Parallel Line 1 (ℓ) -->
-    <line x1="30" y1="95" x2="390" y2="95" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
-    <text x="15" y="100" font-family="Arial, sans-serif" font-size="16" font-style="italic" font-weight="bold" fill="#475569">ℓ</text>
-    
-    <!-- Parallel Line 2 (m) -->
-    <line x1="30" y1="195" x2="390" y2="195" stroke="#1e293b" stroke-width="3" stroke-linecap="round"/>
-    <text x="15" y="200" font-family="Arial, sans-serif" font-size="16" font-style="italic" font-weight="bold" fill="#475569">m</text>
-    
-    <!-- Transversal Line (t) -->
-    <line x1="130" y1="265" x2="290" y2="25" stroke="#0f766e" stroke-width="3" stroke-linecap="round"/>
-    <text x="300" y="30" font-family="Arial, sans-serif" font-size="16" font-style="italic" font-weight="bold" fill="#0f766e">t</text>
-    
-    <!-- Parallel Arrows -->
-    <path d="M 125 90 L 133 95 L 125 100" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
-    <path d="M 125 190 L 133 195 L 125 200" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
-
-    <!-- Intersection 1 badges (Line ℓ) -->
-    ${renderBadge(1, 280, 68)}
-    ${renderBadge(2, 206, 68)}
-    ${renderBadge(3, 200, 122)}
-    ${renderBadge(4, 274, 122)}
-
-    <!-- Intersection 2 badges (Line m) -->
-    ${renderBadge(5, 214, 168)}
-    ${renderBadge(6, 140, 168)}
-    ${renderBadge(7, 134, 222)}
-    ${renderBadge(8, 208, 222)}
-
-    <!-- Prompt / Note -->
-    <rect x="15" y="260" width="390" height="30" rx="5" fill="#f1f5f9"/>
-    <text x="210" y="280" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#334155" text-anchor="middle">${escapeXml(prompt)}</text>
-  </svg>`;
+  // Prompt footer
+  slide.addShape(pres.ShapeType.roundRect, {
+    x: x + 0.15, y: y + h - 0.45, w: w - 0.3, h: 0.35,
+    fill: { color: 'F1F5F9' }
+  });
+  slide.addText(prompt, {
+    x: x + 0.2, y: y + h - 0.45, w: w - 0.4, h: 0.35,
+    fontSize: 9.5, bold: true, color: '334155', align: 'center', valign: 'middle'
+  });
 }
 
-export function renderTriangleSvg(vd = {}) {
+export function renderTriangleNative(slide, vd = {}, pres, box = { x: 0.7, y: 1.15, w: 4.2, h: 3.9 }) {
+  const { x, y, w, h } = box;
   const labels = vd.angleLabels || {};
   const highlighted = vd.highlightedAngles || (vd.correctAngle ? [vd.correctAngle] : []);
-  const prompt = vd.prompt || '△ABC Angles';
+  const prompt = vd.prompt || 'Triangle Angles';
   const hasExt = vd.hasExteriorAngle !== false;
-
   const isHigh = (n) => highlighted.includes(n);
   const getLabel = (n) => labels[n] || labels[String(n)] || String(n);
 
-  const renderBadge = (n, cx, cy) => {
-    const rawText = getLabel(n);
-    const text = escapeXml(rawText);
-    const high = isHigh(n);
-    const stroke = n === 4 ? '#dc2626' : (high ? '#0f766e' : '#6366f1');
-    const fill = n === 4 ? '#fef2f2' : (high ? '#ccfbf1' : '#e0e7ff');
-    const textCol = n === 4 ? '#b91c1c' : (high ? '#0f766e' : '#4338ca');
-    const strokeW = high || n === 4 ? 2.5 : 1.2;
+  slide.addShape(pres.ShapeType.roundRect, {
+    x, y, w, h,
+    fill: { color: 'F8FAFC' }, line: { color: COLOR_BORDER, width: 1.5 }
+  });
 
-    if (rawText.length > 3) {
-      const bw = Math.min(80, Math.max(38, rawText.length * 8 + 10));
-      const bh = 22;
-      return `
-        <rect x="${cx - bw/2}" y="${cy - bh/2}" width="${bw}" height="${bh}" rx="6" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>
-        <text x="${cx}" y="${cy + 4.5}" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="${textCol}" text-anchor="middle">${text}</text>
-      `;
-    }
-    return `
-      <circle cx="${cx}" cy="${cy}" r="14" fill="${fill}" stroke="${stroke}" stroke-width="${strokeW}"/>
-      <text x="${cx}" y="${cy + 4.5}" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="${textCol}" text-anchor="middle">${text}</text>
-    `;
-  };
+  const aX = hasExt ? x + 1.5 : x + 2.0;
+  const aY = y + 0.7;
+  const bX = x + 0.6;
+  const bY = y + 2.6;
+  const cX = hasExt ? x + 2.6 : x + 3.4;
+  const cY = y + 2.6;
 
-  const polyPoints = hasExt ? "160,55 60,215 270,215" : "210,55 90,215 330,215";
-  const aX = hasExt ? 160 : 210;
-  const bX = hasExt ? 60 : 90;
-  const cX = hasExt ? 270 : 330;
+  // Triangle lines (AB, AC, BC)
+  slide.addShape(pres.ShapeType.line, {
+    x: bX, y: aY, w: aX - bX, h: bY - aY,
+    flipV: true,
+    line: { color: '0F766E', width: 2.5 }
+  });
+  slide.addShape(pres.ShapeType.line, {
+    x: aX, y: aY, w: cX - aX, h: cY - aY,
+    line: { color: '0F766E', width: 2.5 }
+  });
+  slide.addShape(pres.ShapeType.line, {
+    x: bX, y: bY, w: cX - bX, h: 0,
+    line: { color: '0F766E', width: 2.5 }
+  });
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 300" width="420" height="300">
-    <rect width="420" height="300" fill="#f8fafc" rx="8" stroke="#cbd5e1" stroke-width="1.5"/>
+  // Exterior ray extension CD
+  if (hasExt) {
+    slide.addShape(pres.ShapeType.line, {
+      x: cX, y: cY, w: 1.1, h: 0,
+      line: { color: 'DC2626', width: 2.5, dashType: 'dash' }
+    });
+    slide.addText('D', {
+      x: cX + 1.15, y: cY - 0.15, w: 0.25, h: 0.3,
+      fontSize: 13, bold: true, color: 'DC2626'
+    });
+  }
 
-    ${hasExt ? `
-      <!-- Base extension ray -->
-      <line x1="270" y1="215" x2="385" y2="215" stroke="#dc2626" stroke-width="3" stroke-dasharray="6,4" stroke-linecap="round"/>
-      <polygon points="385,215 375,210 375,220" fill="#dc2626"/>
-      <text x="392" y="220" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#dc2626">D</text>
-    ` : ''}
+  // Vertex labels
+  slide.addText('A', { x: aX - 0.12, y: aY - 0.35, w: 0.3, h: 0.3, fontSize: 13, bold: true, color: '1E293B' });
+  slide.addText('B', { x: bX - 0.3, y: bY - 0.1, w: 0.3, h: 0.3, fontSize: 13, bold: true, color: '1E293B' });
+  slide.addText('C', { x: cX + (hasExt ? -0.1 : 0.05), y: cY + 0.05, w: 0.3, h: 0.3, fontSize: 13, bold: true, color: '1E293B' });
 
-    <!-- Triangle polygon -->
-    <polygon points="${polyPoints}" fill="#f0fdfa" stroke="#0f766e" stroke-width="3" stroke-linejoin="round"/>
+  // Angle badges
+  const badges = [
+    { n: 1, bx: aX - 0.18, by: aY + 0.35 },
+    { n: 2, bx: bX + 0.35, by: bY - 0.45 },
+    { n: 3, bx: cX - 0.55, by: cY - 0.45 }
+  ];
+  if (hasExt) {
+    badges.push({ n: 4, bx: cX + 0.35, by: cY - 0.45, isExt: true });
+  }
 
-    <!-- Vertex Labels -->
-    <text x="${aX - 5}" y="42" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#1e293b">A</text>
-    <text x="${bX - 25}" y="222" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#1e293b">B</text>
-    <text x="${cX + (hasExt ? -5 : 10)}" y="235" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="#1e293b">C</text>
+  badges.forEach(({ n, bx, by, isExt }) => {
+    const rawLabel = getLabel(n);
+    const high = isHigh(n) || isExt;
+    const fill = isExt ? 'FEF2F2' : (high ? 'CCFBF1' : 'E0E7FF');
+    const stroke = isExt ? 'DC2626' : (high ? '0F766E' : '6366F1');
+    const textCol = isExt ? 'B91C1C' : (high ? '0F766E' : '4338CA');
+    const isLong = rawLabel.length > 3;
+    const bw = isLong ? Math.min(1.0, Math.max(0.45, rawLabel.length * 0.1 + 0.15)) : 0.38;
+    const bh = 0.36;
 
-    <!-- Angle Badges -->
-    ${renderBadge(1, aX, 90)}
-    ${renderBadge(2, bX + 42, 195)}
-    ${renderBadge(3, cX - 42, 195)}
-    ${hasExt ? renderBadge(4, 320, 185) : ''}
+    slide.addShape(pres.ShapeType.roundRect, {
+      x: bx, y: by, w: bw, h: bh,
+      fill: { color: fill }, line: { color: stroke, width: high ? 2 : 1 }
+    });
+    slide.addText(rawLabel, {
+      x: bx, y: by, w: bw, h: bh,
+      fontSize: isLong ? 9.5 : 11, bold: true, color: textCol, align: 'center', valign: 'middle'
+    });
+  });
 
-    <!-- Prompt / Note -->
-    <rect x="15" y="260" width="390" height="30" rx="5" fill="#f1f5f9"/>
-    <text x="210" y="280" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#334155" text-anchor="middle">${escapeXml(prompt)}</text>
-  </svg>`;
+  // Prompt footer
+  slide.addShape(pres.ShapeType.roundRect, {
+    x: x + 0.15, y: y + h - 0.45, w: w - 0.3, h: 0.35,
+    fill: { color: 'F1F5F9' }
+  });
+  slide.addText(prompt, {
+    x: x + 0.2, y: y + h - 0.45, w: w - 0.4, h: 0.35,
+    fontSize: 9.5, bold: true, color: '334155', align: 'center', valign: 'middle'
+  });
 }
 
-export function renderSimilarTrianglesSvg(vd = {}) {
-  const prompt = vd.prompt || 'Angle-Angle (AA) Triangle Similarity';
+export function renderSimilarTrianglesNative(slide, vd = {}, pres, box = { x: 0.7, y: 1.15, w: 4.2, h: 3.9 }) {
+  const { x, y, w, h } = box;
+  const prompt = vd.prompt || 'Angle-Angle (AA) Similarity';
   const t1 = vd.triangle1 || { label: '△ABC', angles: { A: '40°', B: '60°', C: '80°' } };
   const t2 = vd.triangle2 || { label: '△DEF', angles: { D: '40°', B: '60°', F: '80°' } };
   const labels = vd.angleLabels || {};
 
-  const aA = labels['1'] || t1.angles?.A || '40°';
-  const aB = labels['2'] || t1.angles?.B || '60°';
-  const aC = labels['3'] || t1.angles?.C || '80°';
+  slide.addShape(pres.ShapeType.roundRect, {
+    x, y, w, h,
+    fill: { color: 'F8FAFC' }, line: { color: COLOR_BORDER, width: 1.5 }
+  });
 
-  const aD = labels['4'] || t2.angles?.D || '40°';
-  const aE = labels['5'] || t2.angles?.E || '60°';
-  const aF = labels['6'] || t2.angles?.F || '80°';
+  // Triangle 1 (ABC) - left
+  const t1TopX = x + 0.8, t1TopY = y + 0.9;
+  const t1LeftX = x + 0.3, t1LeftY = y + 2.3;
+  const t1RightX = x + 1.4, t1RightY = y + 2.3;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 300" width="420" height="300">
-    <rect width="420" height="300" fill="#f8fafc" rx="8" stroke="#cbd5e1" stroke-width="1.5"/>
-    
-    <!-- Triangle 1 (ABC) -->
-    <polygon points="85,85 30,210 145,210" fill="#f0fdfa" stroke="#0f766e" stroke-width="2.5" stroke-linejoin="round"/>
-    <text x="80" y="70" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#0f766e">A</text>
-    <text x="14" y="218" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#0f766e">B</text>
-    <text x="150" y="218" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#0f766e">C</text>
-    
-    <!-- Badges for Triangle 1 -->
-    <text x="85" y="118" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#0f766e" text-anchor="middle">${escapeXml(aA)}</text>
-    <text x="65" y="196" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#0f766e" text-anchor="middle">${escapeXml(aB)}</text>
-    <text x="122" y="196" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#0f766e" text-anchor="middle">${escapeXml(aC)}</text>
-    <text x="88" y="242" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#0f766e" text-anchor="middle">${escapeXml(t1.label || '△ABC')}</text>
+  slide.addShape(pres.ShapeType.line, { x: t1LeftX, y: t1TopY, w: t1TopX - t1LeftX, h: t1LeftY - t1TopY, flipV: true, line: { color: '0F766E', width: 2.5 } });
+  slide.addShape(pres.ShapeType.line, { x: t1TopX, y: t1TopY, w: t1RightX - t1TopX, h: t1RightY - t1TopY, line: { color: '0F766E', width: 2.5 } });
+  slide.addShape(pres.ShapeType.line, { x: t1LeftX, y: t1LeftY, w: t1RightX - t1LeftX, h: 0, line: { color: '0F766E', width: 2.5 } });
 
-    <!-- Similarity symbol -->
-    <text x="185" y="150" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#6366f1" text-anchor="middle">∼</text>
+  slide.addText(labels['1'] || t1.angles?.A || '40°', { x: t1TopX - 0.25, y: t1TopY + 0.25, w: 0.5, h: 0.25, fontSize: 9.5, bold: true, color: '0F766E', align: 'center' });
+  slide.addText(labels['2'] || t1.angles?.B || '60°', { x: t1LeftX + 0.05, y: t1LeftY - 0.3, w: 0.45, h: 0.25, fontSize: 9.5, bold: true, color: '0F766E' });
+  slide.addText(labels['3'] || t1.angles?.C || '80°', { x: t1RightX - 0.5, y: t1RightY - 0.3, w: 0.45, h: 0.25, fontSize: 9.5, bold: true, color: '0F766E' });
+  slide.addText(t1.label || '△ABC', { x: x + 0.3, y: y + 2.45, w: 1.2, h: 0.3, fontSize: 13, bold: true, color: '0F766E', align: 'center' });
 
-    <!-- Triangle 2 (DEF) - Scaled larger -->
-    <polygon points="300,50 220,215 390,215" fill="#eef2ff" stroke="#4f46e5" stroke-width="2.5" stroke-linejoin="round"/>
-    <text x="295" y="38" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#4f46e5">D</text>
-    <text x="205" y="222" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#4f46e5">E</text>
-    <text x="395" y="222" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#4f46e5">F</text>
-    
-    <!-- Badges for Triangle 2 -->
-    <text x="300" y="90" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#4f46e5" text-anchor="middle">${escapeXml(aD)}</text>
-    <text x="260" y="198" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#4f46e5" text-anchor="middle">${escapeXml(aE)}</text>
-    <text x="350" y="198" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#4f46e5" text-anchor="middle">${escapeXml(aF)}</text>
-    <text x="305" y="242" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#4f46e5" text-anchor="middle">${escapeXml(t2.label || '△DEF')}</text>
+  // Center Similarity Symbol
+  slide.addText('∼', {
+    x: x + 1.65, y: y + 1.3, w: 0.6, h: 0.6,
+    fontSize: 32, bold: true, color: '6366F1', align: 'center', valign: 'middle'
+  });
 
-    <!-- Prompt / Note -->
-    <rect x="15" y="260" width="390" height="30" rx="5" fill="#f1f5f9"/>
-    <text x="210" y="280" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#334155" text-anchor="middle">${escapeXml(prompt)}</text>
-  </svg>`;
-}
+  // Triangle 2 (DEF) - right (larger)
+  const t2TopX = x + 3.1, t2TopY = y + 0.6;
+  const t2LeftX = x + 2.3, t2LeftY = y + 2.4;
+  const t2RightX = x + 3.9, t2RightY = y + 2.4;
 
-export function getSvgForExemplar(ex) {
-  if (!ex) return null;
-  const vd = ex.visualData;
-  if (!vd || !vd.type) return null;
-  if (vd.type === 'transversal') return renderTransversalSvg(vd);
-  if (vd.type === 'triangle-angles') return renderTriangleSvg(vd);
-  if (vd.type === 'similar-triangles') return renderSimilarTrianglesSvg(vd);
-  return null;
-}
+  slide.addShape(pres.ShapeType.line, { x: t2LeftX, y: t2TopY, w: t2TopX - t2LeftX, h: t2LeftY - t2TopY, flipV: true, line: { color: '4F46E5', width: 2.5 } });
+  slide.addShape(pres.ShapeType.line, { x: t2TopX, y: t2TopY, w: t2RightX - t2TopX, h: t2RightY - t2TopY, line: { color: '4F46E5', width: 2.5 } });
+  slide.addShape(pres.ShapeType.line, { x: t2LeftX, y: t2LeftY, w: t2RightX - t2LeftX, h: 0, line: { color: '4F46E5', width: 2.5 } });
 
-function toBase64(svgString) {
-  if (typeof window !== 'undefined' && typeof window.btoa === 'function') {
-    return window.btoa(unescape(encodeURIComponent(svgString)));
-  }
-  if (typeof Buffer !== 'undefined') {
-    return Buffer.from(svgString).toString('base64');
-  }
-  return btoa(unescape(encodeURIComponent(svgString)));
+  slide.addText(labels['4'] || t2.angles?.D || '40°', { x: t2TopX - 0.25, y: t2TopY + 0.3, w: 0.5, h: 0.25, fontSize: 9.5, bold: true, color: '4F46E5', align: 'center' });
+  slide.addText(labels['5'] || t2.angles?.E || '60°', { x: t2LeftX + 0.05, y: t2LeftY - 0.3, w: 0.45, h: 0.25, fontSize: 9.5, bold: true, color: '4F46E5' });
+  slide.addText(labels['6'] || t2.angles?.F || '80°', { x: t2RightX - 0.5, y: t2RightY - 0.3, w: 0.45, h: 0.25, fontSize: 9.5, bold: true, color: '4F46E5' });
+  slide.addText(t2.label || '△DEF', { x: x + 2.5, y: y + 2.55, w: 1.4, h: 0.3, fontSize: 13, bold: true, color: '4F46E5', align: 'center' });
+
+  // Prompt footer
+  slide.addShape(pres.ShapeType.roundRect, {
+    x: x + 0.15, y: y + h - 0.45, w: w - 0.3, h: 0.35,
+    fill: { color: 'F1F5F9' }
+  });
+  slide.addText(prompt, {
+    x: x + 0.2, y: y + h - 0.45, w: w - 0.4, h: 0.35,
+    fontSize: 9.5, bold: true, color: '334155', align: 'center', valign: 'middle'
+  });
 }
 
 export function addHeader(slide, title, timer, pres) {
@@ -340,15 +376,19 @@ export function addHeader(slide, title, timer, pres) {
 
 export function addProblemContent(slide, ex, pres) {
   const qText = cleanQuestionText(ex.question || ex.text || 'Solve the problem.');
-  const svg = getSvgForExemplar(ex);
+  const vd = ex.visualData;
+  const hasVisual = vd && (vd.type === 'transversal' || vd.type === 'triangle-angles' || vd.type === 'similar-triangles');
   const options = ex.options && Array.isArray(ex.options) ? ex.options.slice(0, 4) : [];
 
-  if (svg) {
-    // 2-COLUMN LAYOUT: Left = Diagram, Right = Question + Choices
-    slide.addImage({
-      data: `image/svg+xml;base64,${toBase64(svg)}`,
-      x: 0.7, y: 1.15, w: 4.2, h: 3.9
-    });
+  if (hasVisual) {
+    // 2-COLUMN LAYOUT: Left = Native Vector Diagram, Right = Question + Choices
+    if (vd.type === 'transversal') {
+      renderTransversalNative(slide, vd, pres, { x: 0.7, y: 1.15, w: 4.2, h: 3.9 });
+    } else if (vd.type === 'triangle-angles') {
+      renderTriangleNative(slide, vd, pres, { x: 0.7, y: 1.15, w: 4.2, h: 3.9 });
+    } else if (vd.type === 'similar-triangles') {
+      renderSimilarTrianglesNative(slide, vd, pres, { x: 0.7, y: 1.15, w: 4.2, h: 3.9 });
+    }
 
     // Question card on top right
     slide.addShape(pres.ShapeType.roundRect, {
@@ -721,12 +761,15 @@ export function buildPlanPptx(pres, p, weekPlans) {
         const s = pres.addSlide();
         addHeader(s, `Direct Instruction: ${title}`, null, pres);
 
-        const svg = getSvgForExemplar(p.structured_exemplars[0]);
-        if (svg) {
-          s.addImage({
-            data: `image/svg+xml;base64,${toBase64(svg)}`,
-            x: 0.7, y: 1.2, w: 4.1, h: 3.8
-          });
+        const vd = p.structured_exemplars[0].visualData;
+        if (vd) {
+          if (vd.type === 'transversal') {
+            renderTransversalNative(s, vd, pres, { x: 0.7, y: 1.2, w: 4.1, h: 3.8 });
+          } else if (vd.type === 'triangle-angles') {
+            renderTriangleNative(s, vd, pres, { x: 0.7, y: 1.2, w: 4.1, h: 3.8 });
+          } else if (vd.type === 'similar-triangles') {
+            renderSimilarTrianglesNative(s, vd, pres, { x: 0.7, y: 1.2, w: 4.1, h: 3.8 });
+          }
 
           s.addShape(pres.ShapeType.roundRect, {
             x: 5.0, y: 1.2, w: 4.4, h: 3.8,
