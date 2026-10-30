@@ -164,6 +164,7 @@ const getFramingArc = (p, allPlans) => {
 
 import { supabase } from '../supabaseClient';
 import pptxgen from 'pptxgenjs';
+import html2canvas from 'html2canvas';
 import { MessageSquare, Send, Download, Image as ImageIcon, AlertTriangle, CheckCircle2, Printer, Play } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { buildPlanPptx, cleanMathText } from './pptxExport';
@@ -249,8 +250,33 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       const highlighted = v.highlightedAngles || [];
       const labels = v.angleLabels || {};
       
-      html += '<div style="margin: 10px auto; display: flex; justify-content: center; max-width: 440px;">' +
-        '<svg viewBox="0 0 500 200" width="100%" height="auto" style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; max-height: 22vh;">' +
+      const renderAngle = (id, cx, cy) => {
+        const isHigh = highlighted.includes(id);
+        const rawLabel = labels[id] || String(id);
+        // 2 distinct font colors (Admin requirement):
+        // Color 1: Bold Royal Purple (#6b21a8) for highlighted target angles
+        // Color 2: Deep Navy Slate (#0f172a) for unhighlighted context angles
+        const fontColor = isHigh ? '#6b21a8' : '#0f172a';
+        const fontSize = isHigh ? '20' : '17';
+        const fontWeight = '800';
+
+        if (rawLabel.length > 2) {
+          const pillW = Math.max(54, rawLabel.length * 10.5 + 16);
+          const pillH = 28;
+          return '<g>' +
+            '<rect x="' + (cx - pillW / 2) + '" y="' + (cy - pillH / 2) + '" width="' + pillW + '" height="' + pillH + '" rx="6" fill="rgba(255, 255, 255, 0.95)" stroke="' + (isHigh ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (isHigh ? '1.5' : '1') + '"/>' +
+            '<text x="' + cx + '" y="' + (cy + 6) + '" fill="' + fontColor + '" font-size="' + fontSize + '" font-weight="' + fontWeight + '" text-anchor="middle" font-family="Segoe UI, sans-serif">' + rawLabel + '</text>' +
+          '</g>';
+        }
+
+        return '<g>' +
+          '<circle cx="' + cx + '" cy="' + cy + '" r="15" fill="rgba(255, 255, 255, 0.90)" stroke="' + (isHigh ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (isHigh ? '1.5' : '0.8') + '"/>' +
+          '<text x="' + cx + '" y="' + (cy + 6) + '" fill="' + fontColor + '" font-size="' + fontSize + '" font-weight="' + fontWeight + '" text-anchor="middle" font-family="Segoe UI, sans-serif">' + rawLabel + '</text>' +
+        '</g>';
+      };
+
+      html += '<div style="margin: 12px auto; display: flex; justify-content: center; width: 100%; max-width: 780px;">' +
+        '<svg viewBox="0 0 540 230" width="100%" height="auto" style="background: white; border-radius: 12px; border: 1.5px solid #cbd5e1; max-height: 40vh; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">' +
           '<defs>' +
             '<marker id="arrow-blue-lms" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">' +
               '<path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#2563eb"/>' +
@@ -259,67 +285,77 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
               '<path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#0f172a"/>' +
             '</marker>' +
           '</defs>' +
-          '<line x1="40" y1="60" x2="460" y2="60" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue-lms)" marker-start="url(#arrow-blue-lms)"/>' +
-          '<text x="470" y="65" fill="#2563eb" font-size="14" font-weight="bold">ℓ</text>' +
-          '<line x1="40" y1="140" x2="460" y2="140" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow-blue-lms)" marker-start="url(#arrow-blue-lms)"/>' +
-          '<text x="470" y="145" fill="#2563eb" font-size="14" font-weight="bold">m</text>' +
-          '<line x1="140" y1="180" x2="360" y2="20" stroke="#0f172a" stroke-width="3.5" marker-end="url(#arrow-trans-lms)" marker-start="url(#arrow-trans-lms)"/>' +
-          '<text x="365" y="25" fill="#0f172a" font-size="14" font-weight="bold">t</text>' +
-          '<circle cx="305" cy="60" r="4" fill="#0f172a"/>' +
-          '<circle cx="195" cy="140" r="4" fill="#0f172a"/>' +
-          '<rect x="325" y="32" width="28" height="20" rx="3" fill="' + (highlighted.includes(1) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(1) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="339" y="46" fill="' + (highlighted.includes(1) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[1] || '1') + '</text>' +
-          '<rect x="261" y="32" width="28" height="20" rx="3" fill="' + (highlighted.includes(2) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(2) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="275" y="46" fill="' + (highlighted.includes(2) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[2] || '2') + '</text>' +
-          '<rect x="250" y="65" width="' + ((labels[3] || '3').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(3) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(3) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (250 + ((labels[3] || '3').length > 2 ? 23 : 14)) + '" y="79" fill="' + (highlighted.includes(3) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[3] || '3') + '</text>' +
-          '<rect x="315" y="65" width="' + ((labels[4] || '4').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(4) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(4) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (315 + ((labels[4] || '4').length > 2 ? 23 : 14)) + '" y="79" fill="' + (highlighted.includes(4) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[4] || '4') + '</text>' +
-          '<rect x="205" y="112" width="' + ((labels[5] || '5').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(5) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(5) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (205 + ((labels[5] || '5').length > 2 ? 23 : 14)) + '" y="126" fill="' + (highlighted.includes(5) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[5] || '5') + '</text>' +
-          '<rect x="145" y="112" width="' + ((labels[6] || '6').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(6) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(6) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (145 + ((labels[6] || '6').length > 2 ? 23 : 14)) + '" y="126" fill="' + (highlighted.includes(6) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[6] || '6') + '</text>' +
-          '<rect x="145" y="145" width="28" height="20" rx="3" fill="' + (highlighted.includes(7) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(7) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="159" y="159" fill="' + (highlighted.includes(7) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[7] || '7') + '</text>' +
-          '<rect x="205" y="145" width="28" height="20" rx="3" fill="' + (highlighted.includes(8) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(8) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="219" y="159" fill="' + (highlighted.includes(8) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[8] || '8') + '</text>' +
+          '<line x1="30" y1="65" x2="490" y2="65" stroke="#2563eb" stroke-width="3.5" marker-end="url(#arrow-blue-lms)" marker-start="url(#arrow-blue-lms)"/>' +
+          '<text x="502" y="71" fill="#2563eb" font-size="16" font-weight="bold">ℓ</text>' +
+          '<line x1="30" y1="155" x2="490" y2="155" stroke="#2563eb" stroke-width="3.5" marker-end="url(#arrow-blue-lms)" marker-start="url(#arrow-blue-lms)"/>' +
+          '<text x="502" y="161" fill="#2563eb" font-size="16" font-weight="bold">m</text>' +
+          '<line x1="130" y1="205" x2="390" y2="18" stroke="#0f172a" stroke-width="4" marker-end="url(#arrow-trans-lms)" marker-start="url(#arrow-trans-lms)"/>' +
+          '<text x="398" y="24" fill="#0f172a" font-size="16" font-weight="bold">t</text>' +
+          '<circle cx="325" cy="65" r="4.5" fill="#0f172a"/>' +
+          '<circle cx="195" cy="155" r="4.5" fill="#0f172a"/>' +
+          renderAngle(1, 375, 42) +
+          renderAngle(2, 275, 42) +
+          renderAngle(3, 270, 90) +
+          renderAngle(4, 380, 90) +
+          renderAngle(5, 245, 132) +
+          renderAngle(6, 145, 132) +
+          renderAngle(7, 140, 180) +
+          renderAngle(8, 250, 180) +
         '</svg>' +
       '</div>';
+    }
+
     if (ex.visualData && ex.visualData.type === 'triangle-angles') {
       const v = ex.visualData;
       const highlighted = v.highlightedAngles || [];
       const labels = v.angleLabels || {};
       const hasExt = v.hasExteriorAngle !== false;
 
-      html += '<div style="margin: 10px auto; display: flex; justify-content: center; max-width: 440px;">' +
-        '<svg viewBox="0 0 460 190" width="100%" height="auto" style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; max-height: 22vh;">' +
+      const renderTriAngle = (id, cx, cy) => {
+        const isHigh = highlighted.includes(id);
+        const rawLabel = labels[id] || String(id);
+        const fontColor = isHigh ? '#6b21a8' : '#0f172a';
+        const fontSize = isHigh ? '20' : '17';
+        const fontWeight = '800';
+
+        if (rawLabel.length > 2) {
+          const pillW = Math.max(54, rawLabel.length * 10.5 + 16);
+          const pillH = 28;
+          return '<g>' +
+            '<rect x="' + (cx - pillW / 2) + '" y="' + (cy - pillH / 2) + '" width="' + pillW + '" height="' + pillH + '" rx="6" fill="rgba(255, 255, 255, 0.95)" stroke="' + (isHigh ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (isHigh ? '1.5' : '1') + '"/>' +
+            '<text x="' + cx + '" y="' + (cy + 6) + '" fill="' + fontColor + '" font-size="' + fontSize + '" font-weight="' + fontWeight + '" text-anchor="middle" font-family="Segoe UI, sans-serif">' + rawLabel + '</text>' +
+          '</g>';
+        }
+
+        return '<g>' +
+          '<circle cx="' + cx + '" cy="' + cy + '" r="15" fill="rgba(255, 255, 255, 0.90)" stroke="' + (isHigh ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (isHigh ? '1.5' : '0.8') + '"/>' +
+          '<text x="' + cx + '" y="' + (cy + 6) + '" fill="' + fontColor + '" font-size="' + fontSize + '" font-weight="' + fontWeight + '" text-anchor="middle" font-family="Segoe UI, sans-serif">' + rawLabel + '</text>' +
+        '</g>';
+      };
+
+      html += '<div style="margin: 12px auto; display: flex; justify-content: center; width: 100%; max-width: 780px;">' +
+        '<svg viewBox="0 0 540 230" width="100%" height="auto" style="background: white; border-radius: 12px; border: 1.5px solid #cbd5e1; max-height: 40vh; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">' +
           '<defs>' +
             '<marker id="arrow-blue-tri" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">' +
               '<path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#2563eb"/>' +
             '</marker>' +
           '</defs>' +
-          '<polygon points="210,35 90,150 310,150" fill="rgba(59, 130, 246, 0.05)" stroke="none"/>' +
-          (hasExt ? '<line x1="310" y1="150" x2="420" y2="150" stroke="#64748b" stroke-width="2.5" stroke-dasharray="4 4" marker-end="url(#arrow-blue-tri)"/>' : '') +
-          '<line x1="90" y1="150" x2="310" y2="150" stroke="#0f172a" stroke-width="3"/>' +
-          '<line x1="90" y1="150" x2="210" y2="35" stroke="#0f172a" stroke-width="3"/>' +
-          '<line x1="210" y1="35" x2="310" y2="150" stroke="#0f172a" stroke-width="3"/>' +
-          '<circle cx="210" cy="35" r="3.5" fill="#0f172a"/>' +
-          '<text x="210" y="25" fill="#0f172a" font-size="12" font-weight="bold" text-anchor="middle">A</text>' +
-          '<circle cx="90" cy="150" r="3.5" fill="#0f172a"/>' +
-          '<text x="75" y="165" fill="#0f172a" font-size="12" font-weight="bold" text-anchor="middle">B</text>' +
-          '<circle cx="310" cy="150" r="3.5" fill="#0f172a"/>' +
-          '<text x="310" y="170" fill="#0f172a" font-size="12" font-weight="bold" text-anchor="middle">C</text>' +
-          (hasExt ? '<text x="430" y="154" fill="#64748b" font-size="11" font-weight="bold">D</text>' : '') +
-          '<rect x="195" y="65" width="' + ((labels[1] || '1').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(1) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(1) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (195 + ((labels[1] || '1').length > 2 ? 23 : 14)) + '" y="79" fill="' + (highlighted.includes(1) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[1] || '1') + '</text>' +
-          '<rect x="120" y="130" width="' + ((labels[2] || '2').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(2) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(2) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (120 + ((labels[2] || '2').length > 2 ? 23 : 14)) + '" y="144" fill="' + (highlighted.includes(2) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[2] || '2') + '</text>' +
-          '<rect x="260" y="130" width="' + ((labels[3] || '3').length > 2 ? 46 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(3) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(3) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (260 + ((labels[3] || '3').length > 2 ? 23 : 14)) + '" y="144" fill="' + (highlighted.includes(3) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[3] || '3') + '</text>' +
-          (hasExt ? (
-            '<rect x="335" y="120" width="' + ((labels[4] || '4').length > 2 ? 48 : 28) + '" height="20" rx="3" fill="' + (highlighted.includes(4) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(4) ? '#d97706' : '#cbd5e1') + '"/>' +
-            '<text x="' + (335 + ((labels[4] || '4').length > 2 ? 24 : 14)) + '" y="134" fill="' + (highlighted.includes(4) ? '#b45309' : '#334155') + '" font-size="11" font-weight="bold" text-anchor="middle">' + (labels[4] || '4') + '</text>'
-          ) : '') +
+          '<polygon points="240,40 100,180 370,180" fill="rgba(59, 130, 246, 0.05)" stroke="none"/>' +
+          (hasExt ? '<line x1="370" y1="180" x2="500" y2="180" stroke="#64748b" stroke-width="3" stroke-dasharray="5 5" marker-end="url(#arrow-blue-tri)"/>' : '') +
+          '<line x1="100" y1="180" x2="370" y2="180" stroke="#0f172a" stroke-width="3.5"/>' +
+          '<line x1="100" y1="180" x2="240" y2="40" stroke="#0f172a" stroke-width="3.5"/>' +
+          '<line x1="240" y1="40" x2="370" y2="180" stroke="#0f172a" stroke-width="3.5"/>' +
+          '<circle cx="240" cy="40" r="4.5" fill="#0f172a"/>' +
+          '<text x="240" y="28" fill="#0f172a" font-size="15" font-weight="bold" text-anchor="middle">A</text>' +
+          '<circle cx="100" cy="180" r="4.5" fill="#0f172a"/>' +
+          '<text x="80" y="196" fill="#0f172a" font-size="15" font-weight="bold" text-anchor="middle">B</text>' +
+          '<circle cx="370" cy="180" r="4.5" fill="#0f172a"/>' +
+          '<text x="370" y="202" fill="#0f172a" font-size="15" font-weight="bold" text-anchor="middle">C</text>' +
+          (hasExt ? '<text x="510" y="185" fill="#64748b" font-size="14" font-weight="bold">D</text>' : '') +
+          renderTriAngle(1, 240, 78) +
+          renderTriAngle(2, 145, 160) +
+          renderTriAngle(3, 315, 160) +
+          (hasExt ? renderTriAngle(4, 420, 150) : '') +
         '</svg>' +
       '</div>';
     }
@@ -351,24 +387,22 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
           '<text x="340" y="26" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">D</text>' +
           '<text x="240" y="175" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">E</text>' +
           '<text x="440" y="175" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">F</text>' +
-          '<rect x="96" y="65" width="' + ((labels[1] || '1').length > 2 ? 42 : 26) + '" height="18" rx="3" fill="' + (highlighted.includes(1) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(1) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (96 + ((labels[1] || '1').length > 2 ? 21 : 13)) + '" y="78" fill="' + (highlighted.includes(1) ? '#b45309' : '#334155') + '" font-size="10" font-weight="bold" text-anchor="middle">' + (labels[1] || '1') + '</text>' +
-          '<rect x="70" y="136" width="' + ((labels[2] || '2').length > 2 ? 42 : 26) + '" height="18" rx="3" fill="' + (highlighted.includes(2) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(2) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (70 + ((labels[2] || '2').length > 2 ? 21 : 13)) + '" y="149" fill="' + (highlighted.includes(2) ? '#b45309' : '#334155') + '" font-size="10" font-weight="bold" text-anchor="middle">' + (labels[2] || '2') + '</text>' +
-          '<rect x="130" y="136" width="' + ((labels[3] || '3').length > 2 ? 42 : 26) + '" height="18" rx="3" fill="' + (highlighted.includes(3) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(3) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (130 + ((labels[3] || '3').length > 2 ? 21 : 13)) + '" y="149" fill="' + (highlighted.includes(3) ? '#b45309' : '#334155') + '" font-size="10" font-weight="bold" text-anchor="middle">' + (labels[3] || '3') + '</text>' +
-          '<rect x="325" y="60" width="' + ((labels[4] || '4').length > 2 ? 44 : 28) + '" height="18" rx="3" fill="' + (highlighted.includes(4) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(4) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (325 + ((labels[4] || '4').length > 2 ? 22 : 14)) + '" y="73" fill="' + (highlighted.includes(4) ? '#b45309' : '#334155') + '" font-size="10" font-weight="bold" text-anchor="middle">' + (labels[4] || '4') + '</text>' +
-          '<rect x="280" y="145" width="' + ((labels[5] || '5').length > 2 ? 44 : 28) + '" height="18" rx="3" fill="' + (highlighted.includes(5) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(5) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (280 + ((labels[5] || '5').length > 2 ? 22 : 14)) + '" y="158" fill="' + (highlighted.includes(5) ? '#b45309' : '#334155') + '" font-size="10" font-weight="bold" text-anchor="middle">' + (labels[5] || '5') + '</text>' +
-          '<rect x="375" y="145" width="' + ((labels[6] || '6').length > 2 ? 44 : 28) + '" height="18" rx="3" fill="' + (highlighted.includes(6) ? '#fef3c7' : '#f8fafc') + '" stroke="' + (highlighted.includes(6) ? '#d97706' : '#cbd5e1') + '"/>' +
-          '<text x="' + (375 + ((labels[6] || '6').length > 2 ? 22 : 14)) + '" y="158" fill="' + (highlighted.includes(6) ? '#b45309' : '#334155') + '" font-size="10" font-weight="bold" text-anchor="middle">' + (labels[6] || '6') + '</text>' +
+          '<rect x="96" y="65" width="' + ((labels[1] || '1').length > 2 ? 46 : 28) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(1) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(1) ? '1.5' : '0.8') + '"/>' +
+          '<text x="' + (96 + ((labels[1] || '1').length > 2 ? 23 : 14)) + '" y="79" fill="' + (highlighted.includes(1) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(1) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[1] || '1') + '</text>' +
+          '<rect x="70" y="136" width="' + ((labels[2] || '2').length > 2 ? 46 : 28) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(2) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(2) ? '1.5' : '0.8') + '"/>' +
+          '<text x="' + (70 + ((labels[2] || '2').length > 2 ? 23 : 14)) + '" y="150" fill="' + (highlighted.includes(2) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(2) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[2] || '2') + '</text>' +
+          '<rect x="130" y="136" width="' + ((labels[3] || '3').length > 2 ? 46 : 28) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(3) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(3) ? '1.5' : '0.8') + '"/>' +
+          '<text x="' + (130 + ((labels[3] || '3').length > 2 ? 23 : 14)) + '" y="150" fill="' + (highlighted.includes(3) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(3) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[3] || '3') + '</text>' +
+          '<rect x="325" y="60" width="' + ((labels[4] || '4').length > 2 ? 48 : 30) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(4) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(4) ? '1.5' : '0.8') + '"/>' +
+          '<text x="' + (325 + ((labels[4] || '4').length > 2 ? 24 : 15)) + '" y="74" fill="' + (highlighted.includes(4) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(4) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[4] || '4') + '</text>' +
+          '<rect x="280" y="145" width="' + ((labels[5] || '5').length > 2 ? 48 : 30) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(5) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(5) ? '1.5' : '0.8') + '"/>' +
+          '<text x="' + (280 + ((labels[5] || '5').length > 2 ? 24 : 15)) + '" y="159" fill="' + (highlighted.includes(5) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(5) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[5] || '5') + '</text>' +
+          '<rect x="375" y="145" width="' + ((labels[6] || '6').length > 2 ? 48 : 30) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(6) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(6) ? '1.5' : '0.8') + '"/>' +
+          '<text x="' + (375 + ((labels[6] || '6').length > 2 ? 24 : 15)) + '" y="159" fill="' + (highlighted.includes(6) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(6) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[6] || '6') + '</text>' +
         '</svg>' +
       '</div>';
     }
 
-    }
-    
     if (ex.type === 'matching' && ex.matchingPrompts && ex.matchingOptions) {
         const shiftedOptions = [...ex.matchingOptions];
         if (shiftedOptions.length > 1) {
@@ -398,6 +432,7 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
   const [isGeneratingPptx, setIsGeneratingPptx] = useState(false);
+  const [pptxProgress, setPptxProgress] = useState(null);
 
         const handlePrintGuidedNotes = () => {
     const printWindow = window.open('', '_blank');
@@ -544,68 +579,10 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
   };
 
   
-    const handlePrintSlideshow = async () => {
-      if (isGeneratingPptx) return;
-      setIsGeneratingPptx(true);
-      try {
-        const pres = new pptxgen();
-        buildPlanPptx(pres, plan, weekPlans);
-        await pres.writeFile({ fileName: (cleanMathText(plan?.topic) || "Lesson") + "_Slides.pptx" });
-      } catch (err) {
-        console.error("Failed to generate PPTX:", err);
-        alert("Could not generate PowerPoint: " + (err?.message || err));
-      } finally {
-        setIsGeneratingPptx(false);
-      }
-    };
-
-    const handlePrintSlideshowOld = () => {
-      const printWindow = window.open('', '_blank');
-      if (!printWindow) {
-        alert("Slideshow popup was blocked! Please allow popups.");
-        return;
-      }
-
-      // We need to re-generate the slides array here just like handlePresent does
-      
-      const slideHTML = buildSlideshowHTML(plan);
-
-      const html = 
-        '<html>' +
-          '<head>' +
-            '<title>' + plan.topic + ' - Slideshow PDF</title>' +
-            '<link rel="stylesheet" href="' + window.location.origin + '/katex/katex.min.css">' +
-            '<style>' +
-              '@page { size: landscape; margin: 0; }' +
-              'body { font-family: \'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif; padding: 0; margin: 0; background: #f0f0f0; }' +
-              '.slide-page { width: 10in; height: 7.5in; margin: 0 auto; background: white; padding: 0.5in; box-sizing: border-box; page-break-after: always; display: flex; flex-direction: column; position: relative; border: 1px solid #ccc; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }' +
-              '.slide-header { font-size: 32px; font-weight: bold; color: white; background: #4a148c; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center; }' +
-              '.slide-content { font-size: 24px; line-height: 1.6; color: #333; flex: 1; }' +
-              '.problems-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }' +
-              '@media print { body { background: white; } .slide-page { border: none; box-shadow: none; width: 100%; height: 100vh; } }' +
-            '</style>' +
-          '</head>' +
-          '<body>' +
-            slideHTML +
-            '<script>' +
-              'window.onload = function() { setTimeout(() => window.print(), 1000); };' +
-            ('<' + '/script>') + '<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"><' + '/script>' + '<script>setTimeout(() => { if(document.querySelector(".confetti-container")) confetti({particleCount: 150, spread: 180}); }, 500);<' + '/script>' + '</body>' +
-        '</html>';
-        
-      printWindow.document.write(html);
-      printWindow.document.close();
-    };
-
-    const handlePresent = () => {
-
-    const presentWindow = window.open('', '_blank');
-    if (!presentWindow) {
-      alert("Presentation popup was blocked! Please allow popups for this site to view the presentation.");
-      return;
-    }
     
-    // Helper to generate the essential question
-      const getEssentialQuestion = (obj) => {
+  const buildPresentationSlides = (p, wPlans) => {
+    if (!p) return [];
+    const getEssentialQuestion = (obj) => {
         if (!obj) return "What is the core concept of today's lesson?";
         let topic = obj.toLowerCase();
         const m = topic.match(/involving (.*?) \(/);
@@ -620,8 +597,8 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
         
       // Guided Practice (2 problems - separate slides)
       const guidedSlides = [];
-      if (plan.structured_exemplars && plan.structured_exemplars.length >= 2 && plan.date_start !== '2026-10-29') {
-        const guidedChunk = plan.structured_exemplars.slice(0, 2);
+      if (p.structured_exemplars && p.structured_exemplars.length >= 2 && p.date_start !== '2026-10-29') {
+        const guidedChunk = p.structured_exemplars.slice(0, 2);
         guidedChunk.forEach((ex, idx) => {
           guidedSlides.push({
             title: `8. Guided Practice (Problem ${idx + 1})`,
@@ -636,8 +613,8 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
   
       // Group Practice (4 problems - separate slides)
       const groupSlides = [];
-      if (plan.structured_exemplars && plan.structured_exemplars.length >= 6) {
-        const groupChunk = plan.structured_exemplars.slice(2, 6);
+      if (p.structured_exemplars && p.structured_exemplars.length >= 6) {
+        const groupChunk = p.structured_exemplars.slice(2, 6);
         groupChunk.forEach((ex, idx) => {
           groupSlides.push({
             title: `10. Group Practice (Problem ${idx + 3})`,
@@ -652,19 +629,19 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
 
 
     // Independent Practice (every problem on its own slide for presentation)
-      if (plan.date_start === '2026-10-29') {
+      if (p.date_start === '2026-10-29') {
         problemsSlides.push({ 
           title: "12. Independent Practice (Directions)", 
           content: `<div class="transition-banner" style="background: #ecfdf5; border-left: 4px solid #059669; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 15px; color: #065f46; text-align: left;"><strong>🔁 Transition:</strong> <em>We just collaborated and checked our reasoning as a team... Now we will work independently on TicketOut... so we can build confidence and prove individual mastery.</em></div><strong>Directions:</strong>\nOpen TicketOut on your Chromebook/device to complete today's interactive practice problems on Alternate Interior Angles & Transversals.\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
         });
-      } else if (plan.structured_exemplars && plan.structured_exemplars.length > 0) {
+      } else if (p.structured_exemplars && p.structured_exemplars.length > 0) {
         // Always show the directions first with a 15 min timer
         problemsSlides.push({ 
           title: "12. Independent Practice (Directions)", 
-          content: `<strong>Directions:</strong>\n${plan.independent_practice || 'Complete the assigned independent practice problems quietly.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
+          content: `<strong>Directions:</strong>\n${p.independent_practice || 'Complete the assigned independent practice problems quietly.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
         });
         
-        const indChunk = plan.structured_exemplars.slice(6, 14);
+        const indChunk = p.structured_exemplars.slice(6, 14);
         indChunk.forEach((ex, idx) => {
           problemsSlides.push({
             title: `12. Independent Practice (Problem ${idx + 7})`,
@@ -678,21 +655,21 @@ ${renderQuestionContent(ex, idx)}
       } else {
       problemsSlides.push({ 
         title: "11. Independent Practice", 
-        content: `<strong>Directions:</strong>\n${plan.independent_practice || 'Complete the assigned independent practice problems quietly.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
+        content: `<strong>Directions:</strong>\n${p.independent_practice || 'Complete the assigned independent practice problems quietly.'}\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
       });
     }
 
     // Process Direct Instruction into multiple slides if --- is present
     
       const diSlides = [];
-      if (plan.direct_instruction) {
-        let diText = plan.direct_instruction;
+      if (p.direct_instruction) {
+        let diText = p.direct_instruction;
         // Strip out any Differentiation and Lesson Purpose from student-facing slides
         diText = diText.split(/##+\s*(?:Tiered\s+)?Differentiation/i)[0];
         diText = diText.replace(/##+\s*(?:Lesson\s+)?Purpose[\s\S]*?(?=##\s+[A-Z]|$)/i, '').trim();
 
         // Inject telescope launch for 9/21
-        if (plan.date_start === '2026-09-21' && !diText.includes('telescope')) {
+        if (p.date_start === '2026-09-21' && !diText.includes('telescope')) {
            diText = diText.replace(/## Direct Instruction\s*---/i, "## Launch: The Telescope\n---\nImagine you are looking at a star through a telescope. The star doesn't change its actual shape, but the lenses inside the telescope *scale* the image up so your eye can see it. Today, we are going to learn how to mathematically build that telescope.\n\n## Direct Instruction\n---");
         }
         
@@ -715,7 +692,7 @@ ${renderQuestionContent(ex, idx)}
 
           let content = block.trim();
 
-          if (plan.structured_exemplars && plan.structured_exemplars.length >= 2) {
+          if (p.structured_exemplars && p.structured_exemplars.length >= 2) {
              // Guided Practice slides will present Problem 1 and Problem 2 ("We Do").
              // Strip out any redundant Example 1/2 blocks from Direct Instruction ("I Do") to eliminate extra focus problems and slide duplication.
              content = content.replace(/\*\*Example\s*1\*\*[\s\S]*/i, '').trim();
@@ -729,16 +706,16 @@ ${renderQuestionContent(ex, idx)}
              const ex1split = content.split('**Example 2**');
              diSlides.push({
               title: `${title} (Example 1)`,
-              content: ex1split[0].replace(/\*\*Example 1\*\*/g, `**Example 1**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 0 ? renderQuestionContent(plan.structured_exemplars[0]) : ''}</div>`) + `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
+              content: ex1split[0].replace(/\*\*Example 1\*\*/g, `**Example 1**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${p.structured_exemplars && p.structured_exemplars.length > 0 ? renderQuestionContent(p.structured_exemplars[0]) : ''}</div>`) + `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
              });
              diSlides.push({
               title: `${title} (Example 2)`,
-              content: (`**Example 2**` + ex1split[1]).replace(/\*\*Example 2\*\*/g, `**Example 2**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 1 ? renderQuestionContent(plan.structured_exemplars[1]) : ''}</div>`) + `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
+              content: (`**Example 2**` + ex1split[1]).replace(/\*\*Example 2\*\*/g, `**Example 2**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${p.structured_exemplars && p.structured_exemplars.length > 1 ? renderQuestionContent(p.structured_exemplars[1]) : ''}</div>`) + `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
              });
           } else {
              diSlides.push({
               title: title,
-              content: content.replace(/\*\*Example 1\*\*/g, `**Example 1**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 0 ? renderQuestionContent(plan.structured_exemplars[0]) : ''}</div>`).replace(/\*\*Example 2\*\*/g, `**Example 2**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${plan.structured_exemplars && plan.structured_exemplars.length > 1 ? renderQuestionContent(plan.structured_exemplars[1]) : ''}</div>`) + (content.includes('Example') ? `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` : '')
+              content: content.replace(/\*\*Example 1\*\*/g, `**Example 1**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${p.structured_exemplars && p.structured_exemplars.length > 0 ? renderQuestionContent(p.structured_exemplars[0]) : ''}</div>`).replace(/\*\*Example 2\*\*/g, `**Example 2**: <div style="background: white; color: black; border-radius: 4px; padding: 10px; margin: 10px 0;">${p.structured_exemplars && p.structured_exemplars.length > 1 ? renderQuestionContent(p.structured_exemplars[1]) : ''}</div>`) + (content.includes('Example') ? `\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` : '')
              });
           }
         });
@@ -753,15 +730,15 @@ ${renderQuestionContent(ex, idx)}
       'Thumbs Up/Down: Show a thumbs up if you feel confident about the concept, or thumbs down if you need more help.',
       'Cold Call Prep: Take 1 minute to formulate summary in your head. A random student will be called upon.'
     ];
-    // Hash the topic string to consistently pick the same CFU strategy for the same lesson plan
-    const hashStr = (plan.topic || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    // Hash the topic string to consistently pick the same CFU strategy for the same lesson p
+    const hashStr = (p.topic || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const defaultCfu = cfuStrategies[hashStr % cfuStrategies.length];
 
     
-      var cfuText = plan.checks_for_understanding && plan.checks_for_understanding.length > 0 
-        ? plan.checks_for_understanding[0].cfu 
+      var cfuText = p.checks_for_understanding && p.checks_for_understanding.length > 0 
+        ? p.checks_for_understanding[0].cfu 
         : defaultCfu;
-      if (plan.date_start === '2026-09-21') {
+      if (p.date_start === '2026-09-21') {
          cfuText = 'Cold Call Prep: Take 1 minute to formulate summary in your head. A random student will be called upon.';
       }
 
@@ -774,15 +751,15 @@ ${renderQuestionContent(ex, idx)}
           <li>Communicate with respect</li>
           <li>Raise your hand</li>
         </ul>
-        <div><img src="${window.location.origin}${getDayOwlImage(plan.date_start)}" alt="Owl" onerror="this.onerror=null; this.src='${window.location.origin}/owl-transparent.png';" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
+        <div><img src="${window.location.origin}${getDayOwlImage(p.date_start)}" alt="Owl" onerror="this.onerror=null; this.src='${window.location.origin}/owl-transparent.png';" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
       </div>`;
 
 
     const baseSlides = [
-      { title: plan.topic ? plan.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
+      { title: p.topic ? p.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
       { 
         title: "1. Spiraled Do Now", 
-        content: `**Directions:**\n${(plan.do_now || '').split('\n').filter(l => !l.trim().match(/^\*?Answer:/i)).join('\n')}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
+        content: `**Directions:**\n${(p.do_now || '').split('\n').filter(l => !l.trim().match(/^\*?Answer:/i)).join('\n')}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
       },
       { 
         title: "2. Classroom Expectations", 
@@ -791,7 +768,7 @@ ${renderQuestionContent(ex, idx)}
       { 
         title: "3. Today @ A Glance", 
         content: (() => {
-          const framing = getFramingArc(plan, weekPlans);
+          const framing = getFramingArc(p, wPlans);
           const framingHTML = framing ? `
 <div style="background: white; border-radius: 10px; padding: 16px 20px; border-left: 6px solid var(--kms-teal); box-shadow: 0 4px 8px rgba(0,0,0,0.06); margin-bottom: 20px; text-align: left;">
   <div style="font-size: 14px; font-weight: 800; color: var(--kms-teal-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">🎯 Learning Progression Framing</div>
@@ -800,21 +777,21 @@ ${renderQuestionContent(ex, idx)}
   <p style="font-size: 17px; margin: 6px 0; line-height: 1.5; color: #1e293b;"><strong>💡 So that...</strong> ${framing.soThat}</p>
 </div>
 ` : '';
-          return `${framingHTML}**Essential question of the day:**\n${getEssentialQuestion(plan.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket`;
+          return `${framingHTML}**Essential question of the day:**\n${getEssentialQuestion(p.objective_3m)}\n\n**Agenda**\n- Do Now - completed\n- Notes - Direct Instruction\n- Guided & Group Practice: We Do\n- Independent Practice\n- Exit Ticket`;
         })()
       },
-      ...(getLessonPurpose(plan) ? [{
+      ...(getLessonPurpose(p) ? [{
         title: `Lesson Purpose ("Our Why?")`,
         content: `<div style="background: white; border-radius: 8px; padding: 25px; border-left: 6px solid var(--kms-purple); box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 22px; line-height: 1.6;">
 ### Our Why
-${getLessonPurpose(plan)}
+${getLessonPurpose(p)}
 </div>`
       }] : []),
       { 
         title: "4. Student Shoutouts", 
           content: (() => {
              
-             const dateShoutouts = getShoutoutsForDate(shoutouts, plan.date_start);
+             const dateShoutouts = getShoutoutsForDate(shoutouts, p.date_start);
              const s1 = dateShoutouts[0] || "Student 1";
              const s2 = dateShoutouts[1] || "Student 2";
              const s3 = dateShoutouts[2] || "Student 3";
@@ -840,33 +817,35 @@ ${getLessonPurpose(plan)}
         },
 ...diSlides,
       { 
-        title: `7. Formative Assessment #1 (${(plan.checks_for_understanding && plan.checks_for_understanding[0]?.method) || 'Turn & Talk'})`, 
-        content: `**Check for understanding (${(plan.checks_for_understanding && plan.checks_for_understanding[0]?.method) || 'Turn & Talk'}):**\n${(plan.checks_for_understanding && plan.checks_for_understanding[0]?.cfu) || cfuText}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>` 
+        title: `7. Formative Assessment #1 (${(p.checks_for_understanding && p.checks_for_understanding[0]?.method) || 'Turn & Talk'})`, 
+        content: `**Check for understanding (${(p.checks_for_understanding && p.checks_for_understanding[0]?.method) || 'Turn & Talk'}):**\n${(p.checks_for_understanding && p.checks_for_understanding[0]?.cfu) || cfuText}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>` 
       },
       ...guidedSlides,
-      ...(plan.checks_for_understanding && plan.checks_for_understanding[1] ? [{
-        title: `9. Formative Assessment #2 (${plan.checks_for_understanding[1].method || 'Cold Call'})`,
-        content: `**Check for understanding (${plan.checks_for_understanding[1].method || 'Cold Call'}):**\n${plan.checks_for_understanding[1].cfu}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>`
+      ...(p.checks_for_understanding && p.checks_for_understanding[1] ? [{
+        title: `9. Formative Assessment #2 (${p.checks_for_understanding[1].method || 'Cold Call'})`,
+        content: `**Check for understanding (${p.checks_for_understanding[1].method || 'Cold Call'}):**\n${p.checks_for_understanding[1].cfu}` + 
+          (p.checks_for_understanding[1].cfu.toLowerCase().includes('angle') ? `\n\n${renderQuestionContent({ visualData: { type: 'transversal', angleLabels: { '1': '115°', '5': '?' }, highlightedAngles: [1, 5] } })}` : '') +
+          `\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>`
       }] : []),
       { 
         title: "Classroom Expectations (Reminder)", 
         content: expectationsContent 
       },
       ...groupSlides,
-      ...(plan.checks_for_understanding && plan.checks_for_understanding[2] ? [{
-        title: `11. Formative Assessment #3 (${plan.checks_for_understanding[2].method || 'Warm Call'})`,
-        content: `**Check for understanding (${plan.checks_for_understanding[2].method || 'Warm Call'}):**\n${plan.checks_for_understanding[2].cfu}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>`
+      ...(p.checks_for_understanding && p.checks_for_understanding[2] ? [{
+        title: `11. Formative Assessment #3 (${p.checks_for_understanding[2].method || 'Warm Call'})`,
+        content: `**Check for understanding (${p.checks_for_understanding[2].method || 'Warm Call'}):**\n${p.checks_for_understanding[2].cfu}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>`
       }] : []),
       { 
         title: "Classroom Expectations (Reminder)", 
         content: expectationsContent 
       },
       ...problemsSlides,
-      ...(plan.checks_for_understanding && plan.checks_for_understanding[3] ? [{
-        title: `13. Formative Assessment #4 (${plan.checks_for_understanding[3].method || 'Batch Call'})`,
-        content: `**Check for understanding (${plan.checks_for_understanding[3].method || 'Batch Call'}):**\n${plan.checks_for_understanding[3].cfu}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>`
+      ...(p.checks_for_understanding && p.checks_for_understanding[3] ? [{
+        title: `13. Formative Assessment #4 (${p.checks_for_understanding[3].method || 'Batch Call'})`,
+        content: `**Check for understanding (${p.checks_for_understanding[3].method || 'Batch Call'}):**\n${p.checks_for_understanding[3].cfu}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>`
       }] : []),
-      ...(plan.date_start === '2026-10-29' ? [
+      ...(p.date_start === '2026-10-29' ? [
         {
           title: "14. Exit Ticket (Directions)",
           content: `<div class="transition-banner" style="background: #fef3c7; border-left: 4px solid #d97706; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 15px; color: #92400e; text-align: left;"><strong>🔁 Transition:</strong> <em>We just solved 8 independent practice problems on our own... Now we will complete our Exit Ticket on TicketOut... so we can show our understanding and track our progress.</em></div><div style="font-size: 24px; text-align: center; margin-top: 15px; padding: 25px; background: white; border-radius: 12px; border: 2px solid #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
@@ -877,11 +856,11 @@ ${getLessonPurpose(plan)}
             </div>
           </div>\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
         }
-      ] : (plan.structured_exemplars && plan.structured_exemplars.length >= 16 ? [
+      ] : (p.structured_exemplars && p.structured_exemplars.length >= 16 ? [
         {
           title: "14. Exit Ticket (Problem 15)",
           content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(plan.structured_exemplars[14], 14)}
+${renderQuestionContent(p.structured_exemplars[14], 14)}
 </div>
 
 <div class="timer" onclick="startTimer(this, 3)">3:00</div>`
@@ -889,7 +868,7 @@ ${renderQuestionContent(plan.structured_exemplars[14], 14)}
         {
           title: "14. Exit Ticket (Problem 16)",
           content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
-${renderQuestionContent(plan.structured_exemplars[15], 15)}
+${renderQuestionContent(p.structured_exemplars[15], 15)}
 </div>
 
 <div class="timer" onclick="startTimer(this, 3)">3:00</div>`
@@ -897,7 +876,7 @@ ${renderQuestionContent(plan.structured_exemplars[15], 15)}
       ] : [
         { 
           title: "14. Exit Ticket", 
-          content: `**Directions:**\n${plan.exit_ticket || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
+          content: `**Directions:**\n${p.exit_ticket || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
         }
       ]))
     ];
@@ -914,7 +893,184 @@ ${renderQuestionContent(plan.structured_exemplars[15], 15)}
       }
       return { ...slide, content };
     });
+    return processedSlides;
+  };
+  
 
+  const handlePrintSlideshow = async () => {
+    if (isGeneratingPptx) return;
+    setIsGeneratingPptx(true);
+    setPptxProgress("Preparing slides...");
+    try {
+      const slides = buildPresentationSlides(plan, weekPlans);
+      if (!slides || slides.length === 0) {
+        alert("No slides found to export.");
+        return;
+      }
+      const pres = new pptxgen();
+      pres.layout = "LAYOUT_16x9";
+
+      const stage = document.createElement("div");
+      stage.id = "pptx-offscreen-stage";
+      stage.style.cssText = "position: fixed; left: -9999px; top: 0; width: 1280px; height: 720px; z-index: -9999; background: linear-gradient(135deg, #6a0dad, #008080); display: flex; flex-direction: column; justify-content: center; align-items: center; box-sizing: border-box; padding: 24px 36px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden;";
+
+      const styleEl = document.createElement("style");
+      styleEl.innerHTML = `
+        #pptx-offscreen-stage .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; margin: 8px 0; }
+        #pptx-offscreen-stage .katex { max-width: 100%; white-space: normal; word-wrap: break-word; }
+        #pptx-offscreen-stage .content-wrapper {
+          width: 100%;
+          max-height: 672px;
+          background: rgba(255, 255, 255, 0.98);
+          padding: 20px 32px;
+          border-radius: 16px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          position: relative;
+          overflow: hidden;
+        }
+        #pptx-offscreen-stage h1 {
+          font-size: 26px;
+          color: #300052;
+          margin-top: 0;
+          margin-bottom: 12px;
+          text-align: center;
+          text-transform: uppercase;
+          font-weight: bold;
+          letter-spacing: 1.5px;
+          flex-shrink: 0;
+        }
+        #pptx-offscreen-stage .content {
+          font-size: 18px;
+          line-height: 1.45;
+          color: #1e293b;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          overflow: hidden;
+        }
+        #pptx-offscreen-stage .content p { margin-bottom: 8px; }
+        #pptx-offscreen-stage .content ul, #pptx-offscreen-stage .content ol { margin-top: 4px; margin-bottom: 8px; padding-left: 30px; }
+        #pptx-offscreen-stage .content li { margin-bottom: 6px; }
+        #pptx-offscreen-stage .content strong { color: #334155; }
+        #pptx-offscreen-stage .content svg { max-width: 100%; height: auto; max-height: 40vh; display: block; margin: 8px auto; }
+        #pptx-offscreen-stage .problems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 15px; margin-bottom: 15px; }
+        #pptx-offscreen-stage .problem-box {
+          word-wrap: break-word; overflow-wrap: break-word; word-break: break-word;
+          border: 2px solid #cbd5e1; padding: 18px; border-radius: 12px;
+          background: #fff; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+          display: flex; align-items: center; justify-content: center; min-height: 90px;
+        }
+        #pptx-offscreen-stage .timer {
+          position: absolute;
+          top: 18px;
+          right: 28px;
+          z-index: 1000;
+          display: inline-block;
+          background: linear-gradient(135deg, #f59e0b, #d97706);
+          color: white;
+          font-size: 20px;
+          font-weight: bold;
+          padding: 8px 18px;
+          border-radius: 10px;
+          border: 3px solid #fff;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+          text-align: center;
+        }
+        #pptx-offscreen-stage .transition-banner {
+          background: #eff6ff;
+          border-left: 4px solid #2563eb;
+          padding: 8px 14px;
+          border-radius: 6px;
+          margin-bottom: 12px;
+          font-size: 14px;
+          color: #1e40af;
+          text-align: left;
+        }
+      `;
+      stage.appendChild(styleEl);
+
+      const slideBody = document.createElement("div");
+      slideBody.style.cssText = "width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;";
+      stage.appendChild(slideBody);
+      document.body.appendChild(stage);
+
+      for (let i = 0; i < slides.length; i++) {
+        setPptxProgress(`Slide ${i + 1} of ${slides.length}...`);
+        const s = slides[i];
+
+        slideBody.innerHTML = `
+          <div class="content-wrapper">
+            <h1>${s.title}</h1>
+            <div class="content">${s.content}</div>
+          </div>
+        `;
+
+        const imgs = slideBody.querySelectorAll('img');
+        if (imgs.length > 0) {
+          await Promise.all(Array.from(imgs).map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(res => {
+              img.onload = res;
+              img.onerror = res;
+              setTimeout(res, 200);
+            });
+          }));
+        }
+
+        await new Promise(r => setTimeout(r, 60));
+
+        const canvas = await html2canvas(stage, {
+          scale: 1.5,
+          useCORS: true,
+          logging: false,
+          backgroundColor: null
+        });
+
+        const imgData = canvas.toDataURL("image/png");
+        const pptSlide = pres.addSlide();
+        pptSlide.addImage({
+          data: imgData,
+          x: 0,
+          y: 0,
+          w: "100%",
+          h: "100%"
+        });
+
+        if (s.title) {
+          const plainNotes = (s.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+          pptSlide.addNotes(s.title + (plainNotes ? "\n\n" + plainNotes : ''));
+        }
+      }
+
+      if (stage.parentNode) {
+        stage.parentNode.removeChild(stage);
+      }
+
+      setPptxProgress("Saving PowerPoint...");
+      const cleanTopic = (cleanMathText(plan?.topic) || "Lesson").replace(/[^a-zA-Z0-9_\-\s]/g, '').trim();
+      await pres.writeFile({ fileName: `${cleanTopic}_Slides.pptx` });
+    } catch (err) {
+      console.error("Failed to generate PPTX:", err);
+      alert("Could not generate PowerPoint: " + (err?.message || err));
+    } finally {
+      setIsGeneratingPptx(false);
+      setPptxProgress(null);
+    }
+  };
+  
+
+  const handlePresent = () => {
+    const presentWindow = window.open('', '_blank');
+    if (!presentWindow) {
+      alert("Presentation popup was blocked! Please allow popups for this site to view the presentation.");
+      return;
+    }
+    const processedSlides = buildPresentationSlides(plan, weekPlans);
     const slidesJSON = JSON.stringify(processedSlides).replace(/</g, '\\u003c');
 
     const html = `
@@ -939,7 +1095,7 @@ ${renderQuestionContent(plan.structured_exemplars[15], 15)}
             .content ul, .content ol { margin-top: 4px; margin-bottom: 8px; padding-left: 30px; }
             .content li { margin-bottom: 6px; }
             .content strong { color: #334155; }
-            .content svg { max-width: 100%; height: auto; max-height: 30vh; display: block; margin: 8px auto; }
+            .content svg { max-width: 100%; height: auto; max-height: 40vh; display: block; margin: 8px auto; }
             
             /* Practice Problems Grid */
             .problems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px; margin-bottom: 20px;}
@@ -1100,6 +1256,7 @@ ${renderQuestionContent(plan.structured_exemplars[15], 15)}
     presentWindow.document.write(html);
     presentWindow.document.close();
   };
+  
 
   const viewerRef = React.useRef(null);
   useEffect(() => {
@@ -1536,32 +1693,176 @@ ${renderMath(getLessonPurpose(p || plan))}
 
 
     const handlePrintWeekSlideshows = async () => {
-      if (isGeneratingPptx) return;
-      setIsGeneratingPptx(true);
-      try {
-        const pres = new pptxgen();
-        pres.layout = 'LAYOUT_16x9';
-        if (weekPlans && weekPlans.length > 0) {
-          weekPlans.forEach(p => {
-            let sep = pres.addSlide();
-            sep.background = { color: '4B0082' };
-            sep.addShape(pres.ShapeType.rect, { x: 2.0, y: 1.4, w: 6.0, h: 0.08, fill: { color: '008080' } });
-            const dayLabel = p.date_start ? format(parseISO(p.date_start), 'EEEE (M/d)') : 'Lesson';
-            sep.addText(dayLabel, { x: 0.5, y: 1.8, w: '90%', fontSize: 32, bold: true, color: '99F6E4', align: 'center' });
-            const cleanTopic = cleanMathText(p.topic || "Daily Lesson");
-            const tFont = cleanTopic.length > 50 ? 24 : (cleanTopic.length > 30 ? 28 : 34);
-            sep.addText(cleanTopic, { x: 0.5, y: 2.6, w: '90%', fontSize: tFont, bold: true, color: 'FFFFFF', align: 'center' });
-            buildPlanPptx(pres, p, weekPlans);
-          });
+    if (isGeneratingPptx) return;
+    setIsGeneratingPptx(true);
+    setPptxProgress("Preparing week slides...");
+    try {
+      const pres = new pptxgen();
+      pres.layout = "LAYOUT_16x9";
+
+      const stage = document.createElement("div");
+      stage.id = "pptx-offscreen-stage-week";
+      stage.style.cssText = "position: fixed; left: -9999px; top: 0; width: 1280px; height: 720px; z-index: -9999; background: linear-gradient(135deg, #6a0dad, #008080); display: flex; flex-direction: column; justify-content: center; align-items: center; box-sizing: border-box; padding: 24px 36px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden;";
+
+      const styleEl = document.createElement("style");
+      styleEl.innerHTML = `
+        #pptx-offscreen-stage-week .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; margin: 8px 0; }
+        #pptx-offscreen-stage-week .katex { max-width: 100%; white-space: normal; word-wrap: break-word; }
+        #pptx-offscreen-stage-week .content-wrapper {
+          width: 100%;
+          max-height: 672px;
+          background: rgba(255, 255, 255, 0.98);
+          padding: 20px 32px;
+          border-radius: 16px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          position: relative;
+          overflow: hidden;
         }
-        await pres.writeFile({ fileName: "Week_Slides.pptx" });
-      } catch (err) {
-        console.error("Failed to generate Week PPTX:", err);
-        alert("Could not generate Week PowerPoint: " + (err?.message || err));
-      } finally {
-        setIsGeneratingPptx(false);
+        #pptx-offscreen-stage-week h1 {
+          font-size: 26px;
+          color: #300052;
+          margin-top: 0;
+          margin-bottom: 12px;
+          text-align: center;
+          text-transform: uppercase;
+          font-weight: bold;
+          letter-spacing: 1.5px;
+          flex-shrink: 0;
+        }
+        #pptx-offscreen-stage-week .content {
+          font-size: 18px;
+          line-height: 1.45;
+          color: #1e293b;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          overflow: hidden;
+        }
+        #pptx-offscreen-stage-week .content p { margin-bottom: 8px; }
+        #pptx-offscreen-stage-week .content ul, #pptx-offscreen-stage-week .content ol { margin-top: 4px; margin-bottom: 8px; padding-left: 30px; }
+        #pptx-offscreen-stage-week .content li { margin-bottom: 6px; }
+        #pptx-offscreen-stage-week .content strong { color: #334155; }
+        #pptx-offscreen-stage-week .content svg { max-width: 100%; height: auto; max-height: 40vh; display: block; margin: 8px auto; }
+        #pptx-offscreen-stage-week .problems-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 15px; margin-bottom: 15px; }
+        #pptx-offscreen-stage-week .problem-box {
+          word-wrap: break-word; overflow-wrap: break-word; word-break: break-word;
+          border: 2px solid #cbd5e1; padding: 18px; border-radius: 12px;
+          background: #fff; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+          display: flex; align-items: center; justify-content: center; min-height: 90px;
+        }
+        #pptx-offscreen-stage-week .timer {
+          position: absolute;
+          top: 18px;
+          right: 28px;
+          z-index: 1000;
+          display: inline-block;
+          background: linear-gradient(135deg, #f59e0b, #d97706);
+          color: white;
+          font-size: 20px;
+          font-weight: bold;
+          padding: 8px 18px;
+          border-radius: 10px;
+          border: 3px solid #fff;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+          text-align: center;
+        }
+        #pptx-offscreen-stage-week .transition-banner {
+          background: #eff6ff;
+          border-left: 4px solid #2563eb;
+          padding: 8px 14px;
+          border-radius: 6px;
+          margin-bottom: 12px;
+          font-size: 14px;
+          color: #1e40af;
+          text-align: left;
+        }
+      `;
+      stage.appendChild(styleEl);
+
+      const slideBody = document.createElement("div");
+      slideBody.style.cssText = "width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;";
+      stage.appendChild(slideBody);
+      document.body.appendChild(stage);
+
+      const plansToExport = weekPlans && weekPlans.length > 0 ? weekPlans : [plan];
+      const allDaysData = plansToExport.map(p => ({
+        plan: p,
+        dayLabel: p.date_start ? format(parseISO(p.date_start), 'EEEE (M/d)') : 'Lesson',
+        slides: buildPresentationSlides(p, weekPlans)
+      }));
+
+      const totalSlides = allDaysData.reduce((acc, d) => acc + d.slides.length, 0);
+      let slideCount = 0;
+
+      for (const day of allDaysData) {
+        for (const s of day.slides) {
+          slideCount++;
+          setPptxProgress(`Slide ${slideCount} of ${totalSlides} (${day.dayLabel})...`);
+
+          slideBody.innerHTML = `
+            <div class="content-wrapper">
+              <h1>${s.title}</h1>
+              <div class="content">${s.content}</div>
+            </div>
+          `;
+
+          const imgs = slideBody.querySelectorAll('img');
+          if (imgs.length > 0) {
+            await Promise.all(Array.from(imgs).map(img => {
+              if (img.complete) return Promise.resolve();
+              return new Promise(res => {
+                img.onload = res;
+                img.onerror = res;
+                setTimeout(res, 200);
+              });
+            }));
+          }
+
+          await new Promise(r => setTimeout(r, 50));
+
+          const canvas = await html2canvas(stage, {
+            scale: 1.5,
+            useCORS: true,
+            logging: false,
+            backgroundColor: null
+          });
+
+          const imgData = canvas.toDataURL("image/png");
+          const pptSlide = pres.addSlide();
+          pptSlide.addImage({
+            data: imgData,
+            x: 0,
+            y: 0,
+            w: "100%",
+            h: "100%"
+          });
+
+          if (s.title) {
+            const plainNotes = (s.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            pptSlide.addNotes(s.title + (plainNotes ? "\n\n" + plainNotes : ''));
+          }
+        }
       }
-    };
+
+      if (stage.parentNode) {
+        stage.parentNode.removeChild(stage);
+      }
+
+      setPptxProgress("Saving Week PowerPoint...");
+      await pres.writeFile({ fileName: "Week_Slides.pptx" });
+    } catch (err) {
+      console.error("Failed to generate Week PPTX:", err);
+      alert("Could not generate Week PowerPoint: " + (err?.message || err));
+    } finally {
+      setIsGeneratingPptx(false);
+      setPptxProgress(null);
+    }
+  };
 
     const handlePrintWeekSlideshowsOld = () => {
       const printWindow = window.open('', '_blank');
@@ -1638,7 +1939,7 @@ ${renderMath(getLessonPurpose(p || plan))}
               className="btn-secondary" 
               style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: isGeneratingPptx ? 0.7 : 1, cursor: isGeneratingPptx ? 'wait' : 'pointer' }}
             >
-              <Download size={18} /> {isGeneratingPptx ? 'Generating PPT...' : 'PPT Slideshow'}
+              <Download size={18} /> {isGeneratingPptx ? (pptxProgress || 'Generating PPT...') : 'PPT Slideshow'}
             </button>
             
             <button onClick={handlePrintGuidedNotes} className="btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -1662,7 +1963,7 @@ ${renderMath(getLessonPurpose(p || plan))}
                 className="btn-secondary" 
                 style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: isGeneratingPptx ? 0.7 : 1, cursor: isGeneratingPptx ? 'wait' : 'pointer' }}
               >
-                <Download size={18} /> {isGeneratingPptx ? 'Generating PPT...' : 'PPT Week Slideshows'}
+                <Download size={18} /> {isGeneratingPptx ? (pptxProgress || 'Generating PPT...') : 'PPT Week Slideshows'}
               </button>
             </div>
           )}
