@@ -597,7 +597,7 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
         
       // Guided Practice (2 problems - separate slides)
       const guidedSlides = [];
-      if (p.structured_exemplars && p.structured_exemplars.length >= 2 && p.date_start !== '2026-10-29') {
+      if (p.structured_exemplars && p.structured_exemplars.length >= 2 ) {
         const guidedChunk = p.structured_exemplars.slice(0, 2);
         guidedChunk.forEach((ex, idx) => {
           guidedSlides.push({
@@ -629,12 +629,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
 
 
     // Independent Practice (every problem on its own slide for presentation)
-      if (p.date_start === '2026-10-29') {
-        problemsSlides.push({ 
-          title: "12. Independent Practice (Directions)", 
-          content: `<div class="transition-banner" style="background: #ecfdf5; border-left: 4px solid #059669; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 15px; color: #065f46; text-align: left;"><strong>🔁 Transition:</strong> <em>We just collaborated and checked our reasoning as a team... Now we will work independently on TicketOut... so we can build confidence and prove individual mastery.</em></div><strong>Directions:</strong>\nOpen TicketOut on your Chromebook/device to complete today's interactive practice problems on Alternate Interior Angles & Transversals.\n\n<div class="timer" onclick="startTimer(this, 15)">15:00</div>`
-        });
-      } else if (p.structured_exemplars && p.structured_exemplars.length > 0) {
+      if (p.structured_exemplars && p.structured_exemplars.length > 0) {
         // Always show the directions first with a 15 min timer
         problemsSlides.push({ 
           title: "12. Independent Practice (Directions)", 
@@ -845,18 +840,7 @@ ${getLessonPurpose(p)}
         title: `13. Formative Assessment #4 (${p.checks_for_understanding[3].method || 'Batch Call'})`,
         content: `**Check for understanding (${p.checks_for_understanding[3].method || 'Batch Call'}):**\n${p.checks_for_understanding[3].cfu}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>`
       }] : []),
-      ...(p.date_start === '2026-10-29' ? [
-        {
-          title: "14. Exit Ticket (Directions)",
-          content: `<div class="transition-banner" style="background: #fef3c7; border-left: 4px solid #d97706; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 15px; color: #92400e; text-align: left;"><strong>🔁 Transition:</strong> <em>We just solved 8 independent practice problems on our own... Now we will complete our Exit Ticket on TicketOut... so we can show our understanding and track our progress.</em></div><div style="font-size: 24px; text-align: center; margin-top: 15px; padding: 25px; background: white; border-radius: 12px; border: 2px solid #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-            <h3 style="color: #1e293b; margin-top: 0; font-size: 26px;">Independent Exit Ticket</h3>
-            <p style="color: #475569; font-size: 18px; margin-bottom: 20px;">Open <strong>TicketOut</strong> on your Chromebook/device to complete today's interactive Exit Ticket on <strong>Alternate Interior Angles & Transversals</strong>.</p>
-            <div style="display: inline-block; background: #eff6ff; color: #1d4ed8; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 16px;">
-              2 Interactive Diagram Questions
-            </div>
-          </div>\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>`
-        }
-      ] : (p.structured_exemplars && p.structured_exemplars.length >= 16 ? [
+      ...(p.structured_exemplars && p.structured_exemplars.length >= 16 ? [
         {
           title: "14. Exit Ticket (Problem 15)",
           content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
@@ -878,7 +862,7 @@ ${renderQuestionContent(p.structured_exemplars[15], 15)}
           title: "14. Exit Ticket", 
           content: `**Directions:**\n${p.exit_ticket || ''}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
         }
-      ]))
+      ])
     ];
 
     const processedSlides = baseSlides.map(slide => {
@@ -1450,7 +1434,7 @@ ${renderQuestionContent(p.structured_exemplars[15], 15)}
 
       // Guided Practice (2 problems - separate slides)
       const guidedSlides = [];
-      if (p.structured_exemplars && p.structured_exemplars.length >= 2 && p.date_start !== '2026-10-29') {
+      if (p.structured_exemplars && p.structured_exemplars.length >= 2 ) {
         const guidedChunk = p.structured_exemplars.slice(0, 2);
         guidedChunk.forEach((ex, idx) => {
           guidedSlides.push({
@@ -1477,12 +1461,7 @@ ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'un
       }
 
       // Independent Practice (every problem on its own slide for printing)
-      if (p.date_start === '2026-10-29') {
-        problemsSlides.push({ 
-          title: "12. Independent Practice (Directions)", 
-          content: `<div class="transition-banner" style="background: #ecfdf5; border-left: 4px solid #059669; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 15px; color: #065f46; text-align: left;"><strong>🔁 Transition:</strong> <em>We just collaborated and checked our reasoning as a team... Now we will work independently on TicketOut... so we can build confidence and prove individual mastery.</em></div><strong>Directions:</strong>\nOpen TicketOut on your Chromebook/device to complete today's independent practice problems on Alternate Interior Angles & Transversals.`
-        });
-      } else if (p.structured_exemplars && p.structured_exemplars.length > 0) {
+      if (p.structured_exemplars && p.structured_exemplars.length > 0) {
         problemsSlides.push({ 
           title: "12. Independent Practice (Directions)", 
           content: `<strong>Directions:</strong>\n${p.independent_practice || 'Complete the assigned independent practice problems quietly.'}`
@@ -1644,15 +1623,7 @@ ${renderMath(getLessonPurpose(p || plan))}
           title: `13. Formative Assessment #4 (${p.checks_for_understanding[3].method || 'Batch Call'})`,
           content: `**Check for understanding (${p.checks_for_understanding[3].method || 'Batch Call'}):**\n${p.checks_for_understanding[3].cfu}`
         }] : []),
-        ...(p.date_start === '2026-10-29' ? [
-          {
-            title: "14. Exit Ticket (Directions)",
-            content: `<div class="transition-banner" style="background: #fef3c7; border-left: 4px solid #d97706; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; font-size: 15px; color: #92400e; text-align: left;"><strong>🔁 Transition:</strong> <em>We just solved 8 independent practice problems on our own... Now we will complete our Exit Ticket on TicketOut... so we can show our understanding and track our progress.</em></div><div style="font-size: 24px; text-align: center; margin-top: 15px; padding: 25px; background: white; border-radius: 12px; border: 2px solid #cbd5e1;">
-              <h3 style="color: #1e293b; margin-top: 0; font-size: 26px;">Independent Exit Ticket</h3>
-              <p style="color: #475569; font-size: 18px;">Open <strong>TicketOut</strong> on your Chromebook/device to complete today's interactive Exit Ticket on <strong>Alternate Interior Angles & Transversals</strong>.</p>
-            </div>`
-          }
-        ] : (p.structured_exemplars && p.structured_exemplars.length >= 16 ? [
+        ...(p.structured_exemplars && p.structured_exemplars.length >= 16 ? [
           {
             title: "14. Exit Ticket (Problem 15)",
             content: `<div class="problem-box"><div class="problem-header">Problem 15</div><div class="problem-body">${renderQuestionContent(p.structured_exemplars[14], 14)}</div></div>`
@@ -1662,8 +1633,11 @@ ${renderMath(getLessonPurpose(p || plan))}
             content: `<div class="problem-box"><div class="problem-header">Problem 16</div><div class="problem-body">${renderQuestionContent(p.structured_exemplars[15], 15)}</div></div>`
           }
         ] : [
-          { title: "14. Exit Ticket", content: `**Directions:**\n${p.exit_ticket || ''}` }
-        ])),
+          {
+          title: "14. Exit Ticket",
+          content: `**Directions:**\n${p.exit_ticket || ''}`
+        }
+      ]),
       ];
 
       // Convert Markdown to HTML for all slides
