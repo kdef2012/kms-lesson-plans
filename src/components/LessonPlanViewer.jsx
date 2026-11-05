@@ -305,7 +305,7 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       '</div>';
     }
 
-    if (ex.visualData && ex.visualData.type === 'triangle-angles') {
+    if (ex.visualData && (ex.visualData.type === 'triangle-angles' || ex.visualData.type === 'triangle-angle')) {
       const v = ex.visualData;
       const highlighted = v.highlightedAngles || [];
       const labels = v.angleLabels || {};
@@ -369,36 +369,202 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       const t1Label = tri1.label || '△ABC';
       const t2Label = tri2.label || '△DEF';
 
-      html += '<div style="margin: 10px auto; display: flex; justify-content: center; max-width: 480px;">' +
-        '<svg viewBox="0 0 480 190" width="100%" height="auto" style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; max-height: 22vh;">' +
-          '<polygon points="110,45 50,155 170,155" fill="rgba(59, 130, 246, 0.05)" stroke="none"/>' +
-          '<polygon points="340,30 250,165 430,165" fill="rgba(16, 185, 129, 0.05)" stroke="none"/>' +
-          '<line x1="110" y1="45" x2="50" y2="155" stroke="#0f172a" stroke-width="2.5"/>' +
-          '<line x1="50" y1="155" x2="170" y2="155" stroke="#0f172a" stroke-width="2.5"/>' +
-          '<line x1="170" y1="155" x2="110" y2="45" stroke="#0f172a" stroke-width="2.5"/>' +
-          '<line x1="340" y1="30" x2="250" y2="165" stroke="#0f172a" stroke-width="3"/>' +
-          '<line x1="250" y1="165" x2="430" y2="165" stroke="#0f172a" stroke-width="3"/>' +
-          '<line x1="430" y1="165" x2="340" y2="30" stroke="#0f172a" stroke-width="3"/>' +
-          '<text x="110" y="22" fill="#2563eb" font-size="12" font-weight="bold" text-anchor="middle">' + t1Label + '</text>' +
-          '<text x="340" y="18" fill="#059669" font-size="12" font-weight="bold" text-anchor="middle">' + t2Label + '</text>' +
-          '<text x="110" y="38" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">A</text>' +
-          '<text x="42" y="165" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">B</text>' +
-          '<text x="178" y="165" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">C</text>' +
-          '<text x="340" y="26" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">D</text>' +
-          '<text x="240" y="175" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">E</text>' +
-          '<text x="440" y="175" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">F</text>' +
-          '<rect x="96" y="65" width="' + ((labels[1] || '1').length > 2 ? 46 : 28) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(1) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(1) ? '1.5' : '0.8') + '"/>' +
-          '<text x="' + (96 + ((labels[1] || '1').length > 2 ? 23 : 14)) + '" y="79" fill="' + (highlighted.includes(1) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(1) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[1] || '1') + '</text>' +
-          '<rect x="70" y="136" width="' + ((labels[2] || '2').length > 2 ? 46 : 28) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(2) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(2) ? '1.5' : '0.8') + '"/>' +
-          '<text x="' + (70 + ((labels[2] || '2').length > 2 ? 23 : 14)) + '" y="150" fill="' + (highlighted.includes(2) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(2) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[2] || '2') + '</text>' +
-          '<rect x="130" y="136" width="' + ((labels[3] || '3').length > 2 ? 46 : 28) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(3) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(3) ? '1.5' : '0.8') + '"/>' +
-          '<text x="' + (130 + ((labels[3] || '3').length > 2 ? 23 : 14)) + '" y="150" fill="' + (highlighted.includes(3) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(3) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[3] || '3') + '</text>' +
-          '<rect x="325" y="60" width="' + ((labels[4] || '4').length > 2 ? 48 : 30) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(4) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(4) ? '1.5' : '0.8') + '"/>' +
-          '<text x="' + (325 + ((labels[4] || '4').length > 2 ? 24 : 15)) + '" y="74" fill="' + (highlighted.includes(4) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(4) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[4] || '4') + '</text>' +
-          '<rect x="280" y="145" width="' + ((labels[5] || '5').length > 2 ? 48 : 30) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(5) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(5) ? '1.5' : '0.8') + '"/>' +
-          '<text x="' + (280 + ((labels[5] || '5').length > 2 ? 24 : 15)) + '" y="159" fill="' + (highlighted.includes(5) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(5) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[5] || '5') + '</text>' +
-          '<rect x="375" y="145" width="' + ((labels[6] || '6').length > 2 ? 48 : 30) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(6) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(6) ? '1.5' : '0.8') + '"/>' +
-          '<text x="' + (375 + ((labels[6] || '6').length > 2 ? 24 : 15)) + '" y="159" fill="' + (highlighted.includes(6) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(6) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[6] || '6') + '</text>' +
+      const isRight = v.triangleType === 'right' || 
+                      v.isRightTriangle ||
+                      labels['2'] === '90°' || labels['5'] === '90°' ||
+                      (tri1.angles && Object.values(tri1.angles).includes('90°')) ||
+                      (tri2.angles && Object.values(tri2.angles).includes('90°')) ||
+                      (t1Label && (t1Label.toLowerCase().includes('person') || t1Label.toLowerCase().includes('6ft') || t1Label.toLowerCase().includes('shadow'))) ||
+                      (t2Label && (t2Label.toLowerCase().includes('flagpole') || t2Label.toLowerCase().includes('20ft'))) ||
+                      (v.prompt && (v.prompt.toLowerCase().includes('shadow') || v.prompt.toLowerCase().includes('height / shadow'))) ||
+                      (ex.question && (ex.question.toLowerCase().includes('shadow') || ex.question.toLowerCase().includes('right triangle') || ex.question.toLowerCase().includes('flagpole') || ex.question.toLowerCase().includes('person'))) ||
+                      (ex.text && (ex.text.toLowerCase().includes('shadow') || ex.text.toLowerCase().includes('right triangle') || ex.text.toLowerCase().includes('flagpole') || ex.text.toLowerCase().includes('person')));
+
+      if (isRight) {
+        // RENDER RIGHT TRIANGLES (Upright vertical object, horizontal ground shadow, right angle square at base)
+        const v1Label = tri1.verticalLabel || (t1Label.includes('6ft') ? '6 ft' : (t1Label.includes('Person') ? '6 ft' : ''));
+        const b1Label = tri1.baseLabel || (t1Label.includes('4ft') ? '4 ft' : (t1Label.includes('Person') ? '4 ft' : ''));
+        const v2Label = tri2.verticalLabel || (t2Label.includes('h') ? 'h (height)' : (t2Label.includes('Flagpole') ? 'h' : ''));
+        const b2Label = tri2.baseLabel || (t2Label.includes('20ft') ? '20 ft' : (t2Label.includes('Flagpole') ? '20 ft' : ''));
+
+        html += '<div style="margin: 12px auto; display: flex; justify-content: center; max-width: 520px;">' +
+          '<svg viewBox="0 0 520 210" width="100%" height="auto" style="background: white; border-radius: 10px; border: 1.5px solid #cbd5e1; max-height: 26vh; box-shadow: 0 4px 10px rgba(0,0,0,0.06);">' +
+            // Level ground baseline
+            '<line x1="25" y1="175" x2="495" y2="175" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="6 4"/>' +
+            '<text x="502" y="179" fill="#94a3b8" font-size="11" font-weight="bold">Ground</text>' +
+
+            // Triangle 1 (Person: Height 6 ft, Shadow 4 ft)
+            '<polygon points="75,85 75,175 165,175" fill="rgba(37, 99, 235, 0.08)"/>' +
+            '<line x1="75" y1="85" x2="75" y2="175" stroke="#2563eb" stroke-width="3.5"/>' +
+            '<line x1="75" y1="175" x2="165" y2="175" stroke="#2563eb" stroke-width="3.5"/>' +
+            '<line x1="75" y1="85" x2="165" y2="175" stroke="#0f172a" stroke-width="2.5" stroke-dasharray="5 3"/>' +
+            // Right angle symbol at base (75, 175)
+            '<path d="M 75 160 L 90 160 L 90 175" fill="none" stroke="#0f172a" stroke-width="2"/>' +
+            // Triangle 1 Labels
+            '<text x="120" y="32" fill="#2563eb" font-size="13" font-weight="bold" text-anchor="middle">' + t1Label + '</text>' +
+            (v1Label ? '<text x="63" y="135" fill="#2563eb" font-size="13" font-weight="800" text-anchor="end">' + v1Label + '</text>' : '') +
+            (b1Label ? '<text x="120" y="196" fill="#2563eb" font-size="13" font-weight="800" text-anchor="middle">' + b1Label + '</text>' : '') +
+            '<text x="96" y="170" fill="#0f172a" font-size="10" font-weight="bold">90°</text>' +
+            '<text x="86" y="105" fill="#6b21a8" font-size="11" font-weight="bold">' + (labels['1'] || 'θ') + '</text>' +
+
+            // Triangle 2 (Flagpole: Height h, Shadow 20 ft)
+            '<polygon points="265,30 265,175 455,175" fill="rgba(5, 150, 105, 0.08)"/>' +
+            '<line x1="265" y1="30" x2="265" y2="175" stroke="#059669" stroke-width="4"/>' +
+            '<line x1="265" y1="175" x2="455" y2="175" stroke="#059669" stroke-width="4"/>' +
+            '<line x1="265" y1="30" x2="455" y2="175" stroke="#0f172a" stroke-width="2.5" stroke-dasharray="5 3"/>' +
+            // Right angle symbol at base (265, 175)
+            '<path d="M 265 157 L 283 157 L 283 175" fill="none" stroke="#0f172a" stroke-width="2"/>' +
+            // Triangle 2 Labels
+            '<text x="360" y="20" fill="#059669" font-size="13" font-weight="bold" text-anchor="middle">' + t2Label + '</text>' +
+            (v2Label ? '<text x="250" y="105" fill="#059669" font-size="14" font-weight="800" text-anchor="end">' + v2Label + '</text>' : '') +
+            (b2Label ? '<text x="360" y="196" fill="#059669" font-size="13" font-weight="800" text-anchor="middle">' + b2Label + '</text>' : '') +
+            '<text x="290" y="170" fill="#0f172a" font-size="10" font-weight="bold">90°</text>' +
+            '<text x="277" y="55" fill="#6b21a8" font-size="11" font-weight="bold">' + (labels['4'] || 'θ') + '</text>' +
+          '</svg>' +
+        '</div>';
+      } else {
+        // RENDER ACUTE SIMILAR TRIANGLES
+        html += '<div style="margin: 10px auto; display: flex; justify-content: center; max-width: 480px;">' +
+          '<svg viewBox="0 0 480 190" width="100%" height="auto" style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; max-height: 22vh;">' +
+            '<polygon points="110,45 50,155 170,155" fill="rgba(59, 130, 246, 0.05)" stroke="none"/>' +
+            '<polygon points="340,30 250,165 430,165" fill="rgba(16, 185, 129, 0.05)" stroke="none"/>' +
+            '<line x1="110" y1="45" x2="50" y2="155" stroke="#0f172a" stroke-width="2.5"/>' +
+            '<line x1="50" y1="155" x2="170" y2="155" stroke="#0f172a" stroke-width="2.5"/>' +
+            '<line x1="170" y1="155" x2="110" y2="45" stroke="#0f172a" stroke-width="2.5"/>' +
+            '<line x1="340" y1="30" x2="250" y2="165" stroke="#0f172a" stroke-width="3"/>' +
+            '<line x1="250" y1="165" x2="430" y2="165" stroke="#0f172a" stroke-width="3"/>' +
+            '<line x1="430" y1="165" x2="340" y2="30" stroke="#0f172a" stroke-width="3"/>' +
+            '<text x="110" y="22" fill="#2563eb" font-size="12" font-weight="bold" text-anchor="middle">' + t1Label + '</text>' +
+            '<text x="340" y="18" fill="#059669" font-size="12" font-weight="bold" text-anchor="middle">' + t2Label + '</text>' +
+            '<text x="110" y="38" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">A</text>' +
+            '<text x="42" y="165" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">B</text>' +
+            '<text x="178" y="165" fill="#0f172a" font-size="10" font-weight="bold" text-anchor="middle">C</text>' +
+            '<text x="340" y="26" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">D</text>' +
+            '<text x="240" y="175" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">E</text>' +
+            '<text x="440" y="175" fill="#0f172a" font-size="11" font-weight="bold" text-anchor="middle">F</text>' +
+            '<rect x="96" y="65" width="' + ((labels[1] || '1').length > 2 ? 46 : 28) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(1) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(1) ? '1.5' : '0.8') + '"/>' +
+            '<text x="' + (96 + ((labels[1] || '1').length > 2 ? 23 : 14)) + '" y="79" fill="' + (highlighted.includes(1) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(1) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[1] || '1') + '</text>' +
+            '<rect x="70" y="136" width="' + ((labels[2] || '2').length > 2 ? 46 : 28) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(2) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(2) ? '1.5' : '0.8') + '"/>' +
+            '<text x="' + (70 + ((labels[2] || '2').length > 2 ? 23 : 14)) + '" y="150" fill="' + (highlighted.includes(2) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(2) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[2] || '2') + '</text>' +
+            '<rect x="130" y="136" width="' + ((labels[3] || '3').length > 2 ? 46 : 28) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(3) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(3) ? '1.5' : '0.8') + '"/>' +
+            '<text x="' + (130 + ((labels[3] || '3').length > 2 ? 23 : 14)) + '" y="150" fill="' + (highlighted.includes(3) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(3) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[3] || '3') + '</text>' +
+            '<rect x="325" y="60" width="' + ((labels[4] || '4').length > 2 ? 48 : 30) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(4) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(4) ? '1.5' : '0.8') + '"/>' +
+            '<text x="' + (325 + ((labels[4] || '4').length > 2 ? 24 : 15)) + '" y="74" fill="' + (highlighted.includes(4) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(4) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[4] || '4') + '</text>' +
+            '<rect x="280" y="145" width="' + ((labels[5] || '5').length > 2 ? 48 : 30) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(5) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(5) ? '1.5' : '0.8') + '"/>' +
+            '<text x="' + (280 + ((labels[5] || '5').length > 2 ? 24 : 15)) + '" y="159" fill="' + (highlighted.includes(5) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(5) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[5] || '5') + '</text>' +
+            '<rect x="375" y="145" width="' + ((labels[6] || '6').length > 2 ? 48 : 30) + '" height="20" rx="4" fill="rgba(255, 255, 255, 0.95)" stroke="' + (highlighted.includes(6) ? '#c084fc' : '#e2e8f0') + '" stroke-width="' + (highlighted.includes(6) ? '1.5' : '0.8') + '"/>' +
+            '<text x="' + (375 + ((labels[6] || '6').length > 2 ? 24 : 15)) + '" y="159" fill="' + (highlighted.includes(6) ? '#6b21a8' : '#0f172a') + '" font-size="' + (highlighted.includes(6) ? '12' : '11') + '" font-weight="800" text-anchor="middle" font-family="Segoe UI, sans-serif">' + (labels[6] || '6') + '</text>' +
+          '</svg>' +
+        '</div>';
+      }
+    }
+
+
+    if (ex.visualData && ex.visualData.type === 'number-line') {
+      const v = ex.visualData;
+      const min = v.min !== undefined ? v.min : -10;
+      const max = v.max !== undefined ? v.max : 10;
+      const step = v.step || 1;
+      const ineq = v.correctInequality;
+      const svgW = 460;
+      const svgH = 80;
+      const pad = 40;
+      const lineY = 42;
+      const scale = (val) => pad + ((val - min) / (max - min)) * (svgW - pad * 2);
+
+      let ticks = '';
+      for (let val = min; val <= max; val += step) {
+        const x = scale(val);
+        ticks += '<line x1="' + x + '" y1="' + (lineY - 6) + '" x2="' + x + '" y2="' + (lineY + 6) + '" stroke="#475569" stroke-width="1.5"/>';
+        ticks += '<text x="' + x + '" y="' + (lineY + 22) + '" fill="#334155" font-size="12" font-weight="600" text-anchor="middle" font-family="Segoe UI, sans-serif">' + val + '</text>';
+      }
+
+      let ineqRay = '';
+      if (ineq && ineq.value !== undefined) {
+        const ptX = scale(ineq.value);
+        const endX = ineq.direction === 'left' ? 15 : svgW - 15;
+        const isClosed = ineq.circle === 'closed';
+        ineqRay = '<defs>' +
+          '<marker id="arrow-ray" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">' +
+            '<path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#7c3aed"/>' +
+          '</marker>' +
+        '</defs>' +
+        '<line x1="' + ptX + '" y1="' + lineY + '" x2="' + endX + '" y2="' + lineY + '" stroke="#7c3aed" stroke-width="4.5" marker-end="url(#arrow-ray)"/>' +
+        '<circle cx="' + ptX + '" cy="' + lineY + '" r="7" fill="' + (isClosed ? '#7c3aed' : 'white') + '" stroke="#7c3aed" stroke-width="3"/>';
+      }
+
+      html += '<div style="margin: 12px auto; display: flex; justify-content: center; width: 100%; max-width: 480px;">' +
+        '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" width="100%" height="auto" style="background: white; border-radius: 8px; border: 1.5px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">' +
+          '<defs>' +
+            '<marker id="arrow-axis-lms" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">' +
+              '<path d="M 0 1.5 L 10 5 L 0 8.5 z" fill="#1e293b"/>' +
+            '</marker>' +
+          '</defs>' +
+          '<line x1="20" y1="' + lineY + '" x2="' + (svgW - 20) + '" y2="' + lineY + '" stroke="#1e293b" stroke-width="2.5" marker-start="url(#arrow-axis-lms)" marker-end="url(#arrow-axis-lms)"/>' +
+          ticks +
+          ineqRay +
+        '</svg>' +
+      '</div>';
+    }
+
+    if (ex.visualData && ex.visualData.type === 'table' && ex.visualData.headers && ex.visualData.rows) {
+      const v = ex.visualData;
+      html += '<div style="margin: 12px auto; display: flex; justify-content: center; width: 100%; max-width: 320px;">' +
+        '<table style="width: 100%; border-collapse: collapse; border: 2px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: white; font-size: 14px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">' +
+          '<thead>' +
+            '<tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">' +
+              v.headers.map(h => '<th style="padding: 8px 12px; font-weight: 700; color: #1e293b;">' + renderMath(h) + '</th>').join('') +
+            '</tr>' +
+          '</thead>' +
+          '<tbody>' +
+            v.rows.map(row => 
+              '<tr style="border-bottom: 1px solid #e2e8f0;">' +
+                v.headers.map(h => '<td style="padding: 6px 12px; color: #334155;">' + renderMath(String(row[h] !== undefined ? row[h] : '')) + '</td>').join('') +
+              '</tr>'
+            ).join('') +
+          '</tbody>' +
+        '</table>' +
+      '</div>';
+    }
+
+    if (ex.visualData && ex.visualData.type === 'scatter-plot') {
+      const v = ex.visualData;
+      const pts = v.points || [];
+      const svgW = 280;
+      const svgH = 220;
+      const pad = 35;
+      const xMax = 6;
+      const yMax = 10;
+      const scaleX = (x) => pad + (x / xMax) * (svgW - pad * 2);
+      const scaleY = (y) => (svgH - pad) - (y / yMax) * (svgH - pad * 2);
+
+      let grid = '';
+      for (let x = 1; x <= xMax; x++) {
+        const px = scaleX(x);
+        grid += '<line x1="' + px + '" y1="' + pad + '" x2="' + px + '" y2="' + (svgH - pad) + '" stroke="#f1f5f9" stroke-width="1"/>';
+        grid += '<text x="' + px + '" y="' + (svgH - pad + 16) + '" fill="#64748b" font-size="11" text-anchor="middle">' + x + '</text>';
+      }
+      for (let y = 2; y <= yMax; y += 2) {
+        const py = scaleY(y);
+        grid += '<line x1="' + pad + '" y1="' + py + '" x2="' + (svgW - pad) + '" y2="' + py + '" stroke="#f1f5f9" stroke-width="1"/>';
+        grid += '<text x="' + (pad - 8) + '" y="' + (py + 4) + '" fill="#64748b" font-size="11" text-anchor="end">' + y + '</text>';
+      }
+
+      let dots = pts.map(p => {
+        const cx = scaleX(p.x);
+        const cy = scaleY(p.y);
+        return '<circle cx="' + cx + '" cy="' + cy + '" r="5.5" fill="#2563eb" stroke="#1e40af" stroke-width="2"/>' +
+          '<text x="' + cx + '" y="' + (cy - 8) + '" fill="#1e40af" font-size="10" font-weight="bold" text-anchor="middle">(' + p.x + ', ' + p.y + ')</text>';
+      }).join('');
+
+      html += '<div style="margin: 12px auto; display: flex; justify-content: center; width: 100%; max-width: 320px;">' +
+        '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" width="100%" height="auto" style="background: white; border-radius: 8px; border: 1.5px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">' +
+          grid +
+          '<line x1="' + pad + '" y1="' + (svgH - pad) + '" x2="' + (svgW - 10) + '" y2="' + (svgH - pad) + '" stroke="#1e293b" stroke-width="2"/>' +
+          '<line x1="' + pad + '" y1="' + (svgH - pad) + '" x2="' + pad + '" y2="10" stroke="#1e293b" stroke-width="2"/>' +
+          '<text x="' + (svgW / 2) + '" y="' + (svgH - 6) + '" fill="#1e293b" font-size="12" font-weight="bold" text-anchor="middle">' + (v.xLabel || 'x') + '</text>' +
+          '<text x="12" y="' + (svgH / 2) + '" fill="#1e293b" font-size="12" font-weight="bold" text-anchor="middle" transform="rotate(-90 12 ' + (svgH / 2) + ')">' + (v.yLabel || 'y') + '</text>' +
+          dots +
         '</svg>' +
       '</div>';
     }
@@ -576,12 +742,145 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       
     printWindow.document.write(html);
     printWindow.document.close();
-  };
-
-  
-    
-  const buildPresentationSlides = (p, wPlans) => {
+  };  const buildPresentationSlides = (p, wPlans) => {
     if (!p) return [];
+
+    const expectationsContent = `<div style="display: flex; align-items: center; justify-content: space-around; padding: 20px;">
+        <ul style="font-size: 32px; line-height: 2.2;">
+          <li>No Cellphones</li>
+          <li>Drop pencils when completed</li>
+          <li>Communicate with respect</li>
+          <li>Raise your hand</li>
+        </ul>
+        <div><img src="${window.location.origin}${getDayOwlImage(p.date_start)}" alt="Owl" onerror="this.onerror=null; this.src='${window.location.origin}/owl-transparent.png';" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
+      </div>`;
+
+    const isStationsPlan = p.date_start === '2026-11-10' || (p.topic && p.topic.toLowerCase().includes('station'));
+    if (isStationsPlan && p.structured_exemplars && p.structured_exemplars.length >= 15) {
+      const stationInfo = [
+        { num: 1, std: "8.EE.7", title: "Multi-Step Equations & Special Solutions", qIdx: [0, 1, 2] },
+        { num: 2, std: "8.EE.7", title: "Multi-Step Inequalities & Number Lines", qIdx: [3, 4, 5] },
+        { num: 3, std: "8.G.5", title: "Angles, Transversals & Geometric Figures", qIdx: [6, 7, 8] },
+        { num: 4, std: "8.G.5", title: "Triangle Angle Sum, Exterior Angles & Similarity", qIdx: [9, 10, 11] },
+        { num: 5, std: "8.F.1", title: "Functions, Tables & Scatter Plots", qIdx: [12, 13, 14] }
+      ];
+
+      const stationSlides = [];
+      stationInfo.forEach(st => {
+        // Slide 1: Station Intro Slide (e.g. Station 1 8.EE.7)
+        stationSlides.push({
+          title: 'Station ' + st.num + ' ' + st.std,
+          content: '<div style="text-align: center; padding: 30px 20px;">' +
+            '<div style="display: inline-block; background: #e0e7ff; color: #4338ca; font-weight: 800; font-size: 24px; padding: 10px 28px; border-radius: 9999px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;">Station ' + st.num + ' • ' + st.std + '</div>' +
+            '<h2 style="font-size: 38px; color: #1e1b4b; margin: 10px 0 24px 0; font-weight: 900;">' + st.title + '</h2>' +
+            '<div style="max-width: 750px; margin: 0 auto; background: white; padding: 28px; border-radius: 16px; border: 2px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: left; font-size: 20px; line-height: 1.7;">' +
+              '<p style="margin-bottom: 12px;"><strong style="color: #6366f1;">🎯 Squad Mission:</strong> Work collaboratively to solve all 3 station challenges.</p>' +
+              '<p style="margin-bottom: 12px;"><strong style="color: #0d9488;">🤝 Collaboration Protocol:</strong> Every squad member must explain their mathematical steps and enter their answers.</p>' +
+              '<p style="margin: 0;"><strong style="color: #d97706;">⏱️ Station Duration:</strong> 8:00 minutes before squad rotation.</p>' +
+            '</div>' +
+            '<div style="margin-top: 25px; font-size: 18px; font-weight: bold; color: #64748b;">👉 Press Next to open Questions 1, 2, and 3</div>' +
+          '</div>' +
+          '<div class="timer" onclick="startTimer(this, 8)">8:00</div>'
+        });
+
+        // Slide 2: Station Questions Slide (ALL 3 QUESTIONS ON ONE SLIDE)
+        const q1 = p.structured_exemplars[st.qIdx[0]];
+        const q2 = p.structured_exemplars[st.qIdx[1]];
+        const q3 = p.structured_exemplars[st.qIdx[2]];
+
+        stationSlides.push({
+          title: 'Station ' + st.num + ' ' + st.std + ' (Q1, Q2, Q3)',
+          content: '<div style="margin-bottom: 10px; font-size: 18px; font-weight: bold; color: #4338ca; text-align: center;">' + st.title + ' — All 3 Challenges</div>' +
+            '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; text-align: left;">' +
+              '<div style="background: white; border: 2px solid #cbd5e1; border-radius: 12px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;">' +
+                '<div>' +
+                  '<div style="display: inline-block; background: #6366f1; color: white; padding: 4px 12px; border-radius: 9999px; font-weight: 800; font-size: 13px; margin-bottom: 10px;">Q1</div>' +
+                  renderQuestionContent(q1, 0) +
+                '</div>' +
+              '</div>' +
+              '<div style="background: white; border: 2px solid #cbd5e1; border-radius: 12px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;">' +
+                '<div>' +
+                  '<div style="display: inline-block; background: #6366f1; color: white; padding: 4px 12px; border-radius: 9999px; font-weight: 800; font-size: 13px; margin-bottom: 10px;">Q2</div>' +
+                  renderQuestionContent(q2, 1) +
+                '</div>' +
+              '</div>' +
+              '<div style="background: white; border: 2px solid #cbd5e1; border-radius: 12px; padding: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;">' +
+                '<div>' +
+                  '<div style="display: inline-block; background: #6366f1; color: white; padding: 4px 12px; border-radius: 9999px; font-weight: 800; font-size: 13px; margin-bottom: 10px;">Q3</div>' +
+                  renderQuestionContent(q3, 2) +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="timer" onclick="startTimer(this, 8)">8:00</div>'
+        });
+      });
+
+      const allStationPresentationSlides = [
+        { title: p.topic ? p.topic.replace(/\[.*?\]\s*/, '') : '', content: '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Cluster 3 Benchmark Review Stations</p></div>' },
+        { 
+          title: "1. Spiraled Do Now", 
+          content: '**Directions:**\n' + ((p.do_now || '').split(/\*?Answer Key|\*?Teacher Reference|##+\s*Answer/i)[0].split('\n').filter(l => !l.trim().match(/^\*?Answer:/i)).join('\n')) + '\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>' 
+        },
+        { 
+          title: "2. Classroom Expectations", 
+          content: expectationsContent 
+        },
+        { 
+          title: "3. Today @ A Glance", 
+          content: '**Essential question of the day:**\nHow do we demonstrate mastery across Cluster 3 standards (Equations, Inequalities, Angles, Triangles, and Functions)?\n\n**Collaborative Stations Agenda**\n- Spiraled Do Now (5 min)\n- Stations Briefing & Squad Assignments (5 min)\n- 5 Collaborative Review Stations (8 min rotation per station)\n- Station Debrief & Reflection (5 min)'
+        },
+        ...(getLessonPurpose(p) ? [{
+          title: `Lesson Purpose ("Our Why?")`,
+          content: `<div style="background: white; border-radius: 8px; padding: 25px; border-left: 6px solid var(--kms-purple); box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 22px; line-height: 1.6;">
+### Our Why
+${getLessonPurpose(p)}
+</div>`
+        }] : []),
+        { 
+          title: "4. Student Shoutouts", 
+          content: (() => {
+             const dateShoutouts = getShoutoutsForDate(shoutouts, p.date_start);
+             const s1 = dateShoutouts[0] || "Student 1";
+             const s2 = dateShoutouts[1] || "Student 2";
+             const s3 = dateShoutouts[2] || "Student 3";
+             return '<div class="confetti-container" style="position: absolute; top: -50px; left: 0; width: 100%; padding: 40px 0; pointer-events: none; z-index: -1;"></div>' +
+               '<div style="text-align: center; position: relative; z-index: 10;">' +
+               '<h3 style="color: var(--kms-teal-dark);">Highest TicketOut Scores!</h3>' +
+               '<div style="display: flex; justify-content: space-around; margin-top: 30px;">' +
+                 '<div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">' +
+                   '<h4>Core 1</h4><p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">' + s1 + '</p>' +
+                 '</div>' +
+                 '<div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">' +
+                   '<h4>Core 2</h4><p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">' + s2 + '</p>' +
+                 '</div>' +
+                 '<div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 4px solid var(--kms-purple);">' +
+                   '<h4>Core 3</h4><p style="font-size: 24px; font-weight: bold; color: var(--kms-purple);">' + s3 + '</p>' +
+                 '</div>' +
+               '</div>' +
+             '</div>';
+          })()
+        },
+        ...stationSlides,
+        {
+          title: "6. Station Debrief & Reflection",
+          content: '**Collaborative Stations Debrief:**\n\n1. Which station challenge pushed your squad the most today?\n2. What key strategy or mistake did your group analyze together?\n3. Prepare your TicketOut station notes for review!\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>'
+        }
+      ];
+
+      return allStationPresentationSlides.map(slide => {
+        let sContent = slide.content || "";
+        sContent = sContent.replace(/<\s*or\s*>/gi, '&lt; or &gt;');
+        sContent = sContent.replace(/\bpi\b/gi, '$\\\\pi$');
+        sContent = renderMath(sContent);
+        if (window.marked) {
+          sContent = window.marked.parse(sContent, { breaks: true });
+          sContent = sContent.replace(/<div class="timer"/g, '<div class="timer-container"><div class="timer"');
+          sContent = sContent.replace(/<\/div><\/p>/g, '</div></div></p>');
+        }
+        return { ...slide, content: sContent };
+      });
+    }
+
     const getEssentialQuestion = (obj) => {
         if (!obj) return "What is the core concept of today's lesson?";
         let topic = obj.toLowerCase();
@@ -739,22 +1038,14 @@ ${renderQuestionContent(ex, idx)}
 
 
     
-      const expectationsContent = `<div style="display: flex; align-items: center; justify-content: space-around; padding: 20px;">
-        <ul style="font-size: 32px; line-height: 2.2;">
-          <li>No Cellphones</li>
-          <li>Drop pencils when completed</li>
-          <li>Communicate with respect</li>
-          <li>Raise your hand</li>
-        </ul>
-        <div><img src="${window.location.origin}${getDayOwlImage(p.date_start)}" alt="Owl" onerror="this.onerror=null; this.src='${window.location.origin}/owl-transparent.png';" style="height: 350px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);" /></div>
-      </div>`;
+      // expectationsContent already declared at top
 
 
     const baseSlides = [
       { title: p.topic ? p.topic.replace(/\[.*?\]\s*/, '') : '', content: `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; text-align: center;"><h2>Welcome to Class!</h2><p>Get ready to start.</p></div>` },
       { 
         title: "1. Spiraled Do Now", 
-        content: `**Directions:**\n${(p.do_now || '').split('\n').filter(l => !l.trim().match(/^\*?Answer:/i)).join('\n')}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
+        content: `**Directions:**\n${((p.do_now || '').split(/\*?Answer Key|\*?Teacher Reference|##+\s*Answer/i)[0].split('\n').filter(l => !l.trim().match(/^\*?Answer:/i)).join('\n'))}\n\n<div class="timer" onclick="startTimer(this, 5)">5:00</div>` 
       },
       { 
         title: "2. Classroom Expectations", 
@@ -1357,7 +1648,16 @@ ${renderQuestionContent(p.structured_exemplars[15], 15)}
           </span>
         </div>
         
-        {content && <p style={{ margin: 0, whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>{content}</p>}
+        {content && (
+          <div 
+            style={{ margin: 0, lineHeight: '1.6' }}
+            dangerouslySetInnerHTML={{
+              __html: window.marked 
+                ? window.marked.parse(renderMath(content), { breaks: true }) 
+                : renderMath(content).replace(/\n/g, '<br/>')
+            }}
+          />
+        )}
         {(!content && !children) && <em style={{ color: '#999' }}>Not provided</em>}
         {children}
         
@@ -2016,7 +2316,58 @@ ${renderMath(getLessonPurpose(p || plan))}
 
         
 
+                {/* If Stations Lesson, display dedicated Stations Architecture for Admin */}
+        {(plan.date_start === '2026-11-10' || (plan.topic && plan.topic.toLowerCase().includes('station'))) && plan.structured_exemplars && plan.structured_exemplars.length >= 15 ? (
+          <Section id="stations_matrix" title="🎯 Collaborative Stations Challenge Bank (Admin View)">
+            <div style={{ marginBottom: '16px', background: '#eff6ff', borderLeft: '4px solid #2563eb', padding: '12px 16px', borderRadius: '8px', fontSize: '15px', color: '#1e40af' }}>
+              <strong>📋 Administrator Overview:</strong> 5 stations aligned directly to District Benchmark Form B. Each station contains 3 questions designed for squad collaboration. Every squad member solves and verifies before rotating.
+            </div>
+            {[
+              { num: 1, std: "NC.8.EE.7", title: "Station 1: Multi-Step Equations & Special Solutions", qIdx: [0, 1, 2] },
+              { num: 2, std: "NC.8.EE.7", title: "Station 2: Multi-Step Inequalities & Number Lines", qIdx: [3, 4, 5] },
+              { num: 3, std: "NC.8.G.5", title: "Station 3: Angles, Transversals & Geometric Figures", qIdx: [6, 7, 8] },
+              { num: 4, std: "NC.8.G.5", title: "Station 4: Triangle Angle Sum, Exterior Angles & Similarity", qIdx: [9, 10, 11] },
+              { num: 5, std: "NC.8.F.1", title: "Station 5: Functions, Tables & Scatter Plots", qIdx: [12, 13, 14] }
+            ].map(st => (
+              <div key={'st-' + st.num} style={{ marginBottom: '24px', border: '2px solid #cbd5e1', borderRadius: '12px', overflow: 'hidden', background: 'white' }}>
+                <div style={{ backgroundColor: 'var(--kms-purple)', color: 'white', padding: '12px 18px', fontWeight: 'bold', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '16px' }}>{st.title}</span>
+                  <span style={{ background: 'rgba(255,255,255,0.2)', padding: '3px 10px', borderRadius: '9999px', fontSize: '13px' }}>Standard: {st.std}</span>
+                </div>
+                <div style={{ padding: '16px' }}>
+                  {st.qIdx.map((qIndex, subIdx) => {
+                    const ex = plan.structured_exemplars[qIndex];
+                    if (!ex) return null;
+                    return (
+                      <div key={'q-' + qIndex} style={{ marginBottom: '16px', border: '1px solid #e2e8f0', borderRadius: '8px', overflow: 'hidden' }}>
+                        <div style={{ background: '#f8fafc', padding: '10px 14px', borderBottom: '1px solid #e2e8f0', fontWeight: 'bold', color: '#1e293b' }}>
+                          Question {subIdx + 1}: <span dangerouslySetInnerHTML={{ __html: renderQuestionContent(ex, subIdx) }} />
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#fff' }}>
+                          <div style={{ flex: '1 1 50%', padding: '12px 16px', borderRight: '1px solid #eee' }}>
+                            <div style={{ color: 'var(--kms-teal-dark)', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '6px', fontSize: '14px' }}>
+                              <CheckCircle2 size={15} /> Correct Answer & Process
+                            </div>
+                            <div style={{ whiteSpace: 'pre-wrap', fontSize: '13px', color: '#334155' }}>{ex.correct_answer}</div>
+                          </div>
+                          <div style={{ flex: '1 1 50%', padding: '12px 16px', backgroundColor: '#fff5f5' }}>
+                            <div style={{ color: '#d32f2f', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '6px', fontSize: '14px' }}>
+                              <AlertTriangle size={15} /> Misconception & Guide
+                            </div>
+                            <div style={{ whiteSpace: 'pre-wrap', fontSize: '13px', color: '#7f1d1d' }}>{ex.misconception}</div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </Section>
+        ) : null}
+
         <Section id="group_practice" title="Group Practice">
+
             {plan.structured_exemplars && plan.structured_exemplars.length >= 6 ? (
                 <div>
                     {plan.structured_exemplars.slice(2, 6).map((ex, idx) => (
