@@ -10,35 +10,31 @@ const STANDARD_MAP = {
 
 const REAL_ROSTERS = {
   "core1": [
-    "Leah I Sixtos-Colon",
-    "Luis A Hernandez",
-    "Tyson Drake",
-    "Mara-Lynn Aycock",
-    "Ja'myah Wardlow",
-    "David J Matos Salas",
-    "Laniyah S Farley",
-    "Grace S Bundor",
-    "Destiny Fletcher",
-    "Irvin Toscano-Rivera",
-    "Aveah L Robinson",
-    "Bayam Tomas",
-    "Aryana A Dearmon",
-    "Brooklynne D Flow",
-    "Jada'Kiss A Robinson",
-    "Joe Martinez Nonthe",
-    "Alaysia McDonald",
-    "Keyanna D Moore",
-    "Leonardo N Saucedo Bernal",
-    "Stephanie M Schmidt",
-    "Deshayla Hernandez-Garcia",
-    "Najwa Sediqi",
-    "Javier Isidro-Duarte",
-    "Ci'ree Harvey",
-    "Aydalyz Gutierrez-Garcia",
-    "Cesar S Luna Martinez",
-    "Celeste M Staup",
-    "Alicia G Horton",
-    "Itzia Noyola-Marquez"
+    "Alice P Montalvan-Vasquez",
+    "Martin J Toscano Salinas",
+    "Kalieze T Eaton",
+    "Ricardo J Velasco-Martinez",
+    "Kadeem E Thom",
+    "Nathanal R Flowers",
+    "Kaylee Andres Pedro",
+    "Bradley A Fontaine",
+    "Jayden T Clark",
+    "Janelly Barragan-Candela",
+    "Franco I Sanchez",
+    "Elias B Bernal Avila",
+    "Jaylend A Silva-Arellanez",
+    "Kiara B Aguilar-Morales",
+    "Zinedine Casiano-Montes",
+    "Esther Cuevas-Lopez",
+    "Angel M Maganda Casiano",
+    "Zyan M Robinson",
+    "Jose A Lozano Saucedo",
+    "Mario A Vasquez-Segovia",
+    "Angel D Olmedo-Hernandez",
+    "Jener A Lopez Yanes",
+    "Malena A Banks",
+    "Reggie L Moore III",
+    "Natalie A Moore"
   ],
   "core2": [
     "Miguel M De Los Santos",
@@ -69,44 +65,55 @@ const REAL_ROSTERS = {
     "Roxaly Bernal-Penaloza"
   ],
   "core3": [
-    "Alice P Montalvan-Vasquez",
-    "Martin J Toscano Salinas",
-    "Kalieze T Eaton",
-    "Ricardo J Velasco-Martinez",
-    "Kadeem E Thom",
-    "Nathanal R Flowers",
-    "Kaylee Andres Pedro",
-    "Bradley A Fontaine",
-    "Jayden T Clark",
-    "Janelly Barragan-Candela",
-    "Franco I Sanchez",
-    "Elias B Bernal Avila",
-    "Jaylend A Silva-Arellanez",
-    "Kiara B Aguilar-Morales",
-    "Zinedine Casiano-Montes",
-    "Esther Cuevas-Lopez",
-    "Angel M Maganda Casiano",
-    "Zyan M Robinson",
-    "Jose A Lozano Saucedo",
-    "Mario A Vasquez-Segovia",
-    "Angel D Olmedo-Hernandez",
-    "Jener A Lopez Yanes",
-    "Malena A Banks",
-    "Reggie L Moore III",
-    "Natalie A Moore"
+    "Leah I Sixtos-Colon",
+    "Luis A Hernandez",
+    "Tyson Drake",
+    "Mara-Lynn Aycock",
+    "Ja'myah Wardlow",
+    "David J Matos Salas",
+    "Laniyah S Farley",
+    "Grace S Bundor",
+    "Destiny Fletcher",
+    "Irvin Toscano-Rivera",
+    "Aveah L Robinson",
+    "Bayam Tomas",
+    "Aryana A Dearmon",
+    "Brooklynne D Flow",
+    "Jada'Kiss A Robinson",
+    "Joe Martinez Nonthe",
+    "Alaysia McDonald",
+    "Keyanna D Moore",
+    "Leonardo N Saucedo Bernal",
+    "Stephanie M Schmidt",
+    "Deshayla Hernandez-Garcia",
+    "Najwa Sediqi",
+    "Javier Isidro-Duarte",
+    "Ci'ree Harvey",
+    "Aydalyz Gutierrez-Garcia",
+    "Cesar S Luna Martinez",
+    "Celeste M Staup",
+    "Alicia G Horton",
+    "Itzia Noyola-Marquez"
   ]
 };
 
 const getShoutoutsForDate = (shoutoutsMap, targetDate) => {
-  if (shoutoutsMap && shoutoutsMap[targetDate] && shoutoutsMap[targetDate].some(n => n && n !== "TBD" && !n.startsWith("Student") && n !== "Top Scholar")) {
-    return shoutoutsMap[targetDate];
-  }
   const hash = (targetDate || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return [
+  const fallback = [
     REAL_ROSTERS.core1[hash % REAL_ROSTERS.core1.length],
     REAL_ROSTERS.core2[(hash * 3 + 7) % REAL_ROSTERS.core2.length],
     REAL_ROSTERS.core3[(hash * 7 + 13) % REAL_ROSTERS.core3.length]
   ];
+
+  if (shoutoutsMap && shoutoutsMap[targetDate]) {
+    const raw = shoutoutsMap[targetDate];
+    return [
+      raw[0] && raw[0] !== 'TBD' && !raw[0].startsWith('Student') && raw[0] !== 'Top Scholar' ? raw[0] : fallback[0],
+      raw[1] && raw[1] !== 'TBD' && !raw[1].startsWith('Student') && raw[1] !== 'Top Scholar' ? raw[1] : fallback[1],
+      raw[2] && raw[2] !== 'TBD' && !raw[2].startsWith('Student') && raw[2] !== 'Top Scholar' ? raw[2] : fallback[2]
+    ];
+  }
+  return fallback;
 };
 
 const getLessonPurpose = (p) => {

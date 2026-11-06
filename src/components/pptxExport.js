@@ -484,7 +484,7 @@ export function addProblemContent(slide, ex, pres) {
   }
 }
 
-export function buildPlanPptx(pres, p, weekPlans) {
+export function buildPlanPptx(pres, p, weekPlans, shoutouts = {}) {
   pres.layout = 'LAYOUT_16x9';
 
   // 1. Welcome Slide
@@ -661,10 +661,11 @@ export function buildPlanPptx(pres, p, weekPlans) {
       fontSize: 16, bold: true, color: COLOR_TEAL, align: 'center'
     });
 
+    const shoutoutNames = (shoutouts && shoutouts[p.date_start]) ? shoutouts[p.date_start] : [];
     const cores = [
-      { name: 'Core 1', student: 'Top Scholar' },
-      { name: 'Core 2', student: 'Top Scholar' },
-      { name: 'Core 3', student: 'Top Scholar' }
+      { name: 'Core 1', student: (shoutoutNames[0] && shoutoutNames[0] !== 'TBD' && !shoutoutNames[0].startsWith('Student')) ? shoutoutNames[0] : 'Top Scholar' },
+      { name: 'Core 2', student: (shoutoutNames[1] && shoutoutNames[1] !== 'TBD' && !shoutoutNames[1].startsWith('Student')) ? shoutoutNames[1] : 'Top Scholar' },
+      { name: 'Core 3', student: (shoutoutNames[2] && shoutoutNames[2] !== 'TBD' && !shoutoutNames[2].startsWith('Student')) ? shoutoutNames[2] : 'Top Scholar' }
     ];
 
     cores.forEach((c, idx) => {
