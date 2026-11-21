@@ -89,11 +89,12 @@ export function getFramingArc(plan) {
   const match = di.match(/(?:\*\*Admin Framing:\*\*|##+ [^\n]*Framing[^\n]*)\s*([\s\S]*?)(?=\n##|---|$|\n\n\n)/i);
   if (match) {
     const text = match[1].trim();
-    const ym = text.match(/Yesterday we:?\s*(.*?)(?=\.?\s*\n?\*?\s*\*\*Today|\n\n|$)/i);
-    const tm = text.match(/Today we will:?\s*(.*?)(?=\.?\s*\n?\*?\s*\*\*so that|\n\n|$)/i);
+    const ym = text.match(/Yesterday we:?\s*(.*?)(?=\.?\s*\n?\*?\s*\*\*Today|\n\*|\n\n|$)/i);
+    const tm = text.match(/Today we will:?\s*(.*?)(?=\.?\s*\n?\*?\s*\*\*so that|\n\*|\n\n|$)/i);
     const sm = text.match(/so that:?\s*(.*?)(?=\n\n|\n##|$)/i);
     if (ym && tm && sm) {
-      return { yesterday: ym[1].trim(), today: tm[1].trim(), soThat: sm[1].trim() };
+      const cleanFraming = (s) => (s || '').replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+      return { yesterday: cleanFraming(ym[1]), today: cleanFraming(tm[1]), soThat: cleanFraming(sm[1]) };
     }
   }
   return null;
@@ -652,6 +653,53 @@ export function buildPlanPptx(pres, p, weekPlans, shoutouts = {}) {
     });
   }
 
+  // 3c. Criteria for Success (Vector Slide)
+  if (p.criteria_for_success) {
+    const sCfs = pres.addSlide();
+    addHeader(sCfs, 'Criteria for Success', null, pres);
+    sCfs.addShape(pres.ShapeType.roundRect, {
+      x: 0.8, y: 1.25, w: 8.4, h: 3.9,
+      fill: { color: 'F8FAFC' }, line: { color: COLOR_PURPLE, width: 2 }
+    });
+    sCfs.addShape(pres.ShapeType.roundRect, {
+      x: 1.0, y: 1.4, w: 8.0, h: 0.5,
+      fill: { color: 'EDE9FE' }, line: { color: COLOR_PURPLE, width: 1 }
+    });
+    sCfs.addText('🎯 How do I know I\'ve mastered today\'s objective?', {
+      x: 1.2, y: 1.4, w: 7.6, h: 0.5,
+      fontSize: 14, bold: true, color: COLOR_PURPLE, valign: 'middle'
+    });
+
+    const cfsLines = String(p.criteria_for_success)
+      .split('\n')
+      .map(l => l.trim())
+      .filter(Boolean)
+      .slice(0, 5);
+
+    cfsLines.forEach((line, idx) => {
+      const cleanLine = cleanMathText(line.replace(/^\d+[\.\)]\s*/, '').replace(/^\[[ xX]?\]\s*/, ''));
+      const itemY = 2.05 + idx * 0.58;
+      // Step badge
+      sCfs.addShape(pres.ShapeType.roundRect, {
+        x: 1.1, y: itemY, w: 0.75, h: 0.45,
+        fill: { color: COLOR_PURPLE }
+      });
+      sCfs.addText(`Step ${idx + 1}`, {
+        x: 1.1, y: itemY, w: 0.75, h: 0.45,
+        fontSize: 10, bold: true, color: COLOR_WHITE, align: 'center', valign: 'middle'
+      });
+      // Text container
+      sCfs.addShape(pres.ShapeType.roundRect, {
+        x: 1.95, y: itemY, w: 6.95, h: 0.48,
+        fill: { color: COLOR_WHITE }, line: { color: COLOR_BORDER, width: 1 }
+      });
+      sCfs.addText(cleanLine, {
+        x: 2.1, y: itemY + 0.04, w: 6.65, h: 0.4,
+        fontSize: 11.5, color: COLOR_SLATE, valign: 'middle'
+      });
+    });
+  }
+
   // 5. Student Shoutouts
   {
     const s = pres.addSlide();
@@ -827,7 +875,7 @@ export function buildPlanPptx(pres, p, weekPlans, shoutouts = {}) {
     [0, 1].forEach((exIdx) => {
       const ex = p.structured_exemplars[exIdx];
       const s = pres.addSlide();
-      addHeader(s, `8. Guided Practice (Problem ${exIdx + 1})`, '5:00', pres);
+      addHeader(s, `8. Guided Practice (Problem ${exIdx + 1}) — Select & Explain Why`, '5:00', pres);
       addProblemContent(s, ex, pres);
     });
   }

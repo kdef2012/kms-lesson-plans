@@ -135,6 +135,22 @@ const getLessonPurpose = (p) => {
 
 const getFramingArc = (p, allPlans) => {
   if (!p) return null;
+
+  // 1. Check for explicit learning progression framing in direct_instruction or admin_framing
+  const di = p.direct_instruction || '';
+  const match = di.match(/(?:\*\*Admin Framing:\*\*|##+ [^\n]*Framing[^\n]*)\s*([\s\S]*?)(?=\n##|---|$|\n\n\n)/i);
+  if (match) {
+    const text = match[1].trim();
+    const ym = text.match(/Yesterday we:?\s*(.*?)(?=\.?\s*\n?\*?\s*\*\*Today|\n\*|\n\n|$)/i);
+    const tm = text.match(/Today we will:?\s*(.*?)(?=\.?\s*\n?\*?\s*\*\*so that|\n\*|\n\n|$)/i);
+    const sm = text.match(/so that:?\s*(.*?)(?=\n\n|\n##|$)/i);
+    if (ym && tm && sm) {
+      const cleanFraming = (s) => (s || '').replace(/^[\*\s]+|[\*\s]+$/g, '').trim();
+      return { yesterday: cleanFraming(ym[1]), today: cleanFraming(tm[1]), soThat: cleanFraming(sm[1]) };
+    }
+  }
+
+  // 2. Dynamic Fallback: Carry previous day's "Today" statement into "Yesterday"
   let yesterday = "reviewed prerequisite mathematical foundations and problem-solving skills";
   if (p.date_start === '2026-10-29') {
     yesterday = "solved multi-step linear equations with rational coefficients and determined when equations have one, no, or infinitely many solutions (8.EE.7)";
@@ -143,7 +159,38 @@ const getFramingArc = (p, allPlans) => {
     const idx = sorted.findIndex(item => item.date_start === p.date_start);
     if (idx > 0) {
       const prev = sorted[idx - 1];
-      yesterday = (prev.topic || '').replace(/\[.*?\]\s*/, '') + (prev.standard ? ` (${prev.standard})` : '');
+      let prevToday = null;
+      if (prev.direct_instruction) {
+        const pMatch = prev.direct_instruction.match(/(?:\*\*Admin Framing:\*\*|##+ [^\n]*Framing[^\n]*)\s*([\s\S]*?)(?=\n##|---|$|\n\n\n)/i);
+        if (pMatch) {
+          const ptm = pMatch[1].match(/Today we will:?\s*(.*?)(?=\.?\s*\n?\*?\s*\*\*so that|\n\*|\n\n|$)/i);
+          if (ptm) prevToday = ptm[1].trim();
+        }
+      }
+      if (!prevToday && prev.objective_3m) {
+        prevToday = prev.objective_3m
+          .replace(/^SWBAT\s+/i, '')
+          .replace(/\s+with\s+\d+%.*$/i, '')
+          .replace(/\s+with\s+at least.*$/i, '')
+          .trim();
+      }
+      if (prevToday) {
+        yesterday = prevToday.replace(/^(compare|solve|analyze|sketch|identify|graph|evaluate|determine)\b/i, (m) => {
+          const map = {
+            'compare': 'compared',
+            'solve': 'solved',
+            'analyze': 'analyzed',
+            'sketch': 'sketched',
+            'identify': 'identified',
+            'graph': 'graphed',
+            'evaluate': 'evaluated',
+            'determine': 'determined'
+          };
+          return map[m.toLowerCase()] || (m + 'd');
+        });
+      } else {
+        yesterday = (prev.topic || '').replace(/\[.*?\]\s*/, '') + (prev.standard ? ` (${prev.standard})` : '');
+      }
     }
   }
 
@@ -843,6 +890,35 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
 ${getLessonPurpose(p)}
 </div>`
         }] : []),
+      ...(p.criteria_for_success ? [{
+        title: `Criteria for Success`,
+        content: (() => {
+          const lines = String(p.criteria_for_success)
+            .split('\n')
+            .map(l => l.trim())
+            .filter(Boolean);
+          const checklistHTML = lines.map(l => {
+            const cleanL = l.replace(/^\d+[\.\)]\s*/, '').replace(/^\[[ xX]?\]\s*/, '');
+            return `<li style="margin-bottom: 14px; display: flex; align-items: flex-start; gap: 12px; font-size: 19px; line-height: 1.5; color: #1e293b;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #e0e7ff; color: #4338ca; border-radius: 6px; font-weight: bold; flex-shrink: 0; font-size: 15px;">✓</span>
+              <span>${renderMath(cleanL)}</span>
+            </li>`;
+          }).join('');
+          return `<div style="background: white; border-radius: 12px; padding: 28px 32px; border-left: 8px solid #4338ca; box-shadow: 0 6px 16px rgba(0,0,0,0.08); text-align: left; max-width: 900px; margin: 0 auto;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+              <h3 style="color: #4338ca; font-size: 24px; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px;">
+                🎯 Criteria for Success
+              </h3>
+              <span style="font-size: 14px; color: #0f766e; font-weight: 700; background: #ccfbf1; padding: 4px 12px; border-radius: 9999px;">
+                How I Know I Am Successful Today
+              </span>
+            </div>
+            <ul style="list-style: none; padding-left: 0; margin: 0;">
+              ${checklistHTML}
+            </ul>
+          </div>`;
+        })()
+      }] : []),
         { 
           title: "4. Student Shoutouts", 
           content: (() => {
@@ -907,8 +983,11 @@ ${getLessonPurpose(p)}
         const guidedChunk = p.structured_exemplars.slice(0, 2);
         guidedChunk.forEach((ex, idx) => {
           guidedSlides.push({
-            title: `8. Guided Practice (Problem ${idx + 1})`,
-            content: `<div style="font-size: 24px; text-align: center; margin-top: 40px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
+            title: `8. Guided Practice (Problem ${idx + 1}) — Select & Explain Why`,
+            content: `<div class="rigor-banner" style="background: #fdf4ff; border-left: 4px solid #a855f7; padding: 8px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 15px; font-weight: 700; color: #7e22ce; text-align: left;">
+              🧠 Scholars: Select your answer AND explain WHY (justify your reasoning using mathematical vocabulary).
+            </div>
+            <div style="font-size: 24px; text-align: center; margin-top: 20px; padding: 20px; background: white; border-radius: 8px; border: 2px solid #ccc;">
 ${renderQuestionContent(ex, typeof idx !== 'undefined' ? idx : (typeof i !== 'undefined' ? i : 0))}
 </div>
 
@@ -1079,6 +1158,35 @@ ${renderQuestionContent(ex, idx)}
 ### Our Why
 ${getLessonPurpose(p)}
 </div>`
+      }] : []),
+      ...(p.criteria_for_success ? [{
+        title: `Criteria for Success`,
+        content: (() => {
+          const lines = String(p.criteria_for_success)
+            .split('\n')
+            .map(l => l.trim())
+            .filter(Boolean);
+          const checklistHTML = lines.map(l => {
+            const cleanL = l.replace(/^\d+[\.\)]\s*/, '').replace(/^\[[ xX]?\]\s*/, '');
+            return `<li style="margin-bottom: 14px; display: flex; align-items: flex-start; gap: 12px; font-size: 19px; line-height: 1.5; color: #1e293b;">
+              <span style="display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: #e0e7ff; color: #4338ca; border-radius: 6px; font-weight: bold; flex-shrink: 0; font-size: 15px;">✓</span>
+              <span>${renderMath(cleanL)}</span>
+            </li>`;
+          }).join('');
+          return `<div style="background: white; border-radius: 12px; padding: 28px 32px; border-left: 8px solid #4338ca; box-shadow: 0 6px 16px rgba(0,0,0,0.08); text-align: left; max-width: 900px; margin: 0 auto;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+              <h3 style="color: #4338ca; font-size: 24px; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 8px;">
+                🎯 Criteria for Success
+              </h3>
+              <span style="font-size: 14px; color: #0f766e; font-weight: 700; background: #ccfbf1; padding: 4px 12px; border-radius: 9999px;">
+                How I Know I Am Successful Today
+              </span>
+            </div>
+            <ul style="list-style: none; padding-left: 0; margin: 0;">
+              ${checklistHTML}
+            </ul>
+          </div>`;
+        })()
       }] : []),
       { 
         title: "4. Student Shoutouts", 
