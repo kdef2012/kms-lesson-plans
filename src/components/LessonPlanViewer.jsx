@@ -225,6 +225,75 @@ import { buildPlanPptx, cleanMathText } from './pptxExport';
 
 
 
+
+export const generateMayaDistanceTimeSvg = () => {
+  const w = 560, h = 270;
+  const padL = 70, padR = 40, padT = 35, padB = 45;
+  const gw = w - padL - padR; // 450
+  const gh = h - padT - padB; // 190
+
+  const scaleX = (t) => padL + (t / 60) * gw;
+  const scaleY = (d) => (padT + gh) - (d / 3.5) * gh;
+
+  // Grid
+  let grid = '';
+  const xTicks = [0, 10, 20, 25, 30, 40, 45, 50, 60];
+  xTicks.forEach(t => {
+    const px = scaleX(t);
+    const isMajor = [0, 10, 25, 45, 60].includes(t);
+    grid += '<line x1="' + px + '" y1="' + padT + '" x2="' + px + '" y2="' + (padT + gh) + '" stroke="' + (isMajor ? '#cbd5e1' : '#f1f5f9') + '" stroke-width="' + (isMajor ? '1.5' : '1') + '" ' + (isMajor ? '' : 'stroke-dasharray="3 3"') + '/>';
+    grid += '<text x="' + px + '" y="' + (padT + gh + 16) + '" fill="#475569" font-size="11" font-weight="' + (isMajor ? '700' : '500') + '" text-anchor="middle">' + t + '</text>';
+  });
+
+  for (let d = 0; d <= 3.5; d += 0.5) {
+    const py = scaleY(d);
+    const isMajor = Number.isInteger(d);
+    grid += '<line x1="' + padL + '" y1="' + py + '" x2="' + (padL + gw) + '" y2="' + py + '" stroke="' + (isMajor ? '#cbd5e1' : '#f1f5f9') + '" stroke-width="' + (isMajor ? '1.5' : '1') + '" ' + (isMajor ? '' : 'stroke-dasharray="3 3"') + '/>';
+    grid += '<text x="' + (padL - 8) + '" y="' + (py + 4) + '" fill="#475569" font-size="11" font-weight="' + (isMajor ? '700' : '500') + '" text-anchor="end">' + d + '</text>';
+  }
+
+  const p0 = { x: scaleX(0), y: scaleY(0) };
+  const p1 = { x: scaleX(10), y: scaleY(2) };
+  const p2 = { x: scaleX(25), y: scaleY(2) };
+  const p3 = { x: scaleX(45), y: scaleY(3) };
+  const p4 = { x: scaleX(60), y: scaleY(0) };
+
+  const segA = '<line x1="' + p0.x + '" y1="' + p0.y + '" x2="' + p1.x + '" y2="' + p1.y + '" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>';
+  const segB = '<line x1="' + p1.x + '" y1="' + p1.y + '" x2="' + p2.x + '" y2="' + p2.y + '" stroke="#7c3aed" stroke-width="4.5" stroke-linecap="round"/>';
+  const segC = '<line x1="' + p2.x + '" y1="' + p2.y + '" x2="' + p3.x + '" y2="' + p3.y + '" stroke="#0d9488" stroke-width="4" stroke-linecap="round"/>';
+  const segD = '<line x1="' + p3.x + '" y1="' + p3.y + '" x2="' + p4.x + '" y2="' + p4.y + '" stroke="#e11d48" stroke-width="4" stroke-linecap="round"/>';
+
+  const badgeA = '<g><rect x="' + ((p0.x + p1.x)/2 - 36) + '" y="' + ((p0.y + p1.y)/2 - 24) + '" width="72" height="20" rx="5" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/><text x="' + ((p0.x + p1.x)/2) + '" y="' + ((p0.y + p1.y)/2 - 10) + '" fill="#1e40af" font-size="11" font-weight="800" text-anchor="middle">Segment A</text></g>';
+  const badgeB = '<g><rect x="' + ((p1.x + p2.x)/2 - 44) + '" y="' + (p1.y - 28) + '" width="88" height="22" rx="6" fill="#faf5ff" stroke="#7c3aed" stroke-width="2"/><text x="' + ((p1.x + p2.x)/2) + '" y="' + (p1.y - 13) + '" fill="#6b21a8" font-size="12" font-weight="900" text-anchor="middle">Segment B</text></g>';
+  const badgeC = '<g><rect x="' + ((p2.x + p3.x)/2 - 36) + '" y="' + ((p2.y + p3.y)/2 - 24) + '" width="72" height="20" rx="5" fill="#f0fdfa" stroke="#0d9488" stroke-width="1.5"/><text x="' + ((p2.x + p3.x)/2) + '" y="' + ((p2.y + p3.y)/2 - 10) + '" fill="#0f766e" font-size="11" font-weight="800" text-anchor="middle">Segment C</text></g>';
+  const badgeD = '<g><rect x="' + ((p3.x + p4.x)/2 - 36) + '" y="' + ((p3.y + p4.y)/2 - 24) + '" width="72" height="20" rx="5" fill="#fff1f2" stroke="#e11d48" stroke-width="1.5"/><text x="' + ((p3.x + p4.x)/2) + '" y="' + ((p3.y + p4.y)/2 - 10) + '" fill="#be123c" font-size="11" font-weight="800" text-anchor="middle">Segment D</text></g>';
+
+  const pts = [
+    { pt: p0, label: '(0, 0)' },
+    { pt: p1, label: '(10, 2)' },
+    { pt: p2, label: '(25, 2)' },
+    { pt: p3, label: '(45, 3)' },
+    { pt: p4, label: '(60, 0)' }
+  ].map(({ pt, label }) => {
+    return '<circle cx="' + pt.x + '" cy="' + pt.y + '" r="5" fill="#0f172a" stroke="#ffffff" stroke-width="2"/>' +
+      '<text x="' + pt.x + '" y="' + (pt.y + 16) + '" fill="#0f172a" font-size="10" font-weight="700" text-anchor="middle">' + label + '</text>';
+  }).join('');
+
+  return '<div style="margin: 12px auto; display: flex; justify-content: center; width: 100%; max-width: 580px;">' +
+    '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="auto" style="background: white; border-radius: 10px; border: 1.5px solid #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">' +
+      '<text x="' + (w / 2) + '" y="22" fill="#1e293b" font-size="14" font-weight="800" text-anchor="middle">Maya\'s Trip: Distance vs. Time</text>' +
+      grid +
+      '<line x1="' + padL + '" y1="' + (padT + gh) + '" x2="' + (padL + gw) + '" y2="' + (padT + gh) + '" stroke="#1e293b" stroke-width="2.5"/>' +
+      '<line x1="' + padL + '" y1="' + (padT + gh) + '" x2="' + padL + '" y2="' + padT + '" stroke="#1e293b" stroke-width="2.5"/>' +
+      segA + segB + segC + segD +
+      badgeA + badgeB + badgeC + badgeD +
+      pts +
+      '<text x="' + (padL + gw / 2) + '" y="' + (h - 8) + '" fill="#1e293b" font-size="12" font-weight="700" text-anchor="middle">Time (minutes)</text>' +
+      '<text x="16" y="' + (padT + gh / 2) + '" fill="#1e293b" font-size="12" font-weight="700" text-anchor="middle" transform="rotate(-90 16 ' + (padT + gh / 2) + ')">Distance from Home (miles)</text>' +
+    '</svg>' +
+  '</div>';
+};
+
 const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
   const getDayOwlImage = (dateStr) => {
     try {
@@ -268,15 +337,8 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
     let cleanText = rawText.replace(/^(Group Practice|Example)\s*\d*[:.-]?\s*/i, '').trim();
     let html = cleanText ? '<div style="font-weight: 600; font-size: 1.15em; margin-bottom: 15px; color: #1e293b;">' + renderMath(cleanText) + '</div>' : '';
     
-    if (ex.type === 'multiple-choice' && ex.options) {
-      // Deterministically shuffle based on question string length + index
-      let opts = [...ex.options];
-      let seed = (cleanText || '').length + index;
-      for (let i = opts.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.abs(Math.sin(seed++) * 10000)) % (i + 1);
-        [opts[i], opts[j]] = [opts[j], opts[i]];
-      }
-      html += '<ol style="list-style-type: upper-alpha; margin-left: 20px; margin-top: 10px; font-size: 0.95em; text-align: left;">' + opts.map(o => '<li style="margin-bottom:6px;">' + renderMath(o) + '</li>').join('') + '</ol>';
+    if (ex.visualData && (ex.visualData.type === 'distance-time' || ex.visualData.type === 'maya-trip')) {
+      html += generateMayaDistanceTimeSvg();
     }
 
     
@@ -684,6 +746,18 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
           dots +
         '</svg>' +
       '</div>';
+    }
+
+    
+    if (ex.type === 'multiple-choice' && ex.options) {
+      // Deterministically shuffle based on question string length + index
+      let opts = [...ex.options];
+      let seed = (cleanText || '').length + index;
+      for (let i = opts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.abs(Math.sin(seed++) * 10000)) % (i + 1);
+        [opts[i], opts[j]] = [opts[j], opts[i]];
+      }
+      html += '<ol style="list-style-type: upper-alpha; margin-left: 20px; margin-top: 10px; font-size: 0.95em; text-align: left;">' + opts.map(o => '<li style="margin-bottom:6px;">' + renderMath(o) + '</li>').join('') + '</ol>';
     }
 
     if (ex.type === 'matching' && ex.matchingPrompts && ex.matchingOptions) {
@@ -1140,7 +1214,10 @@ ${renderQuestionContent(ex, idx)}
              // Strip out any redundant Example 1/2 blocks from Direct Instruction ("I Do") to eliminate extra focus problems and slide duplication.
              content = content.replace(/\*\*Example\s*1\*\*[\s\S]*/i, '').trim();
              if (content && content.replace(/[#\-\s]/g, '').length > 0) {
-                diSlides.push({
+                if (title.toLowerCase().includes('launch') && (content.includes("Maya's trip") || content.toLowerCase().includes('segment a')) && !content.includes('<svg')) {
+                 content = content + '\n\n' + generateMayaDistanceTimeSvg();
+               }
+               diSlides.push({
                    title: title,
                    content: content
                 });
@@ -1282,7 +1359,9 @@ ${getLessonPurpose(p)}
 ...diSlides,
       { 
         title: `7. Formative Assessment #1 (${(p.checks_for_understanding && p.checks_for_understanding[0]?.method) || 'Turn & Talk'})`, 
-        content: `**Check for understanding (${(p.checks_for_understanding && p.checks_for_understanding[0]?.method) || 'Turn & Talk'}):**\n${(p.checks_for_understanding && p.checks_for_understanding[0]?.cfu) || cfuText}\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>` 
+        content: `**Check for understanding (${(p.checks_for_understanding && p.checks_for_understanding[0]?.method) || 'Turn & Talk'}):**\n${(p.checks_for_understanding && p.checks_for_understanding[0]?.cfu) || cfuText}` +
+          (((p.checks_for_understanding && p.checks_for_understanding[0]?.cfu?.toLowerCase().includes('segment')) || (p.topic && (p.topic.includes('5.5') || p.topic.includes('U5 L5')))) ? `\n\n${generateMayaDistanceTimeSvg()}` : '') +
+          `\n\n<div class="timer" onclick="startTimer(this, 2)">2:00</div>` 
       },
       ...guidedSlides,
       ...(p.checks_for_understanding && p.checks_for_understanding[1] ? [{

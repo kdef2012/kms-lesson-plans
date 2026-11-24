@@ -348,6 +348,152 @@ export function renderSimilarTrianglesNative(slide, vd = {}, pres, box = { x: 0.
   });
 }
 
+
+export function renderDistanceTimeNative(slide, pres, box = { x: 0.7, y: 1.15, w: 4.2, h: 3.9 }) {
+  const { x, y, w, h } = box;
+  slide.addShape(pres.ShapeType.roundRect, {
+    x, y, w, h,
+    fill: { color: 'F8FAFC' }, line: { color: COLOR_BORDER, width: 1.5 }
+  });
+
+  slide.addText("Maya's Trip: Distance vs. Time", {
+    x: x + 0.2, y: y + 0.15, w: w - 0.4, h: 0.35,
+    fontSize: 12, bold: true, color: '1E293B', align: 'center', valign: 'middle'
+  });
+
+  const pX = x + 0.7, pY = y + 0.6, pW = w - 1.0, pH = h - 1.25;
+  const bY = pY + pH;
+
+  slide.addShape(pres.ShapeType.line, { x: pX, y: pY, w: 0, h: pH, line: { color: '1E293B', width: 2 } });
+  slide.addShape(pres.ShapeType.line, { x: pX, y: bY, w: pW, h: 0, line: { color: '1E293B', width: 2 } });
+
+  const xPts = [0, 10, 20, 25, 30, 40, 45, 50, 60];
+  xPts.forEach(t => {
+    const tx = pX + (t / 60) * pW;
+    const isMajor = [0, 10, 25, 45, 60].includes(t);
+    slide.addShape(pres.ShapeType.line, { x: tx, y: bY, w: 0, h: isMajor ? 0.08 : 0.04, line: { color: '64748B', width: 1 } });
+    if (isMajor) {
+      slide.addText(String(t), { x: tx - 0.2, y: bY + 0.08, w: 0.4, h: 0.25, fontSize: 8.5, bold: true, color: '475569', align: 'center' });
+    }
+  });
+
+  [0, 1, 2, 3].forEach(d => {
+    const ty = bY - (d / 3.5) * pH;
+    slide.addShape(pres.ShapeType.line, { x: pX - 0.08, y: ty, w: 0.08, h: 0, line: { color: '64748B', width: 1 } });
+    slide.addText(String(d), { x: pX - 0.35, y: ty - 0.1, w: 0.25, h: 0.2, fontSize: 8.5, bold: true, color: '475569', align: 'right' });
+  });
+
+  const scaleX = (t) => pX + (t / 60) * pW;
+  const scaleY = (d) => bY - (d / 3.5) * pH;
+
+  const P0 = { x: scaleX(0), y: scaleY(0) };
+  const P1 = { x: scaleX(10), y: scaleY(2) };
+  const P2 = { x: scaleX(25), y: scaleY(2) };
+  const P3 = { x: scaleX(45), y: scaleY(3) };
+  const P4 = { x: scaleX(60), y: scaleY(0) };
+
+  slide.addShape(pres.ShapeType.line, { x: P0.x, y: P1.y, w: P1.x - P0.x, h: P0.y - P1.y, flipV: true, line: { color: '2563EB', width: 3 } });
+  slide.addShape(pres.ShapeType.line, { x: P1.x, y: P1.y, w: P2.x - P1.x, h: 0, line: { color: '7C3AED', width: 3.5 } });
+  slide.addShape(pres.ShapeType.line, { x: P2.x, y: P3.y, w: P3.x - P2.x, h: P2.y - P3.y, flipV: true, line: { color: '0D9488', width: 3 } });
+  slide.addShape(pres.ShapeType.line, { x: P3.x, y: P3.y, w: P4.x - P3.x, h: P4.y - P3.y, line: { color: 'E11D48', width: 3 } });
+
+  slide.addShape(pres.ShapeType.roundRect, { x: (P0.x + P1.x)/2 - 0.35, y: (P0.y + P1.y)/2 - 0.3, w: 0.7, h: 0.24, fill: { color: 'EFF6FF' }, line: { color: '2563EB', width: 1 } });
+  slide.addText('Seg A', { x: (P0.x + P1.x)/2 - 0.35, y: (P0.y + P1.y)/2 - 0.3, w: 0.7, h: 0.24, fontSize: 8.5, bold: true, color: '1E40AF', align: 'center', valign: 'middle' });
+
+  slide.addShape(pres.ShapeType.roundRect, { x: (P1.x + P2.x)/2 - 0.65, y: P1.y - 0.32, w: 1.3, h: 0.26, fill: { color: 'FAF5FF' }, line: { color: '7C3AED', width: 1.5 } });
+  slide.addText('Seg B (Stopped)', { x: (P1.x + P2.x)/2 - 0.65, y: P1.y - 0.32, w: 1.3, h: 0.26, fontSize: 8.5, bold: true, color: '6B21A8', align: 'center', valign: 'middle' });
+
+  slide.addShape(pres.ShapeType.roundRect, { x: (P2.x + P3.x)/2 - 0.35, y: (P2.y + P3.y)/2 - 0.3, w: 0.7, h: 0.24, fill: { color: 'F0FDFA' }, line: { color: '0D9488', width: 1 } });
+  slide.addText('Seg C', { x: (P2.x + P3.x)/2 - 0.35, y: (P2.y + P3.y)/2 - 0.3, w: 0.7, h: 0.24, fontSize: 8.5, bold: true, color: '0F766E', align: 'center', valign: 'middle' });
+
+  slide.addShape(pres.ShapeType.roundRect, { x: (P3.x + P4.x)/2 - 0.45, y: (P3.y + P4.y)/2 - 0.3, w: 0.9, h: 0.24, fill: { color: 'FFF1F2' }, line: { color: 'E11D48', width: 1 } });
+  slide.addText('Seg D (Return)', { x: (P3.x + P4.x)/2 - 0.45, y: (P3.y + P4.y)/2 - 0.3, w: 0.9, h: 0.24, fontSize: 8.5, bold: true, color: 'BE123C', align: 'center', valign: 'middle' });
+
+  slide.addText('Time (minutes)', { x: pX, y: bY + 0.32, w: pW, h: 0.25, fontSize: 9.5, bold: true, color: '1E293B', align: 'center' });
+  slide.addText('Distance from Home (mi)', { x: x - 0.1, y: y + 0.15, w: 1.2, h: 0.25, fontSize: 8.5, bold: true, color: '1E293B', align: 'left' });
+}
+
+export function renderLineGraphNative(slide, vd = {}, pres, box = { x: 0.7, y: 1.15, w: 4.2, h: 3.9 }) {
+  const { x, y, w, h } = box;
+  const pts = vd.points || [];
+  slide.addShape(pres.ShapeType.roundRect, {
+    x, y, w, h,
+    fill: { color: 'F8FAFC' }, line: { color: COLOR_BORDER, width: 1.5 }
+  });
+
+  const title = vd.yLabel ? (vd.yLabel + ' vs. ' + (vd.xLabel || 'Time')) : 'Function Line Graph';
+  slide.addText(title, {
+    x: x + 0.2, y: y + 0.12, w: w - 0.4, h: 0.32,
+    fontSize: 11, bold: true, color: '1E293B', align: 'center', valign: 'middle'
+  });
+
+  const pX = x + 0.7, pY = y + 0.55, pW = w - 0.95, pH = h - 1.15;
+  const bY = pY + pH;
+
+  const xVals = pts.map(p => p.x);
+  const yVals = pts.map(p => p.y);
+  const minX = Math.min(...xVals);
+  const maxX = Math.max(...xVals);
+  const minY = vd.yMin !== undefined ? vd.yMin : Math.floor(Math.min(...yVals));
+  const maxY = vd.yMax !== undefined ? vd.yMax : Math.ceil(Math.max(...yVals));
+
+  const scaleX = (val) => pX + ((val - minX) / (maxX - minX || 1)) * pW;
+  const scaleY = (val) => bY - ((val - minY) / (maxY - minY || 1)) * pH;
+
+  slide.addShape(pres.ShapeType.line, { x: pX, y: pY, w: 0, h: pH, line: { color: '1E293B', width: 2 } });
+  slide.addShape(pres.ShapeType.line, { x: pX, y: bY, w: pW, h: 0, line: { color: '1E293B', width: 2 } });
+
+  const xStep = xVals.length > 10 ? 2 : 1;
+  xVals.forEach((val, i) => {
+    if (i % xStep === 0) {
+      const tx = scaleX(val);
+      slide.addShape(pres.ShapeType.line, { x: tx, y: pY, w: 0, h: pH, line: { color: 'E2E8F0', width: 0.8, dashType: 'dash' } });
+      slide.addText(String(val), { x: tx - 0.2, y: bY + 0.05, w: 0.4, h: 0.22, fontSize: 8, bold: true, color: '64748B', align: 'center' });
+    }
+  });
+
+  const ySteps = 5;
+  const yDiff = maxY - minY || 1;
+  const yInc = Math.max(1, Math.round(yDiff / ySteps));
+  for (let dy = minY; dy <= maxY; dy += yInc) {
+    const ty = scaleY(dy);
+    slide.addShape(pres.ShapeType.line, { x: pX, y: ty, w: pW, h: 0, line: { color: 'E2E8F0', width: 0.8 } });
+    const yDisp = dy >= 1000 ? (dy/1000) + 'k' : String(dy);
+    slide.addText(yDisp, { x: pX - 0.42, y: ty - 0.1, w: 0.35, h: 0.2, fontSize: 8, bold: true, color: '64748B', align: 'right' });
+  }
+
+  for (let i = 0; i < pts.length - 1; i++) {
+    const pt1 = pts[i];
+    const pt2 = pts[i + 1];
+    const x1 = scaleX(pt1.x);
+    const y1 = scaleY(pt1.y);
+    const x2 = scaleX(pt2.x);
+    const y2 = scaleY(pt2.y);
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+
+    if (Math.abs(dy) < 0.01) {
+      slide.addShape(pres.ShapeType.line, { x: x1, y: y1, w: dx, h: 0, line: { color: '4338CA', width: 2.5 } });
+    } else if (dy < 0) {
+      slide.addShape(pres.ShapeType.line, { x: x1, y: y2, w: dx, h: -dy, flipV: true, line: { color: '4338CA', width: 2.5 } });
+    } else {
+      slide.addShape(pres.ShapeType.line, { x: x1, y: y1, w: dx, h: dy, line: { color: '4338CA', width: 2.5 } });
+    }
+  }
+
+  pts.forEach(pt => {
+    const cx = scaleX(pt.x);
+    const cy = scaleY(pt.y);
+    slide.addShape(pres.ShapeType.ellipse, {
+      x: cx - 0.04, y: cy - 0.04, w: 0.08, h: 0.08,
+      fill: { color: '4338CA' }, line: { color: 'FFFFFF', width: 1 }
+    });
+  });
+
+  slide.addText(vd.xLabel || 'x', { x: pX, y: bY + 0.28, w: pW, h: 0.22, fontSize: 9, bold: true, color: '1E293B', align: 'center' });
+  slide.addText(vd.yLabel || 'y', { x: x - 0.15, y: y + 0.15, w: 1.4, h: 0.22, fontSize: 8, bold: true, color: '1E293B', align: 'left' });
+}
+
 export function addHeader(slide, title, timer, pres) {
   slide.background = { color: COLOR_BG };
   slide.addShape(pres.ShapeType.rect, { x: 0, y: 0, w: '100%', h: 0.85, fill: { color: COLOR_PURPLE } });
@@ -378,7 +524,7 @@ export function addHeader(slide, title, timer, pres) {
 export function addProblemContent(slide, ex, pres) {
   const qText = cleanQuestionText(ex.question || ex.text || 'Solve the problem.');
   const vd = ex.visualData;
-  const hasVisual = vd && (vd.type === 'transversal' || vd.type === 'triangle-angles' || vd.type === 'similar-triangles');
+  const hasVisual = vd && (vd.type === 'transversal' || vd.type === 'triangle-angles' || vd.type === 'similar-triangles' || vd.type === 'line-graph' || vd.type === 'distance-time');
   const options = ex.options && Array.isArray(ex.options) ? ex.options.slice(0, 4) : [];
 
   if (hasVisual) {
@@ -389,6 +535,10 @@ export function addProblemContent(slide, ex, pres) {
       renderTriangleNative(slide, vd, pres, { x: 0.7, y: 1.15, w: 4.2, h: 3.9 });
     } else if (vd.type === 'similar-triangles') {
       renderSimilarTrianglesNative(slide, vd, pres, { x: 0.7, y: 1.15, w: 4.2, h: 3.9 });
+    } else if (vd.type === 'line-graph') {
+      renderLineGraphNative(slide, vd, pres, { x: 0.7, y: 1.15, w: 4.2, h: 3.9 });
+    } else if (vd.type === 'distance-time') {
+      renderDistanceTimeNative(slide, pres, { x: 0.7, y: 1.15, w: 4.2, h: 3.9 });
     }
 
     // Question card on top right
@@ -833,6 +983,24 @@ export function buildPlanPptx(pres, p, weekPlans, shoutouts = {}) {
         }
       }
 
+      // Handle Launch with Distance-Time graph
+      if (titleLower.includes('launch') && (block.includes("Maya's trip") || block.toLowerCase().includes('segment a'))) {
+        const s = pres.addSlide();
+        addHeader(s, `Direct Instruction: ${title}`, null, pres);
+        renderDistanceTimeNative(s, pres, { x: 0.7, y: 1.15, w: 4.2, h: 3.9 });
+
+        s.addShape(pres.ShapeType.roundRect, {
+          x: 5.05, y: 1.15, w: 4.35, h: 3.9,
+          fill: { color: 'F8FAFC' }, line: { color: COLOR_BORDER, width: 1.2 }
+        });
+        const cleanContent = cleanMathText(block, true);
+        s.addText(cleanContent, {
+          x: 5.2, y: 1.3, w: 4.05, h: 3.6,
+          fontSize: 10.5, color: COLOR_SLATE, valign: 'top', lineSpacing: 16
+        });
+        return;
+      }
+
       // Default DI slide
       const s = pres.addSlide();
       addHeader(s, `Direct Instruction: ${title}`, null, pres);
@@ -854,20 +1022,39 @@ export function buildPlanPptx(pres, p, weekPlans, shoutouts = {}) {
     const s = pres.addSlide();
     addHeader(s, '7. Formative Assessment #1 (CFU)', '2:00', pres);
     const cfu = (p.checks_for_understanding && p.checks_for_understanding[0]?.cfu) || 'Turn and Talk';
-    s.addShape(pres.ShapeType.roundRect, {
-      x: 0.8, y: 1.3, w: 8.4, h: 3.7,
-      fill: { color: 'F0FDFA' }, line: { color: COLOR_TEAL, width: 2 }
-    });
-    s.addText('Check for Understanding:', {
-      x: 1.2, y: 1.5, w: 7.6, h: 0.4,
-      fontSize: 16, bold: true, color: COLOR_TEAL
-    });
     const cfuClean = cleanMathText(cfu);
-    const cfuFont = cfuClean.length > 150 ? 13.5 : (cfuClean.length > 90 ? 15 : 18);
-    s.addText(cfuClean, {
-      x: 1.2, y: 2.0, w: 7.6, h: 2.7,
-      fontSize: cfuFont, bold: true, color: COLOR_SLATE, valign: 'top', lineSpacing: 22
-    });
+    const isMayaOrSegment = cfuClean.toLowerCase().includes('segment') || cfuClean.toLowerCase().includes('maya') || (p.topic && (p.topic.includes('5.5') || p.topic.includes('U5 L5')));
+
+    if (isMayaOrSegment) {
+      renderDistanceTimeNative(s, pres, { x: 0.7, y: 1.15, w: 4.2, h: 3.9 });
+
+      s.addShape(pres.ShapeType.roundRect, {
+        x: 5.05, y: 1.15, w: 4.35, h: 3.9,
+        fill: { color: 'F0FDFA' }, line: { color: COLOR_TEAL, width: 2 }
+      });
+      s.addText('Check for Understanding (Turn & Talk):', {
+        x: 5.2, y: 1.35, w: 4.05, h: 0.4,
+        fontSize: 14, bold: true, color: COLOR_TEAL
+      });
+      s.addText(cfuClean, {
+        x: 5.2, y: 1.85, w: 4.05, h: 3.0,
+        fontSize: 15, bold: true, color: COLOR_SLATE, valign: 'top', lineSpacing: 22
+      });
+    } else {
+      s.addShape(pres.ShapeType.roundRect, {
+        x: 0.8, y: 1.3, w: 8.4, h: 3.7,
+        fill: { color: 'F0FDFA' }, line: { color: COLOR_TEAL, width: 2 }
+      });
+      s.addText('Check for Understanding:', {
+        x: 1.2, y: 1.5, w: 7.6, h: 0.4,
+        fontSize: 16, bold: true, color: COLOR_TEAL
+      });
+      const cfuFont = cfuClean.length > 150 ? 13.5 : (cfuClean.length > 90 ? 15 : 18);
+      s.addText(cfuClean, {
+        x: 1.2, y: 2.0, w: 7.6, h: 2.7,
+        fontSize: cfuFont, bold: true, color: COLOR_SLATE, valign: 'top', lineSpacing: 22
+      });
+    }
   }
 
   // 8. Guided Practice Problems (indices 0 and 1)
