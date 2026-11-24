@@ -581,6 +581,69 @@ const LessonPlanViewer = ({ plan, weekPlans, viewerPin, adminName }) => {
       '</div>';
     }
 
+    if (ex.visualData && ex.visualData.type === 'line-graph') {
+      const v = ex.visualData;
+      const pts = v.points || [];
+      const svgW = 460;
+      const svgH = 240;
+      const padL = 60;
+      const padR = 25;
+      const padT = 25;
+      const padB = 40;
+
+      const xVals = pts.map(p => p.x);
+      const yVals = pts.map(p => p.y);
+      const minX = Math.min(...xVals);
+      const maxX = Math.max(...xVals);
+      const minY = v.yMin !== undefined ? v.yMin : Math.floor(Math.min(...yVals));
+      const maxY = v.yMax !== undefined ? v.yMax : Math.ceil(Math.max(...yVals));
+
+      const scaleX = (x) => padL + ((x - minX) / (maxX - minX || 1)) * (svgW - padL - padR);
+      const scaleY = (y) => (svgH - padB) - ((y - minY) / (maxY - minY || 1)) * (svgH - padT - padB);
+
+      let grid = '';
+      // Vertical grid lines
+      xVals.forEach((x, i) => {
+        if (i % (xVals.length > 12 ? 2 : 1) === 0) {
+          const px = scaleX(x);
+          grid += '<line x1="' + px + '" y1="' + padT + '" x2="' + px + '" y2="' + (svgH - padB) + '" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 3"/>';
+          grid += '<text x="' + px + '" y="' + (svgH - padB + 16) + '" fill="#64748b" font-size="11" font-weight="600" text-anchor="middle">' + x + '</text>';
+        }
+      });
+      // Horizontal grid lines
+      const ySteps = 5;
+      const yDiff = maxY - minY || 1;
+      const yInc = Math.max(1, Math.round(yDiff / ySteps));
+      for (let y = minY; y <= maxY; y += yInc) {
+        const py = scaleY(y);
+        grid += '<line x1="' + padL + '" y1="' + py + '" x2="' + (svgW - padR) + '" y2="' + py + '" stroke="#e2e8f0" stroke-width="1"/>';
+        const yDisplay = y >= 1000 ? (y / 1000) + 'k' : y;
+        grid += '<text x="' + (padL - 8) + '" y="' + (py + 4) + '" fill="#64748b" font-size="11" font-weight="600" text-anchor="end">' + yDisplay + '</text>';
+      }
+
+      // Polyline path
+      const pathD = pts.map((p, i) => (i === 0 ? 'M' : 'L') + ' ' + scaleX(p.x).toFixed(1) + ' ' + scaleY(p.y).toFixed(1)).join(' ');
+
+      // Data dots
+      const dots = pts.map(p => {
+        const cx = scaleX(p.x).toFixed(1);
+        const cy = scaleY(p.y).toFixed(1);
+        return '<circle cx="' + cx + '" cy="' + cy + '" r="4.5" fill="#4338ca" stroke="#ffffff" stroke-width="1.5"/>';
+      }).join('');
+
+      html += '<div style="margin: 14px auto; display: flex; justify-content: center; width: 100%; max-width: 500px;">' +
+        '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" width="100%" height="auto" style="background: white; border-radius: 8px; border: 1.5px solid #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">' +
+          grid +
+          '<line x1="' + padL + '" y1="' + (svgH - padB) + '" x2="' + (svgW - padR) + '" y2="' + (svgH - padB) + '" stroke="#1e293b" stroke-width="2"/>' +
+          '<line x1="' + padL + '" y1="' + (svgH - padB) + '" x2="' + padL + '" y2="' + padT + '" stroke="#1e293b" stroke-width="2"/>' +
+          '<path d="' + pathD + '" fill="none" stroke="#4338ca" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' +
+          dots +
+          '<text x="' + ((padL + svgW - padR) / 2) + '" y="' + (svgH - 8) + '" fill="#1e293b" font-size="12" font-weight="700" text-anchor="middle">' + (v.xLabel || 'x') + '</text>' +
+          '<text x="14" y="' + ((padT + svgH - padB) / 2) + '" fill="#1e293b" font-size="12" font-weight="700" text-anchor="middle" transform="rotate(-90 14 ' + ((padT + svgH - padB) / 2) + ')">' + (v.yLabel || 'y') + '</text>' +
+        '</svg>' +
+      '</div>';
+    }
+
     if (ex.visualData && ex.visualData.type === 'scatter-plot') {
       const v = ex.visualData;
       const pts = v.points || [];
